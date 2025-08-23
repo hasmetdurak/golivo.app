@@ -1,5 +1,5 @@
 const BASE_URL = 'https://apiv3.apifootball.com';
-const API_KEY = '5876c0b9b6e02c82b8c1c22dd22b75f80b3ba0a3a73a6b6b07bf0a87b8bbce9e';
+const API_KEY = '47746f324863a1c7321a4b137847eba9e647469c8eacced9ca6175bbbadf5c2d';
 
 // League ID mappings for major leagues
 const LEAGUE_IDS = {
@@ -476,7 +476,9 @@ export const FootballApi = {
         url += `&league_id=${LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]}`;
       }
       
-      console.log('Fetching from API:', url);
+      console.log('🔥 API İsteği:', url);
+      console.log('📅 Tarih aralığı:', today, 'dan', tomorrow, 'a kadar');
+      
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -484,20 +486,31 @@ export const FootballApi = {
       }
       
       const data: ApiMatch[] = await response.json();
-      console.log('API Response:', data);
+      console.log('📊 API Yanıtı:', data.length, 'maç bulundu');
+      console.log('🎯 İlk 3 maç örneği:', data.slice(0, 3));
       
       if (!Array.isArray(data)) {
-        console.warn('API returned non-array data:', data);
+        console.warn('⚠️ API array olmayan veri döndürdü:', data);
         return [];
       }
       
       const transformedMatches = data.map(transformApiMatch).filter(match => match !== null);
-      console.log('Transformed matches:', transformedMatches);
+      console.log('✅ Dönüştürülen maçlar:', transformedMatches.length);
       
       return transformedMatches;
       
     } catch (error) {
-      console.error('Error fetching matches:', error);
+      console.error('❌ Maç çekme hatası:', error);
+      console.error('📍 API URL:', url);
+      console.error('🔍 Hata detayı:', error instanceof Error ? error.message : 'Bilinmeyen hata');
+      
+      // İnternet bağlantısı kontrol et
+      if (!navigator.onLine) {
+        console.error('🌐 İnternet bağlantısı yok!');
+      }
+      
+      // Return demo data with Turkish messages
+      console.log('🎭 Demo veriler yükleniyor...');
       // Return some demo data so site isn't completely empty
       return [
         {
@@ -546,6 +559,11 @@ export const FootballApi = {
               team: 'home' as const,
               icon: '⚽'
             }
+          ],
+          statistics: [
+            { type: 'Topa Sahip Olma', home: '65', away: '35', homePercent: 65, awayPercent: 35 },
+            { type: 'Şutlar', home: '12', away: '8', homePercent: 60, awayPercent: 40 },
+            { type: 'İsabetli Şutlar', home: '5', away: '3', homePercent: 62.5, awayPercent: 37.5 }
           ]
         },
         {
@@ -554,6 +572,9 @@ export const FootballApi = {
           country: 'SPAIN LA LIGA',
           status: 'finished',
           time: '18:00',
+          venue: 'Camp Nou',
+          referee: 'Carlos del Cerro',
+          round: '3',
           homeTeam: {
             name: 'Barcelona',
             logo: 'https://via.placeholder.com/40x40/004D98/FFFFFF?text=BAR'
@@ -564,6 +585,7 @@ export const FootballApi = {
           },
           homeScore: 3,
           awayScore: 2,
+          halftimeScore: { home: 1, away: 1 },
           events: [
             {
               type: 'Goal' as const,
@@ -607,47 +629,32 @@ export const FootballApi = {
               team: 'away' as const,
               icon: '⚽'
             }
+          ],
+          statistics: [
+            { type: 'Topa Sahip Olma', home: '58', away: '42', homePercent: 58, awayPercent: 42 },
+            { type: 'Şutlar', home: '15', away: '9', homePercent: 62.5, awayPercent: 37.5 },
+            { type: 'Kornerler', home: '7', away: '3', homePercent: 70, awayPercent: 30 }
           ]
         },
         {
           id: '3',
-          league: 'Russian Premier League',
-          country: 'RUSSIA PREMIER LEAGUE',
-          status: 'finished',
-          time: '14:00',
+          league: 'German Bundesliga',
+          country: 'GERMANY BUNDESLIGA',
+          status: 'scheduled',
+          time: '20:30',
+          venue: 'Allianz Arena',
+          round: '2',
           homeTeam: {
-            name: 'Rubin Kazan',
-            logo: 'https://via.placeholder.com/40x40/00FF00/FFFFFF?text=RK'
+            name: 'Bayern Munich',
+            logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=FCB'
           },
           awayTeam: {
-            name: 'Spartak Moscow',
-            logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=SM'
+            name: 'Borussia Dortmund',
+            logo: 'https://via.placeholder.com/40x40/FFFF00/000000?text=BVB'
           },
           homeScore: 0,
-          awayScore: 2,
-          events: [
-            {
-              type: 'Yellow Card' as const,
-              minute: "35'",
-              player: 'Jocic',
-              team: 'home' as const,
-              icon: '🟨'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "57'",
-              player: 'Solari',
-              team: 'away' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "73'",
-              player: 'Martins',
-              team: 'away' as const,
-              icon: '⚽'
-            }
-          ]
+          awayScore: 0,
+          events: []
         }
       ];
     }
