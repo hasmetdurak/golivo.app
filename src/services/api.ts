@@ -49,6 +49,10 @@ const LEAGUE_ID_TO_NAME: Record<string, string> = {
   '288': 'Lithuanian A Lyga',
   '289': 'Belarusian Premier League',
   '290': 'Moldovan National Division',
+  '134': 'Czech Republic First League',
+  '181': 'Ukrainian Premier League',
+  '262': 'Polish Ekstraklasa',
+  '295': 'Cyprus First Division',
   '295': 'Cyprus First Division',
   '296': 'Malta Premier League',
   '297': 'Gibraltar National League',
@@ -301,6 +305,25 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
         if (leagueName.includes('super') || leagueName.includes('süper')) {
           detectedLeague = 'Turkish Super League';
         }
+      } else if (country.includes('belarus') || country.includes('belarus')) {
+        if (leagueName.includes('vysshaya') || leagueName.includes('premier') || leagueName.includes('vysheyshaya')) {
+          detectedLeague = 'Belarus Premier League';
+        }
+      } else if (country.includes('czech') || country.includes('czechia')) {
+        if (leagueName.includes('liga') || leagueName.includes('fortuna')) {
+          detectedLeague = 'Czech Republic First League';
+        }
+      } else if (country.includes('ukraine') || country.includes('ukrayna')) {
+        if (leagueName.includes('premier') || leagueName.includes('перша')) {
+          detectedLeague = 'Ukraine Premier League';
+        }
+      } else if (country.includes('poland') || country.includes('polonya')) {
+        if (leagueName.includes('ekstraklasa')) {
+          detectedLeague = 'Poland Ekstraklasa';
+        }
+      } else {
+        // Eğer belirli bir ülke/lig eşleşmesi yoksa orijinal lig adını kullan
+        detectedLeague = apiMatch.league_name || 'Unknown League';
       }
       console.log(`Country Match: Country="${country}" + League="${leagueName}" -> ${detectedLeague}`);
     }

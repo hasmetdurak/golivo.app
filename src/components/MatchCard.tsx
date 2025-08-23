@@ -43,7 +43,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
     >
       
       {/* Status Header */}
-      <div className={`px-4 py-2 border-b flex items-center justify-between ${
+      <div className={`px-3 py-1.5 border-b flex items-center justify-between ${
         isLive 
           ? 'bg-red-500 border-red-600' 
           : isFinished 
@@ -70,16 +70,16 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
         )}
       </div>
       
-      <div className="px-4 py-4">
+      <div className="px-3 py-3">
         {/* Teams Side by Side */}
         <div className="flex items-center justify-between space-x-4">
           {/* Home Team */}
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <div className="flex items-center space-x-2 flex-1 min-w-0">
             <div className="relative">
               <img 
                 src={match.homeTeam.logo} 
                 alt={match.homeTeam.name}
-                className="w-10 h-10 object-contain rounded-lg bg-white shadow-sm p-1"
+                className="w-8 h-8 object-contain rounded-lg bg-white shadow-sm p-0.5"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H';
                 }}
@@ -94,15 +94,15 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
           </div>
           
           {/* Score Display */}
-          <div className="flex items-center space-x-3 px-4">
-            <div className={`text-2xl font-bold ${
+          <div className="flex items-center space-x-2 px-3">
+            <div className={`text-xl font-bold ${
               isLive ? 'text-red-600' : 
               isFinished ? 'text-gray-700' : 'text-gray-400'
             }`}>
               {isScheduled ? '-' : match.homeScore}
             </div>
             <div className="text-gray-400 font-medium">:</div>
-            <div className={`text-2xl font-bold ${
+            <div className={`text-xl font-bold ${
               isLive ? 'text-red-600' : 
               isFinished ? 'text-gray-700' : 'text-gray-400'
             }`}>
@@ -111,7 +111,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
           </div>
           
           {/* Away Team */}
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <div className="flex items-center space-x-2 flex-1 min-w-0">
             <div className="flex-1 min-w-0 text-right">
               <div className="font-semibold text-gray-900 text-sm truncate">
                 {match.awayTeam.name}
@@ -122,7 +122,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
               <img 
                 src={match.awayTeam.logo} 
                 alt={match.awayTeam.name}
-                className="w-10 h-10 object-contain rounded-lg bg-white shadow-sm p-1"
+                className="w-8 h-8 object-contain rounded-lg bg-white shadow-sm p-0.5"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A';
                 }}

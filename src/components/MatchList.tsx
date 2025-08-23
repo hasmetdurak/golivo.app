@@ -310,7 +310,7 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
         
         return (
           <div key={league} className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border ${colors.border}`}>
-            <div className={`${colors.bg} px-4 sm:px-6 py-3 sm:py-4 border-b ${colors.border}`}>
+            <div className={`${colors.bg} px-3 sm:px-4 py-2 sm:py-3 border-b ${colors.border}`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center space-x-3">
                   <div className={`p-1.5 sm:p-2 ${colors.icon} rounded-lg`}>
@@ -337,8 +337,8 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
               </div>
             </div>
             
-            <div className="p-3 sm:p-4">
-              <div className="grid gap-3 sm:gap-4">
+            <div className="p-2 sm:p-3">
+              <div className="grid gap-2 sm:gap-3">
                 {leagueMatches.map((match: any, index: number) => (
                   <MatchCard 
                     key={match.id || index} 
