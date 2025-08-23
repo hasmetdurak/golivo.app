@@ -33,15 +33,15 @@ function App() {
         onDateChange={setSelectedDate}
       />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="mb-6">
           <LeagueTabs 
             selectedLeague={selectedLeague}
             onLeagueSelect={setSelectedLeague}
           />
         </div>
         
-        <div className="space-y-6">
+        <div className="space-y-4">
           <MatchList 
             matches={liveMatches}
             loading={loading}
