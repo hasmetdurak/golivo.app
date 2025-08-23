@@ -28,6 +28,29 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     return acc;
   }, {} as Record<string, any[]>);
 
+  // Sort matches within each league: live matches first, then by time
+  Object.keys(groupedMatches).forEach(league => {
+    groupedMatches[league].sort((a: any, b: any) => {
+      // Live matches first
+      if (a.status === 'live' && b.status !== 'live') return -1;
+      if (b.status === 'live' && a.status !== 'live') return 1;
+      
+      // Then by time
+      return a.time.localeCompare(b.time);
+    });
+  });
+
+  // League to country mapping
+  const leagueCountryMap: Record<string, string> = {
+    'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 England',
+    'Champions League': '🇪🇺 Europe',
+    'La Liga': '🇪🇸 Spain',
+    'Serie A': '🇮🇹 Italy',
+    'Bundesliga': '🇩🇪 Germany',
+    'Ligue 1': '🇫🇷 France',
+    'Turkish Super League': '🇹🇷 Turkey'
+  };
+
   // Sort leagues by priority (popular leagues first)
   const leaguePriority = {
     'Premier League': 1,
@@ -108,7 +131,12 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
                     <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-semibold text-gray-800">{league}</h2>
+                    <div className="flex items-center space-x-2">
+                      <h2 className="text-base sm:text-lg font-semibold text-gray-800">{league}</h2>
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+                        {leagueCountryMap[league] || '🌍 International'}
+                      </span>
+                    </div>
                     <p className="text-gray-500 text-xs font-medium">Today's Fixtures</p>
                   </div>
                 </div>

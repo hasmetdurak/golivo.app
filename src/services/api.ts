@@ -38,6 +38,7 @@ interface ApiMatch {
 interface Match {
   id: string;
   league: string;
+  country?: string;
   status: string;
   minute?: string;
   time: string;
@@ -81,6 +82,7 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
   return {
     id: apiMatch.match_id,
     league: apiMatch.league_name,
+    country: apiMatch.country_name,
     status,
     minute,
     time: apiMatch.match_time,

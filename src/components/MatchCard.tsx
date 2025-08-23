@@ -50,8 +50,8 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
               </div>
             )}
             {isScheduled && (
-              <div className="bg-blue-600 px-2 py-1 rounded-lg">
-                <span className="text-xs font-semibold text-white">VS</span>
+              <div className="bg-gray-100 px-2 py-1 rounded-lg">
+                <span className="text-xs font-semibold text-gray-600">{getMatchTime()}</span>
               </div>
             )}
           </div>

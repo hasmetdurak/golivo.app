@@ -2,6 +2,7 @@ export const mockMatches = [
   {
     id: '1',
     league: 'Premier League',
+    country: 'England',
     status: 'live',
     minute: '67',
     time: '15:00',
@@ -24,6 +25,7 @@ export const mockMatches = [
   {
     id: '2', 
     league: 'Premier League',
+    country: 'England',
     status: 'live',
     minute: '34',
     time: '17:30',
@@ -44,6 +46,7 @@ export const mockMatches = [
   {
     id: '3',
     league: 'La Liga',
+    country: 'Spain',
     status: 'finished',
     minute: '90',
     time: '21:00',
@@ -66,6 +69,7 @@ export const mockMatches = [
   {
     id: '4',
     league: 'Bundesliga',
+    country: 'Germany',
     status: 'live',
     minute: '12',
     time: '18:30',
@@ -84,6 +88,7 @@ export const mockMatches = [
   {
     id: '5',
     league: 'Serie A',
+    country: 'Italy',
     status: 'finished',
     minute: '90',
     time: '20:45',
