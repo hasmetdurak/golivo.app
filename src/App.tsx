@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
-import { LeagueTabs } from './components/LeagueTabs';
 import { MatchList } from './components/MatchList';
 import { FootballApi } from './services/api';
 
@@ -12,13 +11,13 @@ function App() {
 
   useEffect(() => {
     fetchLiveMatches();
-  }, [selectedLeague, selectedDate]);
+  }, [selectedDate]);
 
   const fetchLiveMatches = async () => {
     setLoading(true);
     try {
-      console.log('Fetching matches for league:', selectedLeague, 'date:', selectedDate);
-      const matches = await FootballApi.getLiveMatches(selectedLeague);
+      console.log('Fetching all matches for date:', selectedDate);
+      const matches = await FootballApi.getLiveMatches('all');
       console.log('Received matches:', matches.length);
       setLiveMatches(matches);
     } catch (error) {
@@ -37,13 +36,6 @@ function App() {
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="mb-6">
-          <LeagueTabs 
-            selectedLeague={selectedLeague}
-            onLeagueSelect={setSelectedLeague}
-          />
-        </div>
-        
         <div className="space-y-4">
           <MatchList 
             matches={liveMatches}
