@@ -17,8 +17,8 @@ function App() {
 
   useEffect(() => {
     console.log('App mounting, fetching matches...');
-    // Initialize geo-redirect system
-    initGeoRedirect();
+    // Initialize geo-redirect system (disabled temporarily for SSL setup)
+    // initGeoRedirect();
     fetchLiveMatches();
   }, [selectedDate]);
 
