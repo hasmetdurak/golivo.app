@@ -144,32 +144,77 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
           </div>
         )}
         
-        {/* Match Events Timeline - Compact */}
+        {/* Match Events Timeline - Two Column Layout */}
         {match.events && match.events.length > 0 && (
-          <div className="mt-3 space-y-1">
-            {match.events.map((event: any, index: number) => (
-              <div 
-                key={index}
-                className={`flex items-center justify-between px-2 py-1 rounded text-xs ${{
-                  'Goal': 'bg-green-50 text-green-700',
-                  'Yellow Card': 'bg-yellow-50 text-yellow-700', 
-                  'Red Card': 'bg-red-50 text-red-700'
-                }[event.type] || 'bg-gray-50 text-gray-700'}`}
-              >
-                <div className="flex items-center space-x-2">
-                  <span>{event.icon}</span>
-                  <span className="font-bold">{event.minute}</span>
-                  <span className="truncate">
-                    {event.player.split(' ').slice(-1)[0]}
-                  </span>
+          <div className="mt-3 border-t pt-3">
+            <div className="text-xs text-gray-500 mb-3 font-medium text-center">Maç Olayları</div>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Home Team Events */}
+              <div className="space-y-1">
+                <div className="text-xs text-gray-400 font-medium text-center">Ev Sahibi</div>
+                <div className="space-y-1">
+                  {match.events.filter((event: any) => event.team === 'home').map((event: any, index: number) => (
+                    <div 
+                      key={index}
+                      className={`flex items-center space-x-2 px-2 py-1 rounded text-xs ${
+                        event.type === 'Goal' 
+                          ? 'bg-green-50 text-green-700 border border-green-200'
+                          : event.type === 'Yellow Card'
+                          ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                          : event.type === 'Red Card'
+                          ? 'bg-red-50 text-red-700 border border-red-200'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+                      }`}
+                    >
+                      <span className="text-xs">{event.icon}</span>
+                      <span className="text-xs font-bold">{event.minute}</span>
+                      <span 
+                        className="text-xs truncate flex-1 text-blue-600"
+                        title={event.player}
+                      >
+                        {event.player.split(' ').slice(-1)[0]}
+                      </span>
+                    </div>
+                  ))}
+                  {match.events.filter((event: any) => event.team === 'home').length === 0 && (
+                    <div className="text-xs text-gray-400 italic text-center py-2">Olay yok</div>
+                  )}
                 </div>
-                <span className={`text-xs px-1 rounded ${
-                  event.team === 'home' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
-                }`}>
-                  {event.team === 'home' ? 'EV' : 'DEP'}
-                </span>
               </div>
-            ))}
+              
+              {/* Away Team Events */}
+              <div className="space-y-1">
+                <div className="text-xs text-gray-400 font-medium text-center">Deplasman</div>
+                <div className="space-y-1">
+                  {match.events.filter((event: any) => event.team === 'away').map((event: any, index: number) => (
+                    <div 
+                      key={index}
+                      className={`flex items-center space-x-2 px-2 py-1 rounded text-xs ${
+                        event.type === 'Goal' 
+                          ? 'bg-green-50 text-green-700 border border-green-200'
+                          : event.type === 'Yellow Card'
+                          ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                          : event.type === 'Red Card'
+                          ? 'bg-red-50 text-red-700 border border-red-200'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+                      }`}
+                    >
+                      <span className="text-xs">{event.icon}</span>
+                      <span className="text-xs font-bold">{event.minute}</span>
+                      <span 
+                        className="text-xs truncate flex-1 text-purple-600"
+                        title={event.player}
+                      >
+                        {event.player.split(' ').slice(-1)[0]}
+                      </span>
+                    </div>
+                  ))}
+                  {match.events.filter((event: any) => event.team === 'away').length === 0 && (
+                    <div className="text-xs text-gray-400 italic text-center py-2">Olay yok</div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
