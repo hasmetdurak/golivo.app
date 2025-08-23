@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MatchCard } from './MatchCard';
 import { LoadingSpinner } from './LoadingSpinner';
 import { MatchDetailsModal } from './MatchDetailsModal';
-import { Trophy, Calendar, Activity, Clock } from 'lucide-react';
+import { Calendar, Activity, Clock } from 'lucide-react';
 
 interface MatchListProps {
   matches: any[];
@@ -123,6 +123,53 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'San Marino Championship': 40,
     'Faroe Islands Premier League': 41,
     'Luxembourg National Division': 42
+  };
+
+  // League to country flag mapping
+  const leagueCountryFlags: Record<string, string> = {
+    'CHAMPIONS LEAGUE': '🇪🇺',
+    'UEFA Champions League': '🇪🇺',
+    'ENGLAND PREMIER LEAGUE': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'SPAIN LA LIGA': '🇪🇸',
+    'GERMANY BUNDESLIGA': '🇩🇪',
+    'AUSTRIA BUNDESLIGA': '🇦🇹',
+    'ITALY SERIE A': '🇮🇹',
+    'FRANCE LIGUE 1': '🇫🇷',
+    'NETHERLANDS EREDIVISIE': '🇳🇱',
+    'PORTUGAL PRIMEIRA LIGA': '🇵🇹',
+    'BELGIUM PRO LEAGUE': '🇧🇪',
+    'TURKEY SUPER LEAGUE': '🇹🇷',
+    'RUSSIA PREMIER LEAGUE': '🇷🇺',
+    'USA MLS': '🇺🇸',
+    'BRAZIL BRASILEIRAO': '🇧🇷',
+    'ARGENTINA PRIMERA': '🇦🇷',
+    'MEXICO LIGA MX': '🇲🇽',
+    'SAUDI PRO LEAGUE': '🇸🇦',
+    'SCOTLAND PREMIERSHIP': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    'SWITZERLAND SUPER LEAGUE': '🇨🇭',
+    'UKRAINE PREMIER LEAGUE': '🇺🇦',
+    'POLAND EKSTRAKLASA': '🇵🇱',
+    'CZECH REPUBLIC FIRST LEAGUE': '🇨🇿',
+    'CROATIA FIRST LEAGUE': '🇭🇷',
+    'SERBIA SUPER LIGA': '🇷🇸',
+    'GREECE SUPER LEAGUE': '🇬🇷',
+    'BULGARIA FIRST LEAGUE': '🇧🇬',
+    'ROMANIA LIGA 1': '🇷🇴',
+    'SLOVENIA PRVA LIGA': '🇸🇮',
+    'SLOVAKIA SUPER LIGA': '🇸🇰',
+    'HUNGARY NB I': '🇭🇺',
+    'ESTONIA MEISTRILIIGA': '🇪🇪',
+    'LATVIA VIRSLIGA': '🇱🇻',
+    'LITHUANIA A LYGA': '🇱🇹',
+    'BELARUS PREMIER LEAGUE': '🇧🇾',
+    'MOLDOVA NATIONAL DIVISION': '🇲🇩',
+    'CYPRUS FIRST DIVISION': '🇨🇾',
+    'MALTA PREMIER LEAGUE': '🇲🇹',
+    'GIBRALTAR NATIONAL LEAGUE': '🇬🇮',
+    'ANDORRA FIRST DIVISION': '🇦🇩',
+    'SAN MARINO CHAMPIONSHIP': '🇸🇲',
+    'FAROE ISLANDS PREMIER LEAGUE': '🇫🇴',
+    'LUXEMBOURG NATIONAL DIVISION': '🇱🇺'
   };
 
   // League to country mapping with simplified naming
@@ -286,7 +333,7 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
           <div className="hidden sm:block w-px h-4 bg-gray-200"></div>
           <div className="flex items-center space-x-4 text-gray-600">
             <div className="flex items-center space-x-1">
-              <Trophy className="h-4 w-4 text-yellow-500" />
+              <span className="text-lg">🏆</span>
               <span className="text-sm font-medium">{leagues.length} Lig</span>
             </div>
             <div className="flex items-center space-x-1">
@@ -304,17 +351,18 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
         const finishedCount = leagueMatches.filter((match: any) => match.status === 'finished').length;
         const scheduledCount = leagueMatches.filter((match: any) => match.status !== 'live' && match.status !== 'finished').length;
         
-        // Get simplified league name and colors
+        // Get simplified league name, colors and flag
         const displayName = leagueCountryMap[league] || league.toUpperCase();
         const colors = leagueColorMap[displayName] || { bg: 'bg-gray-50', border: 'border-gray-200', icon: 'bg-gray-600' };
+        const countryFlag = leagueCountryFlags[displayName] || '🏆';
         
         return (
           <div key={league} className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border ${colors.border}`}>
             <div className={`${colors.bg} px-3 sm:px-4 py-2 sm:py-3 border-b ${colors.border}`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center space-x-3">
-                  <div className={`p-1.5 sm:p-2 ${colors.icon} rounded-lg`}>
-                    <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                  <div className={`p-1.5 sm:p-2 ${colors.icon} rounded-lg flex items-center justify-center`}>
+                    <span className="text-lg">{countryFlag}</span>
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
