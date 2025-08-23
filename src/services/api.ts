@@ -218,7 +218,7 @@ export const FootballApi = {
         {
           id: '1',
           league: 'Premier League',
-          country: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
+          country: 'ENGLAND PREMIER LEAGUE',
           status: 'live',
           minute: "67'",
           time: '15:00',
@@ -266,7 +266,7 @@ export const FootballApi = {
         {
           id: '2',
           league: 'La Liga',
-          country: '🇪🇸 İspanya',
+          country: 'SPAIN LA LIGA',
           status: 'finished',
           time: '18:00',
           homeTeam: {

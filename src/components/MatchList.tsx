@@ -97,48 +97,68 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'Saudi Pro League': 16
   };
 
-  // League to country mapping with more distinct naming
+  // League to country mapping with simplified naming
   const leagueCountryMap: Record<string, string> = {
-    'Champions League': '🇪🇺 Avrupa',
-    'UEFA Champions League': '🇪🇺 Avrupa',
-    'English Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
-    'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
-    'Spanish La Liga': '🇪🇸 İspanya',
-    'La Liga': '🇪🇸 İspanya',
-    'Spain La Liga': '🇪🇸 İspanya',
-    'German Bundesliga': '🇩🇪 Almanya',
-    'Bundesliga': '🇩🇪 Almanya',
-    'Germany Bundesliga': '🇩🇪 Almanya',
-    'Italian Serie A': '🇮🇹 İtalya',
-    'Serie A': '🇮🇹 İtalya',
-    'Italy Serie A': '🇮🇹 İtalya',
-    'French Ligue 1': '🇫🇷 Fransa',
-    'Ligue 1': '🇫🇷 Fransa',
-    'France Ligue 1': '🇫🇷 Fransa',
-    'Dutch Eredivisie': '🇳🇱 Hollanda',
-    'Eredivisie': '🇳🇱 Hollanda',
-    'Netherlands Eredivisie': '🇳🇱 Hollanda',
-    'Portuguese Primeira Liga': '🇵🇹 Portekiz',
-    'Primeira Liga': '🇵🇹 Portekiz',
-    'Portugal Premier League': '🇵🇹 Portekiz',
-    'Belgian Pro League': '🇧🇪 Belçika',
-    'Pro League': '🇧🇪 Belçika',
-    'Belgium Pro League': '🇧🇪 Belçika',
-    'Turkish Super League': '🇹🇷 Türkiye',
-    'Süper Lig': '🇹🇷 Türkiye',
-    'Russian Premier League': '🇷🇺 Rusya',
-    'Russia Premier League': '🇷🇺 Rusya',
-    'Premier Liga': '🇷🇺 Rusya',
-    'American MLS': '🇺🇸 Amerika',
-    'MLS': '🇺🇸 Amerika',
-    'Major League Soccer': '🇺🇸 Amerika',
-    'Brazilian Brasileirão': '🇧🇷 Brezilya',
-    'Brasileirão': '🇧🇷 Brezilya',
-    'Brazil Serie A': '🇧🇷 Brezilya',
-    'Argentine Primera División': '🇦🇷 Arjantin',
-    'Mexican Liga MX': '🇲🇽 Meksika',
-    'Liga MX': '🇲🇽 Meksika',
-    'Saudi Pro League': '🇸🇦 Suudi Arabistan'
+    'Champions League': 'CHAMPIONS LEAGUE',
+    'UEFA Champions League': 'CHAMPIONS LEAGUE',
+    'English Premier League': 'ENGLAND PREMIER LEAGUE',
+    'Premier League': 'ENGLAND PREMIER LEAGUE',
+    'Spanish La Liga': 'SPAIN LA LIGA',
+    'La Liga': 'SPAIN LA LIGA',
+    'Spain La Liga': 'SPAIN LA LIGA',
+    'German Bundesliga': 'GERMANY BUNDESLIGA',
+    'Bundesliga': 'GERMANY BUNDESLIGA',
+    'Germany Bundesliga': 'GERMANY BUNDESLIGA',
+    'Italian Serie A': 'ITALY SERIE A',
+    'Serie A': 'ITALY SERIE A',
+    'Italy Serie A': 'ITALY SERIE A',
+    'French Ligue 1': 'FRANCE LIGUE 1',
+    'Ligue 1': 'FRANCE LIGUE 1',
+    'France Ligue 1': 'FRANCE LIGUE 1',
+    'Dutch Eredivisie': 'NETHERLANDS EREDIVISIE',
+    'Eredivisie': 'NETHERLANDS EREDIVISIE',
+    'Netherlands Eredivisie': 'NETHERLANDS EREDIVISIE',
+    'Portuguese Primeira Liga': 'PORTUGAL PRIMEIRA LIGA',
+    'Primeira Liga': 'PORTUGAL PRIMEIRA LIGA',
+    'Portugal Premier League': 'PORTUGAL PRIMEIRA LIGA',
+    'Belgian Pro League': 'BELGIUM PRO LEAGUE',
+    'Pro League': 'BELGIUM PRO LEAGUE',
+    'Belgium Pro League': 'BELGIUM PRO LEAGUE',
+    'Turkish Super League': 'TURKEY SUPER LEAGUE',
+    'Süper Lig': 'TURKEY SUPER LEAGUE',
+    'Russian Premier League': 'RUSSIA PREMIER LEAGUE',
+    'Russia Premier League': 'RUSSIA PREMIER LEAGUE',
+    'Premier Liga': 'RUSSIA PREMIER LEAGUE',
+    'American MLS': 'USA MLS',
+    'MLS': 'USA MLS',
+    'Major League Soccer': 'USA MLS',
+    'Brazilian Brasileirão': 'BRAZIL BRASILEIRAO',
+    'Brasileirão': 'BRAZIL BRASILEIRAO',
+    'Brazil Serie A': 'BRAZIL BRASILEIRAO',
+    'Argentine Primera División': 'ARGENTINA PRIMERA',
+    'Mexican Liga MX': 'MEXICO LIGA MX',
+    'Liga MX': 'MEXICO LIGA MX',
+    'Saudi Pro League': 'SAUDI PRO LEAGUE'
+  };
+
+  // League color mapping for visual distinction
+  const leagueColorMap: Record<string, { bg: string; border: string; icon: string }> = {
+    'CHAMPIONS LEAGUE': { bg: 'bg-purple-50', border: 'border-purple-200', icon: 'bg-purple-600' },
+    'ENGLAND PREMIER LEAGUE': { bg: 'bg-blue-50', border: 'border-blue-200', icon: 'bg-blue-600' },
+    'SPAIN LA LIGA': { bg: 'bg-red-50', border: 'border-red-200', icon: 'bg-red-600' },
+    'GERMANY BUNDESLIGA': { bg: 'bg-yellow-50', border: 'border-yellow-200', icon: 'bg-yellow-600' },
+    'ITALY SERIE A': { bg: 'bg-green-50', border: 'border-green-200', icon: 'bg-green-600' },
+    'FRANCE LIGUE 1': { bg: 'bg-indigo-50', border: 'border-indigo-200', icon: 'bg-indigo-600' },
+    'NETHERLANDS EREDIVISIE': { bg: 'bg-orange-50', border: 'border-orange-200', icon: 'bg-orange-600' },
+    'PORTUGAL PRIMEIRA LIGA': { bg: 'bg-teal-50', border: 'border-teal-200', icon: 'bg-teal-600' },
+    'BELGIUM PRO LEAGUE': { bg: 'bg-gray-50', border: 'border-gray-200', icon: 'bg-gray-600' },
+    'TURKEY SUPER LEAGUE': { bg: 'bg-rose-50', border: 'border-rose-200', icon: 'bg-rose-600' },
+    'RUSSIA PREMIER LEAGUE': { bg: 'bg-cyan-50', border: 'border-cyan-200', icon: 'bg-cyan-600' },
+    'USA MLS': { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: 'bg-emerald-600' },
+    'BRAZIL BRASILEIRAO': { bg: 'bg-lime-50', border: 'border-lime-200', icon: 'bg-lime-600' },
+    'ARGENTINA PRIMERA': { bg: 'bg-sky-50', border: 'border-sky-200', icon: 'bg-sky-600' },
+    'MEXICO LIGA MX': { bg: 'bg-pink-50', border: 'border-pink-200', icon: 'bg-pink-600' },
+    'SAUDI PRO LEAGUE': { bg: 'bg-amber-50', border: 'border-amber-200', icon: 'bg-amber-600' }
   };
 
   const leagues = Object.keys(groupedMatches).sort((a, b) => {
@@ -201,20 +221,21 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
         const finishedCount = leagueMatches.filter((match: any) => match.status === 'finished').length;
         const scheduledCount = leagueMatches.filter((match: any) => match.status !== 'live' && match.status !== 'finished').length;
         
+        // Get simplified league name and colors
+        const displayName = leagueCountryMap[league] || league.toUpperCase();
+        const colors = leagueColorMap[displayName] || { bg: 'bg-gray-50', border: 'border-gray-200', icon: 'bg-gray-600' };
+        
         return (
-          <div key={league} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border border-gray-100">
-            <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
+          <div key={league} className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border ${colors.border}`}>
+            <div className={`${colors.bg} px-4 sm:px-6 py-3 sm:py-4 border-b ${colors.border}`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center space-x-3">
-                  <div className="p-1.5 sm:p-2 bg-blue-600 rounded-lg">
+                  <div className={`p-1.5 sm:p-2 ${colors.icon} rounded-lg`}>
                     <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h2 className="text-base sm:text-lg font-semibold text-gray-800">{league}</h2>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
-                        {leagueCountryMap[league] || '🌍 International'}
-                      </span>
+                      <h2 className="text-base sm:text-lg font-semibold text-gray-800">{displayName}</h2>
                     </div>
                     <p className="text-gray-500 text-xs font-medium">Bugünkü Karşılaşmalar</p>
                   </div>

@@ -48,7 +48,9 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Maç Detayları</h2>
-                <p className="text-sm text-gray-500">{match.league}</p>
+                <p className="text-sm text-gray-500">
+                  {match.country?.replace(/🏴󠁧󠁢󠁥󠁮󠁧󠁿|🇪🇸|🇩🇪|🇮🇹|🇫🇷|🇳🇱|🇵🇹|🇧🇪|🇹🇷|🇷🇺|🇺🇸|🇧🇷|🇦🇷|🇲🇽|🇸🇦|🇪🇺/g, '').trim()} {match.league}
+                </p>
               </div>
             </div>
             <button
@@ -156,33 +158,6 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* League Info */}
-          <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{match.league}</h3>
-                <p className="text-sm text-gray-600">Lig Bilgisi</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-700">{match.country}</p>
-                <p className="text-xs text-gray-500">Ülke</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Stats (if available) */}
-          {match.status === 'live' && (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-6">
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <h3 className="text-lg font-semibold text-red-900">Canlı Bilgiler</h3>
-              </div>
-              <p className="text-sm text-red-700">
-                Bu maç şu anda canlı olarak oynanıyor. Skorlar gerçek zamanlı güncellenmektedir.
-              </p>
             </div>
           )}
         </div>
