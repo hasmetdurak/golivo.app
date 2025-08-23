@@ -11,10 +11,10 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   
   const getMatchTime = () => {
     if (isLive && match.minute) {
-      return `${match.minute} LIVE`;
+      return `${match.minute} CANLI`;
     }
     if (isFinished) {
-      return 'FT';
+      return 'MS'; // Maç Sonu
     }
     return match.time || '00:00';
   };
@@ -30,92 +30,113 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   };
   
   return (
-    <div className={`bg-white border-l-4 hover:shadow-sm transition-all duration-200 ${
+    <div className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 overflow-hidden ${
       isLive 
-        ? 'border-red-500 bg-red-50/30' 
+        ? 'border-red-200 bg-gradient-to-r from-red-50/50 to-white' 
         : isFinished 
-        ? 'border-gray-300' 
-        : 'border-blue-300'
+        ? 'border-gray-200 bg-gradient-to-r from-gray-50/30 to-white' 
+        : 'border-blue-200 bg-gradient-to-r from-blue-50/30 to-white'
     }`}>
       
-      <div className="px-4 py-3">
-        {/* Time and Status */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-gray-600">
+      {/* Status Header */}
+      <div className={`px-4 py-2 border-b flex items-center justify-between ${
+        isLive 
+          ? 'bg-red-500 border-red-600' 
+          : isFinished 
+          ? 'bg-gray-500 border-gray-600' 
+          : 'bg-blue-500 border-blue-600'
+      }`}>
+        <div className="flex items-center space-x-2">
+          <div className="text-white text-sm font-semibold">
             {getMatchTime()}
           </div>
           {isLive && (
-            <div className="flex items-center space-x-1 bg-red-600 px-2 py-1 rounded text-white">
-              <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
-              <span className="text-xs font-bold">LIVE</span>
+            <div className="flex items-center space-x-1">
+              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+              <span className="text-xs font-bold text-white">CANLI</span>
             </div>
           )}
         </div>
         
-        {/* Teams and Scores */}
-        <div className="space-y-2">
+        {/* Half Time Score */}
+        {getHalfTimeScore() && (
+          <span className="text-xs text-white/90 bg-white/20 px-2 py-1 rounded">
+            {getHalfTimeScore()}
+          </span>
+        )}
+      </div>
+      
+      <div className="px-4 py-4">
+        {/* Teams Side by Side */}
+        <div className="flex items-center justify-between space-x-4">
           {/* Home Team */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <div className="relative">
               <img 
                 src={match.homeTeam.logo} 
                 alt={match.homeTeam.name}
-                className="w-6 h-6 object-contain flex-shrink-0"
+                className="w-10 h-10 object-contain rounded-lg bg-white shadow-sm p-1"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/24x24/3B82F6/FFFFFF?text=H';
+                  e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H';
                 }}
               />
-              <span className="font-medium text-gray-900 text-sm truncate">
-                {match.homeTeam.name}
-              </span>
             </div>
-            <span className={`text-lg font-bold min-w-[20px] text-center ${
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-gray-900 text-sm truncate">
+                {match.homeTeam.name}
+              </div>
+              <div className="text-xs text-gray-500 truncate">Ev Sahibi</div>
+            </div>
+          </div>
+          
+          {/* Score Display */}
+          <div className="flex items-center space-x-3 px-4">
+            <div className={`text-2xl font-bold ${
               isLive ? 'text-red-600' : 
               isFinished ? 'text-gray-700' : 'text-gray-400'
             }`}>
               {isScheduled ? '-' : match.homeScore}
-            </span>
-          </div>
-          
-          {/* Away Team */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 flex-1 min-w-0">
-              <img 
-                src={match.awayTeam.logo} 
-                alt={match.awayTeam.name}
-                className="w-6 h-6 object-contain flex-shrink-0"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/24x24/3B82F6/FFFFFF?text=A';
-                }}
-              />
-              <span className="font-medium text-gray-900 text-sm truncate">
-                {match.awayTeam.name}
-              </span>
             </div>
-            <span className={`text-lg font-bold min-w-[20px] text-center ${
+            <div className="text-gray-400 font-medium">:</div>
+            <div className={`text-2xl font-bold ${
               isLive ? 'text-red-600' : 
               isFinished ? 'text-gray-700' : 'text-gray-400'
             }`}>
               {isScheduled ? '-' : match.awayScore}
-            </span>
+            </div>
+          </div>
+          
+          {/* Away Team */}
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-right">
+              <div className="font-semibold text-gray-900 text-sm truncate">
+                {match.awayTeam.name}
+              </div>
+              <div className="text-xs text-gray-500 truncate">Deplasman</div>
+            </div>
+            <div className="relative">
+              <img 
+                src={match.awayTeam.logo} 
+                alt={match.awayTeam.name}
+                className="w-10 h-10 object-contain rounded-lg bg-white shadow-sm p-1"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A';
+                }}
+              />
+            </div>
           </div>
         </div>
         
-        {/* Half Time Score */}
-        {getHalfTimeScore() && (
-          <div className="mt-3 text-center">
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              {getHalfTimeScore()}
-            </span>
-          </div>
-        )}
-        
         {/* Latest Goal for Live Matches */}
         {isLive && match.events && match.events.length > 0 && (
-          <div className="mt-3 text-center">
-            <span className="text-xs text-red-600 font-medium bg-red-50 px-2 py-1 rounded">
-              ⚽ {match.events[match.events.length - 1].player} {match.events[match.events.length - 1].minute}'
-            </span>
+          <div className="mt-4 text-center">
+            <div className="inline-flex items-center space-x-2 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
+              <span className="text-red-600">⚽</span>
+              <span className="text-sm text-red-700 font-medium">
+                {match.events[match.events.length - 1].player} 
+                <span className="text-red-500 ml-1">{match.events[match.events.length - 1].minute}'</span>
+              </span>
+            </div>
           </div>
         )}
       </div>
