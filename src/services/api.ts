@@ -464,12 +464,12 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
 };
 
 export const FootballApi = {
-  async getLiveMatches(selectedLeague: string = 'all'): Promise<Match[]> {
+  async getLiveMatches(selectedLeague: string = 'all', selectedDate?: string): Promise<Match[]> {
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      // Use selected date or default to today
+      const targetDate = selectedDate || new Date().toISOString().split('T')[0];
       
-      let url = `${BASE_URL}/?action=get_events&from=${today}&to=${tomorrow}&APIkey=${API_KEY}`;
+      let url = `${BASE_URL}/?action=get_events&from=${targetDate}&to=${targetDate}&APIkey=${API_KEY}`;
       
       // Add specific league filter if not 'all'
       if (selectedLeague !== 'all' && LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]) {
@@ -477,7 +477,9 @@ export const FootballApi = {
       }
       
       console.log('🔥 API İsteği:', url);
-      console.log('📅 Tarih aralığı:', today, 'dan', tomorrow, 'a kadar');
+      console.log('📅 Seçilen tarih:', targetDate);
+      console.log('📊 Bugünün tarihi:', new Date().toISOString().split('T')[0]);
+      console.log('🎯 Tarih eşleşme:', targetDate === new Date().toISOString().split('T')[0] ? 'EVET' : 'HAYIR');
       
       const response = await fetch(url);
       
