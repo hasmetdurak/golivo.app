@@ -88,19 +88,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange }) =>
               >
                 Today
               </button>
-              
-              <div className="flex items-center space-x-1 bg-red-50 px-3 py-2 rounded-xl border border-red-100">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-bold text-red-600 tracking-wide">LIVE</span>
-              </div>
             </div>
 
             {/* Mobile Navigation */}
             <div className="flex lg:hidden items-center space-x-3">
-              <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-100">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-bold text-red-600">LIVE</span>
-              </div>
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
