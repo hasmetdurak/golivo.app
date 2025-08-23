@@ -39,26 +39,52 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     });
   });
 
-  // League to country mapping
-  const leagueCountryMap: Record<string, string> = {
-    'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 England',
-    'Champions League': '🇪🇺 Europe',
-    'La Liga': '🇪🇸 Spain',
-    'Serie A': '🇮🇹 Italy',
-    'Bundesliga': '🇩🇪 Germany',
-    'Ligue 1': '🇫🇷 France',
-    'Turkish Super League': '🇹🇷 Turkey'
+  // Sort leagues by priority (patron's preferred order)
+  const leaguePriority = {
+    'Champions League': 1,
+    'UEFA Champions League': 1,
+    'Premier League': 2,
+    'English Premier League': 2,
+    'La Liga': 3,
+    'Spain La Liga': 3,
+    'Bundesliga': 4,
+    'Germany Bundesliga': 4,
+    'Serie A': 5,
+    'Italy Serie A': 5,
+    'Ligue 1': 6,
+    'France Ligue 1': 6,
+    'Eredivisie': 7,
+    'Netherlands Eredivisie': 7,
+    'Primeira Liga': 8,
+    'Portugal Premier League': 8,
+    'Pro League': 9,
+    'Belgium Pro League': 9,
+    'Turkish Super League': 10,
+    'Süper Lig': 10
   };
 
-  // Sort leagues by priority (popular leagues first)
-  const leaguePriority = {
-    'Premier League': 1,
-    'Champions League': 2,
-    'La Liga': 3,
-    'Serie A': 4,
-    'Bundesliga': 5,
-    'Ligue 1': 6,
-    'Turkish Super League': 7
+  // League to country mapping with expanded coverage
+  const leagueCountryMap: Record<string, string> = {
+    'Champions League': '🇪🇺 Avrupa',
+    'UEFA Champions League': '🇪🇺 Avrupa',
+    'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
+    'English Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
+    'La Liga': '🇪🇸 İspanya',
+    'Spain La Liga': '🇪🇸 İspanya',
+    'Bundesliga': '🇩🇪 Almanya',
+    'Germany Bundesliga': '🇩🇪 Almanya',
+    'Serie A': '🇮🇹 İtalya',
+    'Italy Serie A': '🇮🇹 İtalya',
+    'Ligue 1': '🇫🇷 Fransa',
+    'France Ligue 1': '🇫🇷 Fransa',
+    'Eredivisie': '🇳🇱 Hollanda',
+    'Netherlands Eredivisie': '🇳🇱 Hollanda',
+    'Primeira Liga': '🇵🇹 Portekiz',
+    'Portugal Premier League': '🇵🇹 Portekiz',
+    'Pro League': '🇧🇪 Belçika',
+    'Belgium Pro League': '🇧🇪 Belçika',
+    'Turkish Super League': '🇹🇷 Türkiye',
+    'Süper Lig': '🇹🇷 Türkiye'
   };
 
   const leagues = Object.keys(groupedMatches).sort((a, b) => {
@@ -69,7 +95,7 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
 
   const formatSelectedDate = () => {
     const date = new Date(selectedDate);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('tr-TR', { 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
@@ -81,11 +107,11 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     return (
       <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 text-center border border-gray-100">
         <div className="text-gray-300 mb-4 text-5xl sm:text-6xl">⚽</div>
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">No Matches Found</h3>
-        <p className="text-gray-500 text-sm sm:text-base">No matches scheduled for {formatSelectedDate()}</p>
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">Maç Bulunamadı</h3>
+        <p className="text-gray-500 text-sm sm:text-base">{formatSelectedDate()} tarihinde planlanmış maç yok</p>
         <div className="mt-4 inline-flex items-center space-x-2 text-gray-400">
           <Clock className="h-4 w-4" />
-          <span className="text-sm">Check back later for updates</span>
+          <span className="text-sm">Güncellemeler için daha sonra kontrol edin</span>
         </div>
       </div>
     );
@@ -104,11 +130,11 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
           <div className="flex items-center space-x-4 text-gray-600">
             <div className="flex items-center space-x-1">
               <Trophy className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm font-medium">{leagues.length} Leagues</span>
+              <span className="text-sm font-medium">{leagues.length} Lig</span>
             </div>
             <div className="flex items-center space-x-1">
               <Activity className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium">{displayMatches.length} Matches</span>
+              <span className="text-sm font-medium">{displayMatches.length} Maç</span>
             </div>
           </div>
         </div>
@@ -136,26 +162,26 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
                         {leagueCountryMap[league] || '🌍 International'}
                       </span>
                     </div>
-                    <p className="text-gray-500 text-xs font-medium">Today's Fixtures</p>
+                    <p className="text-gray-500 text-xs font-medium">Bugünkü Karşılaşmalar</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 sm:space-x-4">
                   {liveCount > 0 && (
                     <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-semibold text-red-600">{liveCount} LIVE</span>
+                      <span className="text-xs font-semibold text-red-600">{liveCount} CANLI</span>
                     </div>
                   )}
                   {finishedCount > 0 && (
                     <div className="flex items-center space-x-1 text-gray-500">
                       <TrendingUp className="h-3 w-3" />
-                      <span className="text-xs font-medium">{finishedCount} Finished</span>
+                      <span className="text-xs font-medium">{finishedCount} Bitti</span>
                     </div>
                   )}
                   {scheduledCount > 0 && (
                     <div className="flex items-center space-x-1 text-blue-600">
                       <Clock className="h-3 w-3" />
-                      <span className="text-xs font-medium">{scheduledCount} Scheduled</span>
+                      <span className="text-xs font-medium">{scheduledCount} Planlandı</span>
                     </div>
                   )}
                 </div>

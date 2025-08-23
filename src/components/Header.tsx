@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange }) =>
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">GoLivo</h1>
-                <p className="text-xs text-gray-500 hidden sm:block">Live Football Scores</p>
+                <p className="text-xs text-gray-500 hidden sm:block">Canlı Futbol Skorları</p>
               </div>
             </div>
 
@@ -86,7 +86,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange }) =>
                 onClick={goToToday}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
               >
-                Today
+                Bugün
               </button>
             </div>
 
@@ -141,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange }) =>
               }}
               className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
             >
-              Go to Today
+              Bugüne Git
             </button>
           </div>
         </div>
