@@ -1,4 +1,5 @@
-// GoLivo Modern Football App - Updated Design
+// GoLivo Modern Football App - Updated Design - Force Deploy 2024
+// Last update: Modern horizontal layout without old components
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { MatchList } from './components/MatchList';
