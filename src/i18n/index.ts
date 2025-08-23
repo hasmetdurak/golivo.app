@@ -29,7 +29,38 @@ export const supportedLanguages: Language[] = [
   { code: 'kk', name: 'Kazakh', nativeName: 'Қазақша', subdomain: 'kk' },
   { code: 'tl', name: 'Filipino', nativeName: 'Filipino', subdomain: 'tl' },
   { code: 'sw', name: 'Swahili', nativeName: 'Kiswahili', subdomain: 'sw' },
-  { code: 'en-IN', name: 'English (India)', nativeName: 'English (India)', subdomain: 'in' }
+  { code: 'en-IN', name: 'English (India)', nativeName: 'English (India)', subdomain: 'in' },
+  // NEW 30 LANGUAGES FOR MAXIMUM GLOBAL REVENUE
+  { code: 'nl', name: 'Dutch', nativeName: 'Nederlands', subdomain: 'nl' },
+  { code: 'cs', name: 'Czech', nativeName: 'Čeština', subdomain: 'cs' },
+  { code: 'sk', name: 'Slovak', nativeName: 'Slovenčina', subdomain: 'sk' },
+  { code: 'hu', name: 'Hungarian', nativeName: 'Magyar', subdomain: 'hu' },
+  { code: 'el', name: 'Greek', nativeName: 'Ελληνικά', subdomain: 'el' },
+  { code: 'ro', name: 'Romanian', nativeName: 'Română', subdomain: 'ro' },
+  { code: 'bg', name: 'Bulgarian', nativeName: 'Български', subdomain: 'bg' },
+  { code: 'sr', name: 'Serbian', nativeName: 'Српски', subdomain: 'sr' },
+  { code: 'hr', name: 'Croatian', nativeName: 'Hrvatski', subdomain: 'hr' },
+  { code: 'uk', name: 'Ukrainian', nativeName: 'Українська', subdomain: 'uk' },
+  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা', subdomain: 'bn' },
+  { code: 'ur', name: 'Urdu', nativeName: 'اردو', subdomain: 'ur', rtl: true },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்', subdomain: 'ta' },
+  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు', subdomain: 'te' },
+  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം', subdomain: 'ml' },
+  { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia', subdomain: 'id' },
+  { code: 'ms', name: 'Malay', nativeName: 'Bahasa Melayu', subdomain: 'ms' },
+  { code: 'th', name: 'Thai', nativeName: 'ไทย', subdomain: 'th' },
+  { code: 'km', name: 'Khmer', nativeName: 'ខ្មែរ', subdomain: 'km' },
+  { code: 'my', name: 'Burmese', nativeName: 'မြန်မာ', subdomain: 'my' },
+  { code: 'ha', name: 'Hausa', nativeName: 'Hausa', subdomain: 'ha' },
+  { code: 'yo', name: 'Yoruba', nativeName: 'Yorùbá', subdomain: 'yo' },
+  { code: 'zu', name: 'Zulu', nativeName: 'isiZulu', subdomain: 'zu' },
+  { code: 'am', name: 'Amharic', nativeName: 'አማርኛ', subdomain: 'am' },
+  { code: 'ak', name: 'Akan', nativeName: 'Akan', subdomain: 'ak' },
+  { code: 'gn', name: 'Guarani', nativeName: 'Avañe\'ẽ', subdomain: 'gn' },
+  { code: 'qu', name: 'Quechua', nativeName: 'Runa Simi', subdomain: 'qu' },
+  { code: 'ay', name: 'Aymara', nativeName: 'Aymar Aru', subdomain: 'ay' },
+  { code: 'arn', name: 'Mapudungun', nativeName: 'Mapudungun', subdomain: 'arn' },
+  { code: 'nah', name: 'Nahuatl', nativeName: 'Nāhuatl', subdomain: 'nah' }
 ];
 
 export interface Translations {
@@ -194,6 +225,49 @@ export const translations: Record<string, Translations> = {
     matchEvents: 'Match Events', matchDetails: 'Match Details', statistics: 'Match Statistics',
     close: 'Close', noMatches: 'No Matches Found', checkLater: 'Check back later for updates',
     liveMatch: 'LIVE', matchesCount: 'MATCHES', appTitle: 'Live Football Scores', todaysMatches: 'Today\'s Matches'
+  },
+  // NEW 30 LANGUAGES FOR MAXIMUM GLOBAL REVENUE - PART 1
+  nl: {
+    live: 'LIVE', finished: 'Afgelopen', scheduled: 'Gepland', matches: 'WEDSTRIJDEN', leagues: 'Competities',
+    today: 'Vandaag', homeTeam: 'Thuis', awayTeam: 'Uit', halfTime: 'Rust',
+    matchEvents: 'Wedstrijdgebeurtenissen', matchDetails: 'Wedstrijddetails', statistics: 'Wedstrijdstatistieken',
+    close: 'Sluiten', noMatches: 'Geen wedstrijden gevonden', checkLater: 'Kom later terug voor updates',
+    liveMatch: 'LIVE', matchesCount: 'WEDSTRIJDEN', appTitle: 'Live Voetbaluitslagen', todaysMatches: 'Wedstrijden van Vandaag'
+  },
+  cs: {
+    live: 'ŽIVĚ', finished: 'Ukončené', scheduled: 'Naplánované', matches: 'ZÁPASY', leagues: 'Ligy',
+    today: 'Dnes', homeTeam: 'Domácí', awayTeam: 'Hosté', halfTime: 'Poločas',
+    matchEvents: 'Události zápasu', matchDetails: 'Detaily zápasu', statistics: 'Statistiky zápasu',
+    close: 'Zavřít', noMatches: 'Žádné zápasy nenalezeny', checkLater: 'Vraťte se později pro aktualizace',
+    liveMatch: 'ŽIVĚ', matchesCount: 'ZÁPASY', appTitle: 'Živé fotbalové výsledky', todaysMatches: 'Dnešní zápasy'
+  },
+  sk: {
+    live: 'NAŽIVO', finished: 'Ukončené', scheduled: 'Naplánované', matches: 'ZÁPASY', leagues: 'Ligy',
+    today: 'Dnes', homeTeam: 'Domáci', awayTeam: 'Hostia', halfTime: 'Polčas',
+    matchEvents: 'Udalosti zápasu', matchDetails: 'Detaily zápasu', statistics: 'Štatistiky zápasu',
+    close: 'Zavrieť', noMatches: 'Žiadne zápasy nenájdené', checkLater: 'Vráťte sa neskôr pre aktualizácie',
+    liveMatch: 'NAŽIVO', matchesCount: 'ZÁPASY', appTitle: 'Živé futbalové výsledky', todaysMatches: 'Dnešné zápasy'
+  },
+  hu: {
+    live: 'ÉLŐ', finished: 'Befejezett', scheduled: 'Tervezett', matches: 'MÉRKŐZÉSEK', leagues: 'Bajnokságok',
+    today: 'Ma', homeTeam: 'Hazai', awayTeam: 'Vendég', halfTime: 'Félidő',
+    matchEvents: 'Mérkőzés események', matchDetails: 'Mérkőzés részletek', statistics: 'Mérkőzés statisztikák',
+    close: 'Bezár', noMatches: 'Nem találhatók mérkőzések', checkLater: 'Nézzen vissza később a frissítésekért',
+    liveMatch: 'ÉLŐ', matchesCount: 'MÉRKŐZÉSEK', appTitle: 'Élő Futball Eredmények', todaysMatches: 'Mai Mérkőzések'
+  },
+  el: {
+    live: 'ΖΩΝΤΑΝΑ', finished: 'Τελειωμένα', scheduled: 'Προγραμματισμένα', matches: 'ΑΓΩΝΕΣ', leagues: 'Πρωταθλήματα',
+    today: 'Σήμερα', homeTeam: 'Γηπεδούχοι', awayTeam: 'Φιλοξενούμενοι', halfTime: 'Ημίχρονο',
+    matchEvents: 'Γεγονότα αγώνα', matchDetails: 'Λεπτομέρειες αγώνα', statistics: 'Στατιστικά αγώνα',
+    close: 'Κλείσιμο', noMatches: 'Δεν βρέθηκαν αγώνες', checkLater: 'Ελέγξτε ξανά αργότερα για ενημερώσεις',
+    liveMatch: 'ΖΩΝΤΑΝΑ', matchesCount: 'ΑΓΩΝΕΣ', appTitle: 'Ζωντανά Αποτελέσματα Ποδοσφαίρου', todaysMatches: 'Σημερινοί Αγώνες'
+  },
+  ro: {
+    live: 'LIVE', finished: 'Terminate', scheduled: 'Programate', matches: 'MECIURI', leagues: 'Campionate',
+    today: 'Astăzi', homeTeam: 'Gazdă', awayTeam: 'Oaspete', halfTime: 'Pauză',
+    matchEvents: 'Evenimente meci', matchDetails: 'Detalii meci', statistics: 'Statistici meci',
+    close: 'Închide', noMatches: 'Nu s-au găsit meciuri', checkLater: 'Reveniți mai târziu pentru actualizări',
+    liveMatch: 'LIVE', matchesCount: 'MECIURI', appTitle: 'Rezultate Fotbal Live', todaysMatches: 'Meciurile de Azi'
   }
 };
 
@@ -210,19 +284,19 @@ export const getCurrentLanguage = (): string => {
     if (language) return language.code;
   }
   
-  return 'tr'; // Default to Turkish
+  return 'en'; // Default to English for maximum global reach
 };
 
 // Get translations for current language
 export const getTranslations = (lang?: string): Translations => {
   const currentLang = lang || getCurrentLanguage();
-  return translations[currentLang] || translations.tr;
+  return translations[currentLang] || translations.en;
 };
 
 // Generate subdomain URL for language
 export const getLanguageUrl = (langCode: string): string => {
   const language = supportedLanguages.find(lang => lang.code === langCode);
-  if (!language) return 'https://tr.golivo.app';
+  if (!language) return 'https://en.golivo.app';
   
   return `https://${language.subdomain}.golivo.app`;
 };
