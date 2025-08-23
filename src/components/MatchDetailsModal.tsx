@@ -126,16 +126,33 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
               </div>
               <div className="space-y-3">
                 {match.events.map((event: any, index: number) => (
-                  <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className={`flex items-center space-x-4 p-3 rounded-lg ${
+                    event.type === 'Goal' 
+                      ? 'bg-green-50 border border-green-200'
+                      : event.type === 'Yellow Card'
+                      ? 'bg-yellow-50 border border-yellow-200'
+                      : event.type === 'Red Card'
+                      ? 'bg-red-50 border border-red-200'
+                      : 'bg-gray-50 border border-gray-200'
+                  }`}>
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4 text-gray-500" />
                       <span className="text-sm font-medium text-gray-700">{event.minute}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-lg">{event.icon}</span>
                       <span className="text-sm font-medium text-gray-700">{event.type}</span>
                     </div>
-                    <span className="text-sm text-gray-600">{event.player}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-sm text-gray-600 ${
+                        event.team === 'home' ? 'font-semibold text-blue-600' : 'font-semibold text-purple-600'
+                      }`}>
+                        {event.player}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        ({event.team === 'home' ? 'Ev Sahibi' : 'Deplasman'})
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -33,6 +33,16 @@ interface ApiMatch {
     away_scorer: string;
     score: string;
   }>;
+  cards?: Array<{
+    time: string;
+    home_fault: string;
+    away_fault: string;
+    card: string;
+  }>;
+  substitutions?: Array<{
+    time: string;
+    substitution: string;
+  }>;
 }
 
 interface Match {
@@ -53,9 +63,11 @@ interface Match {
   homeScore: number;
   awayScore: number;
   events?: Array<{
-    type: string;
+    type: 'Goal' | 'Yellow Card' | 'Red Card' | 'Substitution';
     minute: string;
     player: string;
+    team: 'home' | 'away';
+    icon?: string;
   }>;
 }
 
@@ -74,11 +86,72 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       status = 'finished';
     }
 
-    const events = apiMatch.goalscorer?.map(goal => ({
-      type: 'Goal',
-      minute: goal.time,
-      player: goal.home_scorer || goal.away_scorer
-    })) || [];
+    // Combine all events (goals, cards, substitutions)
+    const events: Array<{
+      type: 'Goal' | 'Yellow Card' | 'Red Card' | 'Substitution';
+      minute: string;
+      player: string;
+      team: 'home' | 'away';
+      icon?: string;
+    }> = [];
+
+    // Add goals
+    if (apiMatch.goalscorer) {
+      apiMatch.goalscorer.forEach(goal => {
+        if (goal.home_scorer) {
+          events.push({
+            type: 'Goal',
+            minute: goal.time,
+            player: goal.home_scorer,
+            team: 'home',
+            icon: '⚽'
+          });
+        }
+        if (goal.away_scorer) {
+          events.push({
+            type: 'Goal',
+            minute: goal.time,
+            player: goal.away_scorer,
+            team: 'away',
+            icon: '⚽'
+          });
+        }
+      });
+    }
+
+    // Add cards
+    if (apiMatch.cards) {
+      apiMatch.cards.forEach(card => {
+        const cardType = card.card === 'yellow card' ? 'Yellow Card' : 'Red Card';
+        const cardIcon = card.card === 'yellow card' ? '🟨' : '🟥';
+        
+        if (card.home_fault) {
+          events.push({
+            type: cardType,
+            minute: card.time,
+            player: card.home_fault,
+            team: 'home',
+            icon: cardIcon
+          });
+        }
+        if (card.away_fault) {
+          events.push({
+            type: cardType,
+            minute: card.time,
+            player: card.away_fault,
+            team: 'away',
+            icon: cardIcon
+          });
+        }
+      });
+    }
+
+    // Sort events by minute
+    events.sort((a, b) => {
+      const minuteA = parseInt(a.minute.replace("'", ""));
+      const minuteB = parseInt(b.minute.replace("'", ""));
+      return minuteA - minuteB;
+    });
 
     return {
       id: apiMatch.match_id,
@@ -159,11 +232,36 @@ export const FootballApi = {
           },
           homeScore: 2,
           awayScore: 1,
-          events: [{
-            type: 'Goal',
-            minute: "65'",
-            player: 'Haaland'
-          }]
+          events: [
+            {
+              type: 'Goal' as const,
+              minute: "23'",
+              player: 'Haaland',
+              team: 'home' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Yellow Card' as const,
+              minute: "34'",
+              player: 'Van Dijk',
+              team: 'away' as const,
+              icon: '🟨'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "51'",
+              player: 'Salah',
+              team: 'away' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "65'",
+              player: 'De Bruyne',
+              team: 'home' as const,
+              icon: '⚽'
+            }
+          ]
         },
         {
           id: '2',
@@ -180,7 +278,51 @@ export const FootballApi = {
             logo: 'https://via.placeholder.com/40x40/FFFFFF/000000?text=RM'
           },
           homeScore: 3,
-          awayScore: 2
+          awayScore: 2,
+          events: [
+            {
+              type: 'Goal' as const,
+              minute: "12'",
+              player: 'Lewandowski',
+              team: 'home' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "28'",
+              player: 'Benzema',
+              team: 'away' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Red Card' as const,
+              minute: "45'",
+              player: 'Casemiro',
+              team: 'away' as const,
+              icon: '🟥'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "67'",
+              player: 'Pedri',
+              team: 'home' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "78'",
+              player: 'Ansu Fati',
+              team: 'home' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "89'",
+              player: 'Vinicius',
+              team: 'away' as const,
+              icon: '⚽'
+            }
+          ]
         }
       ];
     }

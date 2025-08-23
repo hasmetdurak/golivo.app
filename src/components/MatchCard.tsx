@@ -138,8 +138,42 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
               <span className="text-red-600">⚽</span>
               <span className="text-sm text-red-700 font-medium">
                 {match.events[match.events.length - 1].player} 
-                <span className="text-red-500 ml-1">{match.events[match.events.length - 1].minute}'</span>
+                <span className="text-red-500 ml-1">{match.events[match.events.length - 1].minute}</span>
               </span>
+            </div>
+          </div>
+        )}
+        
+        {/* Match Events Timeline - Show all events */}
+        {match.events && match.events.length > 0 && (
+          <div className="mt-4 border-t pt-3">
+            <div className="text-xs text-gray-500 mb-2 font-medium">Maç Olayları</div>
+            <div className="flex flex-wrap gap-2 max-h-16 overflow-y-auto">
+              {match.events.map((event: any, index: number) => (
+                <div 
+                  key={index}
+                  className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium ${
+                    event.type === 'Goal' 
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : event.type === 'Yellow Card'
+                      ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                      : event.type === 'Red Card'
+                      ? 'bg-red-50 text-red-700 border border-red-200'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200'
+                  }`}
+                >
+                  <span className="text-xs">{event.icon}</span>
+                  <span className="text-xs font-bold">{event.minute}</span>
+                  <span 
+                    className={`text-xs truncate max-w-20 ${
+                      event.team === 'home' ? 'text-blue-600' : 'text-purple-600'
+                    }`}
+                    title={event.player}
+                  >
+                    {event.player.split(' ').slice(-1)[0]} {/* Sadece soyad */}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         )}
