@@ -60,7 +60,17 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'Pro League': 9,
     'Belgium Pro League': 9,
     'Turkish Super League': 10,
-    'Süper Lig': 10
+    'Süper Lig': 10,
+    'Russian Premier League': 11,
+    'Russia Premier League': 11,
+    'Premier Liga': 11,
+    'MLS': 12,
+    'Major League Soccer': 12,
+    'Brasileirão': 13,
+    'Brazil Serie A': 13,
+    'Argentine Primera División': 14,
+    'Liga MX': 15,
+    'Saudi Pro League': 16
   };
 
   // League to country mapping with expanded coverage
@@ -84,7 +94,17 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'Pro League': '🇧🇪 Belçika',
     'Belgium Pro League': '🇧🇪 Belçika',
     'Turkish Super League': '🇹🇷 Türkiye',
-    'Süper Lig': '🇹🇷 Türkiye'
+    'Süper Lig': '🇹🇷 Türkiye',
+    'Russian Premier League': '🇷🇺 Rusya',
+    'Russia Premier League': '🇷🇺 Rusya',
+    'Premier Liga': '🇷🇺 Rusya',
+    'MLS': '🇺🇸 Amerika',
+    'Major League Soccer': '🇺🇸 Amerika',
+    'Brasileirão': '🇧🇷 Brezilya',
+    'Brazil Serie A': '🇧🇷 Brezilya',
+    'Argentine Primera División': '🇦🇷 Arjantin',
+    'Liga MX': '🇲🇽 Meksika',
+    'Saudi Pro League': '🇸🇦 Suudi Arabistan'
   };
 
   const leagues = Object.keys(groupedMatches).sort((a, b) => {
