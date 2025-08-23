@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Calendar, Trophy, Target } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 interface MatchCardProps {
   match: any;
@@ -21,143 +21,165 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   };
   
   return (
-    <div className={`relative overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-xl transform hover:scale-[1.01] ${
+    <div className={`relative bg-white rounded-xl border hover:shadow-md transition-all duration-200 ${
       isLive 
-        ? 'bg-gradient-to-r from-red-50 via-orange-50 to-red-50 border-red-200 shadow-lg shadow-red-100' 
+        ? 'border-red-200 shadow-sm shadow-red-100' 
         : isFinished 
-        ? 'bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200 shadow-md' 
-        : 'bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border-blue-200 shadow-md'
+        ? 'border-gray-200' 
+        : 'border-gray-200'
     }`}>
       
       {/* Live indicator stripe */}
       {isLive && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 animate-pulse"></div>
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-red-500"></div>
       )}
       
-      <div className="p-4">
+      <div className="p-4 sm:p-6">
         {/* Status and Time Row */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             {isLive && (
-              <div className="flex items-center space-x-1 bg-red-600 px-2 py-1 rounded-full shadow-md">
-                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                <span className="text-xs font-bold text-white tracking-wider">LIVE</span>
+              <div className="flex items-center space-x-1 bg-red-600 px-2 py-1 rounded-lg">
+                <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+                <span className="text-xs font-semibold text-white">LIVE</span>
               </div>
             )}
             {isFinished && (
-              <div className="bg-slate-600 px-2 py-1 rounded-full shadow-md">
-                <span className="text-xs font-bold text-white">FINISHED</span>
+              <div className="bg-gray-500 px-2 py-1 rounded-lg">
+                <span className="text-xs font-semibold text-white">FT</span>
               </div>
             )}
             {isScheduled && (
-              <div className="bg-blue-600 px-2 py-1 rounded-full shadow-md">
-                <span className="text-xs font-bold text-white">UPCOMING</span>
+              <div className="bg-blue-600 px-2 py-1 rounded-lg">
+                <span className="text-xs font-semibold text-white">VS</span>
               </div>
             )}
           </div>
           
-          <div className="flex items-center space-x-1">
-            <div className={`flex items-center space-x-1 px-2 py-1 rounded-lg ${
-              isLive ? 'bg-red-100 text-red-700' : 
-              isFinished ? 'bg-slate-100 text-slate-700' : 
-              'bg-blue-100 text-blue-700'
-            }`}>
-              <Clock className="h-3 w-3" />
-              <span className="text-xs font-bold">{getMatchTime()}</span>
-            </div>
+          <div className="flex items-center space-x-1 text-gray-500">
+            <Clock className="h-3 w-3" />
+            <span className="text-xs font-medium">{getMatchTime()}</span>
           </div>
         </div>
         
-        {/* Teams and Score */}
-        <div className="flex items-center justify-between">
-          {/* Home Team */}
-          <div className="flex items-center space-x-3 flex-1">
-            <div className="relative">
+        {/* Teams and Score - Mobile First Layout */}
+        <div className="space-y-4">
+          {/* Mobile Layout */}
+          <div className="sm:hidden">
+            {/* Home Team */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 flex-1">
+                <img 
+                  src={match.homeTeam.logo} 
+                  alt={match.homeTeam.name}
+                  className="w-8 h-8 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/32x32/3B82F6/FFFFFF?text=?';
+                  }}
+                />
+                <span className="font-medium text-gray-900 text-sm truncate">
+                  {match.homeTeam.name}
+                </span>
+              </div>
+              <span className={`text-xl font-bold min-w-[24px] text-center ${
+                isLive ? 'text-red-600' : 
+                isFinished ? 'text-gray-600' : 'text-blue-600'
+              }`}>
+                {match.homeScore}
+              </span>
+            </div>
+            
+            {/* Away Team */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 flex-1">
+                <img 
+                  src={match.awayTeam.logo} 
+                  alt={match.awayTeam.name}
+                  className="w-8 h-8 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/32x32/3B82F6/FFFFFF?text=?';
+                  }}
+                />
+                <span className="font-medium text-gray-900 text-sm truncate">
+                  {match.awayTeam.name}
+                </span>
+              </div>
+              <span className={`text-xl font-bold min-w-[24px] text-center ${
+                isLive ? 'text-red-600' : 
+                isFinished ? 'text-gray-600' : 'text-blue-600'
+              }`}>
+                {match.awayScore}
+              </span>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between">
+            {/* Home Team */}
+            <div className="flex items-center space-x-3 flex-1 min-w-0">
               <img 
                 src={match.homeTeam.logo} 
                 alt={match.homeTeam.name}
-                className="w-8 h-8 object-contain rounded-lg shadow-sm bg-white p-0.5"
+                className="w-10 h-10 object-contain flex-shrink-0"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/32x32/3B82F6/FFFFFF?text=?';
+                  e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=?';
                 }}
               />
-              {isLive && (
-                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              )}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">
-                {match.homeTeam.name}
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">Home</p>
-            </div>
-          </div>
-          
-          {/* Score */}
-          <div className="mx-4">
-            <div className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-xl shadow-md border ${
-              isLive 
-                ? 'bg-gradient-to-r from-red-600 to-orange-600 border-red-300 text-white' 
-                : isFinished 
-                ? 'bg-gradient-to-r from-slate-600 to-slate-700 border-slate-300 text-white' 
-                : 'bg-gradient-to-r from-blue-600 to-indigo-600 border-blue-300 text-white'
-            }`}>
-              <span className="text-xl font-bold">{match.homeScore}</span>
-              <div className="flex flex-col items-center">
-                <div className="w-1 h-1 bg-white rounded-full mb-0.5"></div>
-                <div className="w-1 h-1 bg-white rounded-full opacity-60"></div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-gray-900 truncate">
+                  {match.homeTeam.name}
+                </h3>
+                <p className="text-xs text-gray-500">Home</p>
               </div>
-              <span className="text-xl font-bold">{match.awayScore}</span>
             </div>
-            {isLive && match.events && match.events.length > 0 && (
-              <div className="text-center mt-1">
-                <span className="text-xs text-red-600 font-semibold bg-red-100 px-1.5 py-0.5 rounded-full">
-                  {match.events[match.events.length - 1].player} {match.events[match.events.length - 1].minute}'
-                </span>
-              </div>
-            )}
-          </div>
-          
-          {/* Away Team */}
-          <div className="flex items-center space-x-3 flex-1 flex-row-reverse">
-            <div className="relative">
+            
+            {/* Score */}
+            <div className="flex items-center space-x-3 mx-6">
+              <span className={`text-2xl font-bold ${
+                isLive ? 'text-red-600' : 
+                isFinished ? 'text-gray-600' : 'text-blue-600'
+              }`}>
+                {match.homeScore}
+              </span>
+              <div className="w-8 h-0.5 bg-gray-200"></div>
+              <span className={`text-2xl font-bold ${
+                isLive ? 'text-red-600' : 
+                isFinished ? 'text-gray-600' : 'text-blue-600'
+              }`}>
+                {match.awayScore}
+              </span>
+            </div>
+            
+            {/* Away Team */}
+            <div className="flex items-center space-x-3 flex-1 min-w-0 flex-row-reverse">
               <img 
                 src={match.awayTeam.logo} 
                 alt={match.awayTeam.name}
-                className="w-8 h-8 object-contain rounded-lg shadow-sm bg-white p-0.5"
+                className="w-10 h-10 object-contain flex-shrink-0"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/32x32/3B82F6/FFFFFF?text=?';
+                  e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=?';
                 }}
               />
-              {isLive && (
-                <div className="absolute -top-0.5 -left-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              )}
-            </div>
-            <div className="flex-1 text-right">
-              <h3 className="font-semibold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">
-                {match.awayTeam.name}
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">Away</p>
+              <div className="min-w-0 flex-1 text-right">
+                <h3 className="font-semibold text-gray-900 truncate">
+                  {match.awayTeam.name}
+                </h3>
+                <p className="text-xs text-gray-500">Away</p>
+              </div>
             </div>
           </div>
+          
+          {/* Last Goal Info for Live Matches */}
+          {isLive && match.events && match.events.length > 0 && (
+            <div className="border-t border-gray-100 pt-3 mt-3">
+              <div className="text-center">
+                <span className="text-xs text-red-600 font-medium bg-red-50 px-2 py-1 rounded-lg">
+                  ⚽ {match.events[match.events.length - 1].player} {match.events[match.events.length - 1].minute}'
+                </span>
+              </div>
+            </div>
+          )}
         </div>
-        
-        {/* Additional Info for Live Matches */}
-        {isLive && (
-          <div className="mt-3 pt-3 border-t border-red-200">
-            <div className="flex items-center justify-center space-x-3 text-xs">
-              <div className="flex items-center space-x-1 text-red-600">
-                <Target className="h-3 w-3" />
-                <span className="font-medium">Live Updates</span>
-              </div>
-              <div className="w-px h-3 bg-red-300"></div>
-              <div className="flex items-center space-x-1 text-slate-600">
-                <Trophy className="h-3 w-3" />
-                <span className="font-medium">{match.league}</span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

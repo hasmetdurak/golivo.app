@@ -1,5 +1,5 @@
-import React from 'react';
-import { Trophy, Calendar, ChevronLeft, ChevronRight, Activity, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trophy, Calendar, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 
 interface HeaderProps {
   selectedDate: string;
@@ -7,7 +7,18 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatDateFull = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { 
       weekday: 'long', 
@@ -28,73 +39,122 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange }) =>
   };
 
   return (
-    <header className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 shadow-2xl border-b border-purple-500/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-4">
+    <>
+      <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            {/* Logo */}
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg shadow-lg">
-                  <Trophy className="h-5 w-5 text-white" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white tracking-tight">GoLivo</h1>
-                <p className="text-xs text-slate-300 font-medium">Professional Football Scores</p>
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">GoLivo</h1>
+                <p className="text-xs text-gray-500 hidden sm:block">Live Football Scores</p>
               </div>
             </div>
-            
-            <div className="hidden md:flex items-center space-x-4 ml-6">
-              <div className="flex items-center space-x-1 text-slate-300">
-                <Activity className="h-3 w-3" />
-                <span className="text-xs font-medium">Live Matches</span>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-6">
+              <div className="flex items-center space-x-1 bg-gray-50 rounded-xl px-3 py-2">
+                <button 
+                  onClick={() => changeDate(-1)}
+                  className="p-1.5 hover:bg-white rounded-lg transition-colors"
+                  title="Previous day"
+                >
+                  <ChevronLeft className="h-4 w-4 text-gray-600" />
+                </button>
+                
+                <div className="flex items-center space-x-2 text-gray-900 min-w-[140px] justify-center">
+                  <Calendar className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium">{formatDateFull(selectedDate)}</span>
+                </div>
+                
+                <button 
+                  onClick={() => changeDate(1)}
+                  className="p-1.5 hover:bg-white rounded-lg transition-colors"
+                  title="Next day"
+                >
+                  <ChevronRight className="h-4 w-4 text-gray-600" />
+                </button>
               </div>
-              <div className="flex items-center space-x-1 text-slate-300">
-                <Users className="h-3 w-3" />
-                <span className="text-xs font-medium">All Leagues</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1 bg-slate-800/50 backdrop-blur-sm rounded-lg px-3 py-2 border border-slate-700/50">
+              
               <button 
-                onClick={() => changeDate(-1)}
-                className="p-1 hover:bg-slate-700 rounded transition-all duration-200 group"
-                title="Previous day"
+                onClick={goToToday}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
               >
-                <ChevronLeft className="h-3 w-3 text-slate-300 group-hover:text-white" />
+                Today
               </button>
               
-              <div className="flex items-center space-x-2 text-white min-w-[180px] justify-center">
-                <Calendar className="h-3 w-3 text-purple-400" />
-                <span className="text-xs font-semibold">{formatDate(selectedDate)}</span>
+              <div className="flex items-center space-x-1 bg-red-50 px-3 py-2 rounded-xl border border-red-100">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-xs font-bold text-red-600 tracking-wide">LIVE</span>
+              </div>
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="flex lg:hidden items-center space-x-3">
+              <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-100">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-xs font-bold text-red-600">LIVE</span>
+              </div>
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {isMobileMenuOpen ? 
+                  <X className="h-5 w-5 text-gray-600" /> : 
+                  <Menu className="h-5 w-5 text-gray-600" />
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-x-0 top-14 sm:top-16 z-40 bg-white border-b border-gray-100 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
+            {/* Mobile Date Navigation */}
+            <div className="flex items-center justify-center space-x-1 bg-gray-50 rounded-xl p-3">
+              <button 
+                onClick={() => changeDate(-1)}
+                className="p-2 hover:bg-white rounded-lg transition-colors"
+                title="Previous day"
+              >
+                <ChevronLeft className="h-4 w-4 text-gray-600" />
+              </button>
+              
+              <div className="flex items-center space-x-2 text-gray-900 flex-1 justify-center">
+                <Calendar className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium">{formatDate(selectedDate)}</span>
               </div>
               
               <button 
                 onClick={() => changeDate(1)}
-                className="p-1 hover:bg-slate-700 rounded transition-all duration-200 group"
+                className="p-2 hover:bg-white rounded-lg transition-colors"
                 title="Next day"
               >
-                <ChevronRight className="h-3 w-3 text-slate-300 group-hover:text-white" />
+                <ChevronRight className="h-4 w-4 text-gray-600" />
               </button>
             </div>
             
             <button 
-              onClick={goToToday}
-              className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-xs font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              onClick={() => {
+                goToToday();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
             >
-              Today
+              Go to Today
             </button>
-            
-            <div className="flex items-center space-x-1 bg-red-500/10 backdrop-blur-sm px-2 py-1 rounded-lg border border-red-500/20">
-              <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow-lg"></div>
-              <span className="text-xs text-red-400 font-bold tracking-wider">LIVE</span>
-            </div>
           </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 };
