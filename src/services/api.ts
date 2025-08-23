@@ -86,6 +86,45 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       status = 'finished';
     }
 
+    // Smart league detection based on country + league name
+    let detectedLeague = apiMatch.league_name || 'Unknown League';
+    const country = apiMatch.country_name?.toLowerCase() || '';
+    const leagueName = apiMatch.league_name?.toLowerCase() || '';
+    
+    // Country-specific league mapping to prevent misclassification
+    if (country.includes('russia') || country.includes('rusya')) {
+      if (leagueName.includes('premier')) {
+        detectedLeague = 'Russian Premier League';
+      }
+    } else if (country.includes('england') || country.includes('ingiltere')) {
+      if (leagueName.includes('premier')) {
+        detectedLeague = 'English Premier League';
+      }
+    } else if (country.includes('spain') || country.includes('İspanya')) {
+      if (leagueName.includes('la liga') || leagueName.includes('liga')) {
+        detectedLeague = 'Spanish La Liga';
+      }
+    } else if (country.includes('germany') || country.includes('almanya')) {
+      if (leagueName.includes('bundesliga')) {
+        detectedLeague = 'German Bundesliga';
+      }
+    } else if (country.includes('italy') || country.includes('italya')) {
+      if (leagueName.includes('serie')) {
+        detectedLeague = 'Italian Serie A';
+      }
+    } else if (country.includes('france') || country.includes('fransa')) {
+      if (leagueName.includes('ligue')) {
+        detectedLeague = 'French Ligue 1';
+      }
+    } else if (country.includes('turkey') || country.includes('türkiye')) {
+      if (leagueName.includes('super') || leagueName.includes('süper')) {
+        detectedLeague = 'Turkish Super League';
+      }
+    }
+    
+    // Debug log for league detection
+    console.log(`League Detection: Country="${country}", Original="${apiMatch.league_name}", Detected="${detectedLeague}"`);
+
     // Combine all events (goals, cards, substitutions)
     const events: Array<{
       type: 'Goal' | 'Yellow Card' | 'Red Card' | 'Substitution';
@@ -155,7 +194,7 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
 
     return {
       id: apiMatch.match_id,
-      league: apiMatch.league_name || 'Unknown League',
+      league: detectedLeague,
       country: apiMatch.country_name || 'Unknown',
       status,
       minute,
