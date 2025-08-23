@@ -3,15 +3,17 @@ import { MatchCard } from './MatchCard';
 import { LoadingSpinner } from './LoadingSpinner';
 import { MatchDetailsModal } from './MatchDetailsModal';
 import { Calendar, Activity, Clock } from 'lucide-react';
+import type { Translations } from '../i18n/index';
 
 interface MatchListProps {
   matches: any[];
   loading: boolean;
   selectedLeague: string;
   selectedDate: string;
+  translations: Translations;
 }
 
-export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selectedLeague, selectedDate }) => {
+export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selectedLeague, selectedDate, translations }) => {
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -311,11 +313,11 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     return (
       <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 text-center border border-gray-100">
         <div className="text-gray-300 mb-4 text-5xl sm:text-6xl">⚽</div>
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">Maç Bulunamadı</h3>
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">{translations.noMatches}</h3>
         <p className="text-gray-500 text-sm sm:text-base">{formatSelectedDate()} tarihinde planlanmış maç yok</p>
         <div className="mt-4 inline-flex items-center space-x-2 text-gray-400">
           <Clock className="h-4 w-4" />
-          <span className="text-sm">Güncellemeler için daha sonra kontrol edin</span>
+          <span className="text-sm">{translations.checkLater}</span>
         </div>
       </div>
     );
@@ -334,11 +336,11 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
           <div className="flex items-center space-x-4 text-gray-600">
             <div className="flex items-center space-x-1">
               <span className="text-lg">🏆</span>
-              <span className="text-sm font-medium">{leagues.length} Lig</span>
+              <span className="text-sm font-medium">{leagues.length} {translations.leagues}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Activity className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium">{displayMatches.length} Maç</span>
+              <span className="text-sm font-medium">{displayMatches.length} {translations.matches}</span>
             </div>
           </div>
         </div>
@@ -375,11 +377,11 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
                   {liveCount > 0 && (
                     <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-semibold text-red-600">{liveCount} CANLI</span>
+                      <span className="text-xs font-semibold text-red-600">{liveCount} {translations.live}</span>
                     </div>
                   )}
                   <div className="flex items-center space-x-1 text-gray-600">
-                    <span className="text-xs font-medium">{leagueMatches.length} MAÇ</span>
+                    <span className="text-xs font-medium">{leagueMatches.length} {translations.matches}</span>
                   </div>
                 </div>
               </div>

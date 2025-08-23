@@ -5,8 +5,11 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { MatchList } from './components/MatchList';
 import { FootballApi } from './services/api';
+import { useTranslation } from './i18n/useTranslation';
+import { initGeoRedirect } from './utils/geoRedirect';
 
 function App() {
+  const { t, currentLang } = useTranslation();
   const [selectedLeague, setSelectedLeague] = useState('all');
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -14,6 +17,8 @@ function App() {
 
   useEffect(() => {
     console.log('App mounting, fetching matches...');
+    // Initialize geo-redirect system
+    initGeoRedirect();
     fetchLiveMatches();
   }, [selectedDate]);
 
@@ -73,6 +78,7 @@ function App() {
             loading={loading}
             selectedLeague={selectedLeague}
             selectedDate={selectedDate}
+            translations={t}
           />
         </div>
       </main>

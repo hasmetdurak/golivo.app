@@ -82,6 +82,41 @@ export const translations: Record<string, Translations> = {
     matchEvents: 'Eventos del Partido', matchDetails: 'Detalles del Partido', statistics: 'Estadísticas del Partido',
     close: 'Cerrar', noMatches: 'No se encontraron partidos', checkLater: 'Vuelve más tarde para actualizaciones',
     liveMatch: 'EN VIVO', matchesCount: 'PARTIDOS', appTitle: 'Resultados de Fútbol en Vivo', todaysMatches: 'Partidos de Hoy'
+  },
+  pt: {
+    live: 'AO VIVO', finished: 'Terminado', scheduled: 'Agendado', matches: 'JOGOS', leagues: 'Ligas',
+    today: 'Hoje', homeTeam: 'Casa', awayTeam: 'Fora', halfTime: 'Meio Tempo',
+    matchEvents: 'Eventos da Partida', matchDetails: 'Detalhes da Partida', statistics: 'Estatísticas da Partida',
+    close: 'Fechar', noMatches: 'Nenhuma partida encontrada', checkLater: 'Volte mais tarde para atualizações',
+    liveMatch: 'AO VIVO', matchesCount: 'JOGOS', appTitle: 'Resultados de Futebol ao Vivo', todaysMatches: 'Jogos de Hoje'
+  },
+  fr: {
+    live: 'EN DIRECT', finished: 'Terminé', scheduled: 'Programmé', matches: 'MATCHS', leagues: 'Ligues',
+    today: 'Aujourd\'hui', homeTeam: 'Domicile', awayTeam: 'Extérieur', halfTime: 'Mi-temps',
+    matchEvents: 'Événements du Match', matchDetails: 'Détails du Match', statistics: 'Statistiques du Match',
+    close: 'Fermer', noMatches: 'Aucun match trouvé', checkLater: 'Revenez plus tard pour les mises à jour',
+    liveMatch: 'EN DIRECT', matchesCount: 'MATCHS', appTitle: 'Scores de Football en Direct', todaysMatches: 'Matchs d\'Aujourd\'hui'
+  },
+  it: {
+    live: 'LIVE', finished: 'Finito', scheduled: 'Programmato', matches: 'PARTITE', leagues: 'Campionati',
+    today: 'Oggi', homeTeam: 'Casa', awayTeam: 'Trasferta', halfTime: 'Primo Tempo',
+    matchEvents: 'Eventi della Partita', matchDetails: 'Dettagli della Partita', statistics: 'Statistiche della Partita',
+    close: 'Chiudi', noMatches: 'Nessuna partita trovata', checkLater: 'Torna più tardi per gli aggiornamenti',
+    liveMatch: 'LIVE', matchesCount: 'PARTITE', appTitle: 'Risultati Calcio in Diretta', todaysMatches: 'Partite di Oggi'
+  },
+  ja: {
+    live: 'ライブ', finished: '終了', scheduled: '予定', matches: '試合', leagues: 'リーグ',
+    today: '今日', homeTeam: 'ホーム', awayTeam: 'アウェイ', halfTime: 'ハーフタイム',
+    matchEvents: '試合イベント', matchDetails: '試合詳細', statistics: '試合統計',
+    close: '閉じる', noMatches: '試合が見つかりません', checkLater: '後でアップデートを確認してください',
+    liveMatch: 'ライブ', matchesCount: '試合', appTitle: 'ライブサッカースコア', todaysMatches: '今日の試合'
+  },
+  ru: {
+    live: 'ПРЯМОЙ ЭФИР', finished: 'Завершен', scheduled: 'Запланирован', matches: 'МАТЧИ', leagues: 'Лиги',
+    today: 'Сегодня', homeTeam: 'Дома', awayTeam: 'В гостях', halfTime: 'Перерыв',
+    matchEvents: 'События матча', matchDetails: 'Детали матча', statistics: 'Статистика матча',
+    close: 'Закрыть', noMatches: 'Матчи не найдены', checkLater: 'Проверьте обновления позже',
+    liveMatch: 'ПРЯМОЙ ЭФИР', matchesCount: 'МАТЧИ', appTitle: 'Футбольные результаты онлайн', todaysMatches: 'Сегодняшние матчи'
   }
   // Diğer diller benzer şekilde eklenecek...
 };
