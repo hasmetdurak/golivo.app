@@ -9,13 +9,33 @@ const LEAGUE_IDS = {
   'Serie A': '207',
   'Bundesliga': '175',
   'Ligue 1': '168',
-  'Turkish Super League': '340'
+  'Turkish Super League': '340',
+  'Russian Premier League': '344',
+  'English Premier League': '152'
+};
+
+// League ID to proper league name mapping
+const LEAGUE_ID_TO_NAME: Record<string, string> = {
+  '3': 'UEFA Champions League',
+  '152': 'English Premier League',
+  '302': 'Spanish La Liga', 
+  '207': 'Italian Serie A',
+  '175': 'German Bundesliga',
+  '168': 'French Ligue 1',
+  '340': 'Turkish Super League',
+  '344': 'Russian Premier League',
+  '244': 'Dutch Eredivisie',
+  '266': 'Portuguese Primeira Liga',
+  '63': 'Belgian Pro League',
+  '332': 'American MLS',
+  '99': 'Brazilian Brasileirão'
 };
 
 interface ApiMatch {
   match_id: string;
   country_name: string;
   league_name: string;
+  league_id?: string;
   match_date: string;
   match_status: string;
   match_time: string;
@@ -86,45 +106,58 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       status = 'finished';
     }
 
-    // Smart league detection based on country + league name
+    // Smart league detection based on league_id, country + league name
     let detectedLeague = apiMatch.league_name || 'Unknown League';
     const country = apiMatch.country_name?.toLowerCase() || '';
     const leagueName = apiMatch.league_name?.toLowerCase() || '';
     
-    // Country-specific league mapping to prevent misclassification
-    if (country.includes('russia') || country.includes('rusya')) {
-      if (leagueName.includes('premier')) {
-        detectedLeague = 'Russian Premier League';
+    // First try: Direct league ID mapping (most reliable)
+    const leagueId = apiMatch.league_id || '';
+    if (leagueId && LEAGUE_ID_TO_NAME[leagueId]) {
+      detectedLeague = LEAGUE_ID_TO_NAME[leagueId];
+      console.log(`League ID Match: ID=${leagueId} -> ${detectedLeague}`);
+    } else {
+      // Fallback: Country-specific league mapping to prevent misclassification
+      if (country.includes('russia') || country.includes('rusya')) {
+        if (leagueName.includes('premier')) {
+          detectedLeague = 'Russian Premier League';
+        }
+      } else if (country.includes('england') || country.includes('ingiltere')) {
+        if (leagueName.includes('premier')) {
+          detectedLeague = 'English Premier League';
+        }
+      } else if (country.includes('spain') || country.includes('İspanya')) {
+        if (leagueName.includes('la liga') || leagueName.includes('liga')) {
+          detectedLeague = 'Spanish La Liga';
+        }
+      } else if (country.includes('germany') || country.includes('almanya')) {
+        if (leagueName.includes('bundesliga')) {
+          detectedLeague = 'German Bundesliga';
+        }
+      } else if (country.includes('italy') || country.includes('italya')) {
+        if (leagueName.includes('serie')) {
+          detectedLeague = 'Italian Serie A';
+        }
+      } else if (country.includes('france') || country.includes('fransa')) {
+        if (leagueName.includes('ligue')) {
+          detectedLeague = 'French Ligue 1';
+        }
+      } else if (country.includes('turkey') || country.includes('türkiye')) {
+        if (leagueName.includes('super') || leagueName.includes('süper')) {
+          detectedLeague = 'Turkish Super League';
+        }
       }
-    } else if (country.includes('england') || country.includes('ingiltere')) {
-      if (leagueName.includes('premier')) {
-        detectedLeague = 'English Premier League';
-      }
-    } else if (country.includes('spain') || country.includes('İspanya')) {
-      if (leagueName.includes('la liga') || leagueName.includes('liga')) {
-        detectedLeague = 'Spanish La Liga';
-      }
-    } else if (country.includes('germany') || country.includes('almanya')) {
-      if (leagueName.includes('bundesliga')) {
-        detectedLeague = 'German Bundesliga';
-      }
-    } else if (country.includes('italy') || country.includes('italya')) {
-      if (leagueName.includes('serie')) {
-        detectedLeague = 'Italian Serie A';
-      }
-    } else if (country.includes('france') || country.includes('fransa')) {
-      if (leagueName.includes('ligue')) {
-        detectedLeague = 'French Ligue 1';
-      }
-    } else if (country.includes('turkey') || country.includes('türkiye')) {
-      if (leagueName.includes('super') || leagueName.includes('süper')) {
-        detectedLeague = 'Turkish Super League';
-      }
+      console.log(`Country Match: Country="${country}" + League="${leagueName}" -> ${detectedLeague}`);
     }
     
-    // Debug log for league detection
-    console.log(`League Detection: Country="${country}", Original="${apiMatch.league_name}", Detected="${detectedLeague}"`);
-
+    // Final debug log for league detection
+    console.log(`🏆 League Detection Result:`);
+    console.log(`   📍 Country: "${apiMatch.country_name}"`);
+    console.log(`   🆔 League ID: "${leagueId}"`);
+    console.log(`   📝 Original: "${apiMatch.league_name}"`);
+    console.log(`   ✅ Detected: "${detectedLeague}"`);
+    console.log(`   🏠 Home: ${apiMatch.match_hometeam_name} vs 🚪 Away: ${apiMatch.match_awayteam_name}`);
+    console.log(`---`);
     // Combine all events (goals, cards, substitutions)
     const events: Array<{
       type: 'Goal' | 'Yellow Card' | 'Red Card' | 'Substitution';
@@ -256,7 +289,7 @@ export const FootballApi = {
       return [
         {
           id: '1',
-          league: 'Premier League',
+          league: 'English Premier League',
           country: 'ENGLAND PREMIER LEAGUE',
           status: 'live',
           minute: "67'",
@@ -304,7 +337,7 @@ export const FootballApi = {
         },
         {
           id: '2',
-          league: 'La Liga',
+          league: 'Spanish La Liga',
           country: 'SPAIN LA LIGA',
           status: 'finished',
           time: '18:00',
@@ -319,6 +352,91 @@ export const FootballApi = {
           homeScore: 3,
           awayScore: 2,
           events: [
+            {
+              type: 'Goal' as const,
+              minute: "12'",
+              player: 'Lewandowski',
+              team: 'home' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "28'",
+              player: 'Benzema',
+              team: 'away' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Red Card' as const,
+              minute: "45'",
+              player: 'Casemiro',
+              team: 'away' as const,
+              icon: '🟥'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "67'",
+              player: 'Pedri',
+              team: 'home' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "78'",
+              player: 'Ansu Fati',
+              team: 'home' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "89'",
+              player: 'Vinicius',
+              team: 'away' as const,
+              icon: '⚽'
+            }
+          ]
+        },
+        {
+          id: '3',
+          league: 'Russian Premier League',
+          country: 'RUSSIA PREMIER LEAGUE',
+          status: 'finished',
+          time: '14:00',
+          homeTeam: {
+            name: 'Rubin Kazan',
+            logo: 'https://via.placeholder.com/40x40/00FF00/FFFFFF?text=RK'
+          },
+          awayTeam: {
+            name: 'Spartak Moscow',
+            logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=SM'
+          },
+          homeScore: 0,
+          awayScore: 2,
+          events: [
+            {
+              type: 'Yellow Card' as const,
+              minute: "35'",
+              player: 'Jocic',
+              team: 'home' as const,
+              icon: '🟨'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "57'",
+              player: 'Solari',
+              team: 'away' as const,
+              icon: '⚽'
+            },
+            {
+              type: 'Goal' as const,
+              minute: "73'",
+              player: 'Martins',
+              team: 'away' as const,
+              icon: '⚽'
+            }
+          ]
+        }
+      ];
             {
               type: 'Goal' as const,
               minute: "12'",
