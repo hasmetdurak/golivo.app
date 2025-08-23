@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MatchCard } from './MatchCard';
 import { LoadingSpinner } from './LoadingSpinner';
 import { MatchDetailsModal } from './MatchDetailsModal';
-import { Trophy, Calendar, Activity, Clock, TrendingUp } from 'lucide-react';
+import { Trophy, Calendar, Activity, Clock } from 'lucide-react';
 
 interface MatchListProps {
   matches: any[];
@@ -327,21 +327,12 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
                   {liveCount > 0 && (
                     <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-semibold text-red-600">{liveCount} CANLI MAÇ</span>
+                      <span className="text-xs font-semibold text-red-600">{liveCount} CANLI</span>
                     </div>
                   )}
-                  {finishedCount > 0 && (
-                    <div className="flex items-center space-x-1 text-gray-500">
-                      <TrendingUp className="h-3 w-3" />
-                      <span className="text-xs font-medium">{finishedCount} Bitti MAÇ</span>
-                    </div>
-                  )}
-                  {scheduledCount > 0 && (
-                    <div className="flex items-center space-x-1 text-blue-600">
-                      <Clock className="h-3 w-3" />
-                      <span className="text-xs font-medium">{scheduledCount} Planlandı MAÇ</span>
-                    </div>
-                  )}
+                  <div className="flex items-center space-x-1 text-gray-600">
+                    <span className="text-xs font-medium">{leagueMatches.length} MAÇ</span>
+                  </div>
                 </div>
               </div>
             </div>
