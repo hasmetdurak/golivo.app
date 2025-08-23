@@ -2,9 +2,10 @@ import React from 'react';
 
 interface MatchCardProps {
   match: any;
+  onClick?: () => void;
 }
 
-export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
+export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
   const isLive = match.status === 'live';
   const isFinished = match.status === 'finished';
   const isScheduled = !isLive && !isFinished;
@@ -30,13 +31,16 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   };
   
   return (
-    <div className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 overflow-hidden ${
+    <div 
+      className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-[1.02] ${
       isLive 
         ? 'border-red-200 bg-gradient-to-r from-red-50/50 to-white' 
         : isFinished 
         ? 'border-gray-200 bg-gradient-to-r from-gray-50/30 to-white' 
         : 'border-blue-200 bg-gradient-to-r from-blue-50/30 to-white'
-    }`}>
+    }`}
+      onClick={onClick}
+    >
       
       {/* Status Header */}
       <div className={`px-4 py-2 border-b flex items-center justify-between ${

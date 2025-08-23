@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MatchCard } from './MatchCard';
 import { LoadingSpinner } from './LoadingSpinner';
+import { MatchDetailsModal } from './MatchDetailsModal';
 import { Trophy, Calendar, Activity, Clock, TrendingUp } from 'lucide-react';
 
 interface MatchListProps {
@@ -11,7 +12,20 @@ interface MatchListProps {
 }
 
 export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selectedLeague, selectedDate }) => {
+  const [selectedMatch, setSelectedMatch] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const displayMatches = matches;
+
+  const handleMatchClick = (match: any) => {
+    setSelectedMatch(match);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMatch(null);
+  };
 
   if (loading) {
     return <LoadingSpinner />;
@@ -39,24 +53,31 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     });
   });
 
-  // Sort leagues by priority (patron's preferred order)
+  // Sort leagues by priority (patron's preferred order - more distinct naming)
   const leaguePriority = {
     'Champions League': 1,
     'UEFA Champions League': 1,
-    'Premier League': 2,
     'English Premier League': 2,
+    'Premier League': 2,
+    'Spanish La Liga': 3,
     'La Liga': 3,
     'Spain La Liga': 3,
+    'German Bundesliga': 4,
     'Bundesliga': 4,
     'Germany Bundesliga': 4,
+    'Italian Serie A': 5,
     'Serie A': 5,
     'Italy Serie A': 5,
+    'French Ligue 1': 6,
     'Ligue 1': 6,
     'France Ligue 1': 6,
+    'Dutch Eredivisie': 7,
     'Eredivisie': 7,
     'Netherlands Eredivisie': 7,
+    'Portuguese Primeira Liga': 8,
     'Primeira Liga': 8,
     'Portugal Premier League': 8,
+    'Belgian Pro League': 9,
     'Pro League': 9,
     'Belgium Pro League': 9,
     'Turkish Super League': 10,
@@ -64,33 +85,43 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'Russian Premier League': 11,
     'Russia Premier League': 11,
     'Premier Liga': 11,
+    'American MLS': 12,
     'MLS': 12,
     'Major League Soccer': 12,
+    'Brazilian Brasileirão': 13,
     'Brasileirão': 13,
     'Brazil Serie A': 13,
     'Argentine Primera División': 14,
+    'Mexican Liga MX': 15,
     'Liga MX': 15,
     'Saudi Pro League': 16
   };
 
-  // League to country mapping with expanded coverage
+  // League to country mapping with more distinct naming
   const leagueCountryMap: Record<string, string> = {
     'Champions League': '🇪🇺 Avrupa',
     'UEFA Champions League': '🇪🇺 Avrupa',
-    'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
     'English Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
+    'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere',
+    'Spanish La Liga': '🇪🇸 İspanya',
     'La Liga': '🇪🇸 İspanya',
     'Spain La Liga': '🇪🇸 İspanya',
+    'German Bundesliga': '🇩🇪 Almanya',
     'Bundesliga': '🇩🇪 Almanya',
     'Germany Bundesliga': '🇩🇪 Almanya',
+    'Italian Serie A': '🇮🇹 İtalya',
     'Serie A': '🇮🇹 İtalya',
     'Italy Serie A': '🇮🇹 İtalya',
+    'French Ligue 1': '🇫🇷 Fransa',
     'Ligue 1': '🇫🇷 Fransa',
     'France Ligue 1': '🇫🇷 Fransa',
+    'Dutch Eredivisie': '🇳🇱 Hollanda',
     'Eredivisie': '🇳🇱 Hollanda',
     'Netherlands Eredivisie': '🇳🇱 Hollanda',
+    'Portuguese Primeira Liga': '🇵🇹 Portekiz',
     'Primeira Liga': '🇵🇹 Portekiz',
     'Portugal Premier League': '🇵🇹 Portekiz',
+    'Belgian Pro League': '🇧🇪 Belçika',
     'Pro League': '🇧🇪 Belçika',
     'Belgium Pro League': '🇧🇪 Belçika',
     'Turkish Super League': '🇹🇷 Türkiye',
@@ -98,11 +129,14 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'Russian Premier League': '🇷🇺 Rusya',
     'Russia Premier League': '🇷🇺 Rusya',
     'Premier Liga': '🇷🇺 Rusya',
+    'American MLS': '🇺🇸 Amerika',
     'MLS': '🇺🇸 Amerika',
     'Major League Soccer': '🇺🇸 Amerika',
+    'Brazilian Brasileirão': '🇧🇷 Brezilya',
     'Brasileirão': '🇧🇷 Brezilya',
     'Brazil Serie A': '🇧🇷 Brezilya',
     'Argentine Primera División': '🇦🇷 Arjantin',
+    'Mexican Liga MX': '🇲🇽 Meksika',
     'Liga MX': '🇲🇽 Meksika',
     'Saudi Pro League': '🇸🇦 Suudi Arabistan'
   };
@@ -211,13 +245,24 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
             <div className="p-3 sm:p-4">
               <div className="grid gap-3 sm:gap-4">
                 {leagueMatches.map((match: any, index: number) => (
-                  <MatchCard key={match.id || index} match={match} />
+                  <MatchCard 
+                    key={match.id || index} 
+                    match={match} 
+                    onClick={() => handleMatchClick(match)}
+                  />
                 ))}
               </div>
             </div>
           </div>
         );
       })}
+      
+      {/* Match Details Modal */}
+      <MatchDetailsModal 
+        match={selectedMatch}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
