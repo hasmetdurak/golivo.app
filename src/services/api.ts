@@ -21,6 +21,7 @@ const LEAGUE_ID_TO_NAME: Record<string, string> = {
   '302': 'Spanish La Liga', 
   '207': 'Italian Serie A',
   '175': 'German Bundesliga',
+  '56': 'Austrian Bundesliga',
   '168': 'French Ligue 1',
   '340': 'Turkish Super League',
   '344': 'Russian Premier League',
@@ -133,6 +134,10 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       } else if (country.includes('germany') || country.includes('almanya')) {
         if (leagueName.includes('bundesliga')) {
           detectedLeague = 'German Bundesliga';
+        }
+      } else if (country.includes('austria') || country.includes('avusturya')) {
+        if (leagueName.includes('bundesliga')) {
+          detectedLeague = 'Austrian Bundesliga';
         }
       } else if (country.includes('italy') || country.includes('italya')) {
         if (leagueName.includes('serie')) {
@@ -431,51 +436,6 @@ export const FootballApi = {
               type: 'Goal' as const,
               minute: "73'",
               player: 'Martins',
-              team: 'away' as const,
-              icon: '⚽'
-            }
-          ]
-        }
-      ];
-            {
-              type: 'Goal' as const,
-              minute: "12'",
-              player: 'Lewandowski',
-              team: 'home' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "28'",
-              player: 'Benzema',
-              team: 'away' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Red Card' as const,
-              minute: "45'",
-              player: 'Casemiro',
-              team: 'away' as const,
-              icon: '🟥'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "67'",
-              player: 'Pedri',
-              team: 'home' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "78'",
-              player: 'Ansu Fati',
-              team: 'home' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "89'",
-              player: 'Vinicius',
               team: 'away' as const,
               icon: '⚽'
             }
