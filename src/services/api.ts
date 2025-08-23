@@ -1,5 +1,5 @@
-const API_KEY = '47746f324863a1c7321a4b137847eba9e647469c8eacced9ca6175bbbadf5c2d';
 const BASE_URL = 'https://apiv3.apifootball.com';
+const API_KEY = '5876c0b9b6e02c82b8c1c22dd22b75f80b3ba0a3a73a6b6b07bf0a87b8bbce9e';
 
 // League ID mappings for major leagues
 const LEAGUE_IDS = {
@@ -74,11 +74,18 @@ interface ApiMatch {
   team_away_badge: string;
   league_logo: string;
   match_live: string;
+  match_round?: string;
+  match_referee?: string;
+  match_venue?: string;
+  match_ft_score?: string;
+  match_et_score?: string;
   goalscorer?: Array<{
     time: string;
     home_scorer: string;
     away_scorer: string;
     score: string;
+    home_assist?: string;
+    away_assist?: string;
   }>;
   cards?: Array<{
     time: string;
@@ -90,6 +97,78 @@ interface ApiMatch {
     time: string;
     substitution: string;
   }>;
+  lineup?: {
+    home?: {
+      starting_lineups?: Array<{
+        lineup_player: string;
+        lineup_number: string;
+        lineup_position: string;
+      }>;
+      substitutes?: Array<{
+        lineup_player: string;
+        lineup_number: string;
+        lineup_position: string;
+      }>;
+    };
+    away?: {
+      starting_lineups?: Array<{
+        lineup_player: string;
+        lineup_number: string;
+        lineup_position: string;
+      }>;
+      substitutes?: Array<{
+        lineup_player: string;
+        lineup_number: string;
+        lineup_position: string;
+      }>;
+    };
+  };
+  statistics?: Array<{
+    type: string;
+    home: string;
+    away: string;
+  }>;
+}
+
+interface TeamStanding {
+  country_name: string;
+  league_id: string;
+  league_name: string;
+  team_id: string;
+  team_name: string;
+  team_badge: string;
+  overall_league_position: string;
+  overall_league_payed: string;
+  overall_league_W: string;
+  overall_league_D: string;
+  overall_league_L: string;
+  overall_league_GF: string;
+  overall_league_GA: string;
+  overall_league_PTS: string;
+}
+
+interface PlayerStats {
+  player_key: string;
+  player_name: string;
+  player_number: string;
+  player_country: string;
+  player_type: string;
+  player_age: string;
+  player_match_played: string;
+  player_goals: string;
+  player_yellow_cards: string;
+  player_red_cards: string;
+  team_name: string;
+  team_key: string;
+}
+
+interface LeagueInfo {
+  league_id: string;
+  league_name: string;
+  league_season: string;
+  league_logo: string;
+  country_name: string;
+  country_logo: string;
 }
 
 interface Match {
@@ -99,23 +178,68 @@ interface Match {
   status: string;
   minute?: string;
   time: string;
+  venue?: string;
+  referee?: string;
+  round?: string;
   homeTeam: {
     name: string;
     logo: string;
+    formation?: string;
   };
   awayTeam: {
     name: string;
     logo: string;
+    formation?: string;
   };
   homeScore: number;
   awayScore: number;
+  halftimeScore?: {
+    home: number;
+    away: number;
+  };
   events?: Array<{
     type: 'Goal' | 'Yellow Card' | 'Red Card' | 'Substitution';
     minute: string;
     player: string;
     team: 'home' | 'away';
     icon?: string;
+    assist?: string;
   }>;
+  statistics?: Array<{
+    type: string;
+    home: string;
+    away: string;
+    homePercent?: number;
+    awayPercent?: number;
+  }>;
+  lineup?: {
+    home?: {
+      formation?: string;
+      starting11?: Array<{
+        name: string;
+        number: string;
+        position: string;
+      }>;
+      substitutes?: Array<{
+        name: string;
+        number: string;
+        position: string;
+      }>;
+    };
+    away?: {
+      formation?: string;
+      starting11?: Array<{
+        name: string;
+        number: string;
+        position: string;
+      }>;
+      substitutes?: Array<{
+        name: string;
+        number: string;
+        position: string;
+      }>;
+    };
+  };
 }
 
 const transformApiMatch = (apiMatch: ApiMatch): Match => {
@@ -196,6 +320,7 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       player: string;
       team: 'home' | 'away';
       icon?: string;
+      assist?: string;
     }> = [];
 
     // Add goals
@@ -207,7 +332,8 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
             minute: goal.time,
             player: goal.home_scorer,
             team: 'home',
-            icon: '⚽'
+            icon: '⚽',
+            assist: goal.home_assist || undefined
           });
         }
         if (goal.away_scorer) {
@@ -216,7 +342,8 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
             minute: goal.time,
             player: goal.away_scorer,
             team: 'away',
-            icon: '⚽'
+            icon: '⚽',
+            assist: goal.away_assist || undefined
           });
         }
       });
@@ -256,6 +383,55 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       return minuteA - minuteB;
     });
 
+    // Process statistics
+    const processedStats = apiMatch.statistics?.map(stat => ({
+      type: stat.type,
+      home: stat.home,
+      away: stat.away,
+      homePercent: parseFloat(stat.home) || 0,
+      awayPercent: parseFloat(stat.away) || 0
+    })) || [];
+
+    // Process lineup
+    const processedLineup = {
+      home: apiMatch.lineup?.home ? {
+        starting11: apiMatch.lineup.home.starting_lineups?.map(player => ({
+          name: player.lineup_player,
+          number: player.lineup_number,
+          position: player.lineup_position
+        })) || [],
+        substitutes: apiMatch.lineup.home.substitutes?.map(player => ({
+          name: player.lineup_player,
+          number: player.lineup_number,
+          position: player.lineup_position
+        })) || []
+      } : undefined,
+      away: apiMatch.lineup?.away ? {
+        starting11: apiMatch.lineup.away.starting_lineups?.map(player => ({
+          name: player.lineup_player,
+          number: player.lineup_number,
+          position: player.lineup_position
+        })) || [],
+        substitutes: apiMatch.lineup.away.substitutes?.map(player => ({
+          name: player.lineup_player,
+          number: player.lineup_number,
+          position: player.lineup_position
+        })) || []
+      } : undefined
+    };
+
+    // Calculate half-time score from ft_score if available
+    let halftimeScore = undefined;
+    if (apiMatch.match_ft_score) {
+      const ftScores = apiMatch.match_ft_score.split('-');
+      if (ftScores.length === 2) {
+        halftimeScore = {
+          home: Math.floor(parseInt(ftScores[0]) / 2),
+          away: Math.floor(parseInt(ftScores[1]) / 2)
+        };
+      }
+    }
+
     return {
       id: apiMatch.match_id,
       league: detectedLeague,
@@ -263,6 +439,9 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       status,
       minute,
       time: apiMatch.match_time || '00:00',
+      venue: apiMatch.match_venue,
+      referee: apiMatch.match_referee,
+      round: apiMatch.match_round,
       homeTeam: {
         name: apiMatch.match_hometeam_name || 'Home Team',
         logo: apiMatch.team_home_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
@@ -273,7 +452,10 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       },
       homeScore: parseInt(apiMatch.match_hometeam_score) || 0,
       awayScore: parseInt(apiMatch.match_awayteam_score) || 0,
-      events
+      halftimeScore,
+      events,
+      statistics: processedStats,
+      lineup: processedLineup
     };
   } catch (error) {
     console.error('Error transforming match:', error, apiMatch);
@@ -491,6 +673,109 @@ export const FootballApi = {
       
     } catch (error) {
       console.error('Error fetching live matches:', error);
+      return [];
+    }
+  },
+
+  // Lig tablosunu çek
+  async getLeagueStandings(leagueId: string): Promise<TeamStanding[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_standings&league_id=${leagueId}&APIkey=${API_KEY}`;
+      console.log('Fetching standings:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+      
+      const data: TeamStanding[] = await response.json();
+      console.log('Standings data:', data);
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data.sort((a, b) => parseInt(a.overall_league_position) - parseInt(b.overall_league_position));
+      
+    } catch (error) {
+      console.error('Error fetching standings:', error);
+      return [];
+    }
+  },
+
+  // Oyuncu istatistiklerini çek
+  async getTopScorers(leagueId: string): Promise<PlayerStats[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_topscorers&league_id=${leagueId}&APIkey=${API_KEY}`;
+      console.log('Fetching top scorers:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+      
+      const data: PlayerStats[] = await response.json();
+      console.log('Top scorers data:', data);
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data.sort((a, b) => parseInt(b.player_goals) - parseInt(a.player_goals));
+      
+    } catch (error) {
+      console.error('Error fetching top scorers:', error);
+      return [];
+    }
+  },
+
+  // Detaylı maç bilgilerini çek (lineup, statistics dahil)
+  async getMatchDetails(matchId: string): Promise<Match | null> {
+    try {
+      const url = `${BASE_URL}/?action=get_events&match_id=${matchId}&APIkey=${API_KEY}`;
+      console.log('Fetching match details:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+      
+      const data: ApiMatch[] = await response.json();
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        return null;
+      }
+      
+      return transformApiMatch(data[0]);
+      
+    } catch (error) {
+      console.error('Error fetching match details:', error);
+      return null;
+    }
+  },
+
+  // Tüm ligleri çek
+  async getAvailableLeagues(): Promise<LeagueInfo[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_leagues&APIkey=${API_KEY}`;
+      console.log('Fetching leagues:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+      
+      const data: LeagueInfo[] = await response.json();
+      console.log('Leagues data:', data);
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data;
+      
+    } catch (error) {
+      console.error('Error fetching leagues:', error);
       return [];
     }
   }

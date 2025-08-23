@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Clock, Trophy, Target, Calendar, MapPin } from 'lucide-react';
+import { X, Clock, Trophy, Target, Calendar, MapPin, Users, BarChart3, User } from 'lucide-react';
 
 interface MatchDetailsModalProps {
   match: any;
@@ -70,10 +70,26 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
               <div className="flex items-center space-x-2">
                 <Calendar className="h-4 w-4 text-gray-600" />
                 <span className="text-sm font-medium text-gray-600">{match.time}</span>
+                {match.round && (
+                  <>
+                    <span className="text-gray-400">•</span>
+                    <span className="text-sm font-medium text-gray-600">{match.round}. Hafta</span>
+                  </>
+                )}
               </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-600">{match.country}</span>
+              <div className="flex items-center space-x-4">
+                {match.venue && (
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-600">{match.venue}</span>
+                  </div>
+                )}
+                {match.referee && (
+                  <div className="flex items-center space-x-2">
+                    <User className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-600">{match.referee}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -183,6 +199,60 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
                       <p className="text-sm text-gray-500 italic">Olay yok</p>
                     )}
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Match Statistics */}
+          {match.statistics && match.statistics.length > 0 && (
+            <div className="bg-white border border-gray-100 rounded-xl p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-900">Maç İstatistikleri</h3>
+              </div>
+              
+              <div className="space-y-4">
+                {match.statistics.map((stat: any, index: number) => {
+                  const homeValue = parseFloat(stat.home) || 0;
+                  const awayValue = parseFloat(stat.away) || 0;
+                  const total = homeValue + awayValue;
+                  const homePercent = total > 0 ? (homeValue / total) * 100 : 50;
+                  const awayPercent = 100 - homePercent;
+                  
+                  return (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-blue-600">{stat.home}</span>
+                        <span className="text-sm font-semibold text-gray-700">{stat.type}</span>
+                        <span className="text-sm font-medium text-purple-600">{stat.away}</span>
+                      </div>
+                      <div className="flex h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-blue-500" 
+                          style={{ width: `${homePercent}%` }}
+                        ></div>
+                        <div 
+                          className="bg-purple-500" 
+                          style={{ width: `${awayPercent}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Half Time Score */}
+          {match.halftimeScore && (
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+              <div className="flex items-center justify-center space-x-4">
+                <span className="text-sm font-medium text-gray-600">Yarı Zaman:</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg font-bold text-gray-800">{match.halftimeScore.home}</span>
+                  <span className="text-gray-400">-</span>
+                  <span className="text-lg font-bold text-gray-800">{match.halftimeScore.away}</span>
                 </div>
               </div>
             </div>
