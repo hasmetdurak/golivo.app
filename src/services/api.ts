@@ -60,44 +60,49 @@ interface Match {
 }
 
 const transformApiMatch = (apiMatch: ApiMatch): Match => {
-  const isLive = apiMatch.match_live === '1' || apiMatch.match_status.includes("'");
-  let status = 'scheduled';
-  let minute = undefined;
-  
-  if (isLive) {
-    status = 'live';
-    if (apiMatch.match_status.includes("'")) {
-      minute = apiMatch.match_status;
+  try {
+    const isLive = apiMatch.match_live === '1' || (apiMatch.match_status && apiMatch.match_status.includes("'"));
+    let status = 'scheduled';
+    let minute = undefined;
+    
+    if (isLive) {
+      status = 'live';
+      if (apiMatch.match_status && apiMatch.match_status.includes("'")) {
+        minute = apiMatch.match_status;
+      }
+    } else if (apiMatch.match_status === 'Finished') {
+      status = 'finished';
     }
-  } else if (apiMatch.match_status === 'Finished') {
-    status = 'finished';
+
+    const events = apiMatch.goalscorer?.map(goal => ({
+      type: 'Goal',
+      minute: goal.time,
+      player: goal.home_scorer || goal.away_scorer
+    })) || [];
+
+    return {
+      id: apiMatch.match_id,
+      league: apiMatch.league_name || 'Unknown League',
+      country: apiMatch.country_name || 'Unknown',
+      status,
+      minute,
+      time: apiMatch.match_time || '00:00',
+      homeTeam: {
+        name: apiMatch.match_hometeam_name || 'Home Team',
+        logo: apiMatch.team_home_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
+      },
+      awayTeam: {
+        name: apiMatch.match_awayteam_name || 'Away Team',
+        logo: apiMatch.team_away_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'
+      },
+      homeScore: parseInt(apiMatch.match_hometeam_score) || 0,
+      awayScore: parseInt(apiMatch.match_awayteam_score) || 0,
+      events
+    };
+  } catch (error) {
+    console.error('Error transforming match:', error, apiMatch);
+    return null as any;
   }
-
-  const events = apiMatch.goalscorer?.map(goal => ({
-    type: 'Goal',
-    minute: goal.time,
-    player: goal.home_scorer || goal.away_scorer
-  })) || [];
-
-  return {
-    id: apiMatch.match_id,
-    league: apiMatch.league_name,
-    country: apiMatch.country_name,
-    status,
-    minute,
-    time: apiMatch.match_time,
-    homeTeam: {
-      name: apiMatch.match_hometeam_name,
-      logo: apiMatch.team_home_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=?'
-    },
-    awayTeam: {
-      name: apiMatch.match_awayteam_name,
-      logo: apiMatch.team_away_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=?'
-    },
-    homeScore: parseInt(apiMatch.match_hometeam_score) || 0,
-    awayScore: parseInt(apiMatch.match_awayteam_score) || 0,
-    events
-  };
 };
 
 export const FootballApi = {
@@ -113,6 +118,7 @@ export const FootballApi = {
         url += `&league_id=${LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]}`;
       }
       
+      console.log('Fetching from API:', url);
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -120,17 +126,21 @@ export const FootballApi = {
       }
       
       const data: ApiMatch[] = await response.json();
+      console.log('API Response:', data);
       
       if (!Array.isArray(data)) {
-        console.warn('API returned non-array data, using fallback');
+        console.warn('API returned non-array data:', data);
         return [];
       }
       
-      return data.map(transformApiMatch);
+      const transformedMatches = data.map(transformApiMatch).filter(match => match !== null);
+      console.log('Transformed matches:', transformedMatches);
+      
+      return transformedMatches;
       
     } catch (error) {
       console.error('Error fetching matches:', error);
-      // Return empty array on error, MatchList will use mock data as fallback
+      // Don't return mock data, return empty array to show "No matches" message
       return [];
     }
   },

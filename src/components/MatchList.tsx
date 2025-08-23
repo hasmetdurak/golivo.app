@@ -1,7 +1,6 @@
 import React from 'react';
 import { MatchCard } from './MatchCard';
 import { LoadingSpinner } from './LoadingSpinner';
-import { mockMatches } from '../data/mockData';
 import { Trophy, Calendar, Activity, Clock, TrendingUp } from 'lucide-react';
 
 interface MatchListProps {
@@ -12,7 +11,7 @@ interface MatchListProps {
 }
 
 export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selectedLeague, selectedDate }) => {
-  const displayMatches = matches.length > 0 ? matches : mockMatches;
+  const displayMatches = matches;
 
   if (loading) {
     return <LoadingSpinner />;

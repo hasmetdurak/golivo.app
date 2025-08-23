@@ -17,10 +17,13 @@ function App() {
   const fetchLiveMatches = async () => {
     setLoading(true);
     try {
+      console.log('Fetching matches for league:', selectedLeague, 'date:', selectedDate);
       const matches = await FootballApi.getLiveMatches(selectedLeague);
+      console.log('Received matches:', matches.length);
       setLiveMatches(matches);
     } catch (error) {
       console.error('Error loading matches:', error);
+      setLiveMatches([]);
     } finally {
       setLoading(false);
     }
