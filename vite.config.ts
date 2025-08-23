@@ -7,4 +7,8 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  build: {
+    // Force cache bust for Vercel
+    assetsDir: `assets-${Date.now()}`
+  }
 });
