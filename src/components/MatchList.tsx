@@ -96,7 +96,33 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'Argentine Primera División': 15,
     'Mexican Liga MX': 16,
     'Liga MX': 16,
-    'Saudi Pro League': 17
+    'Saudi Pro League': 17,
+    // Additional European leagues
+    'Scottish Premiership': 18,
+    'Swiss Super League': 19,
+    'Ukrainian Premier League': 20,
+    'Polish Ekstraklasa': 21,
+    'Czech First League': 22,
+    'Croatian First League': 23,
+    'Serbian SuperLiga': 24,
+    'Greek Super League': 25,
+    'Bulgarian First League': 26,
+    'Romanian Liga 1': 27,
+    'Slovenian PrvaLiga': 28,
+    'Slovakian Super Liga': 29,
+    'Hungarian NB I': 30,
+    'Estonian Meistriliiga': 31,
+    'Latvian Virsliga': 32,
+    'Lithuanian A Lyga': 33,
+    'Belarusian Premier League': 34,
+    'Moldovan National Division': 35,
+    'Cyprus First Division': 36,
+    'Malta Premier League': 37,
+    'Gibraltar National League': 38,
+    'Andorran First Division': 39,
+    'San Marino Championship': 40,
+    'Faroe Islands Premier League': 41,
+    'Luxembourg National Division': 42
   };
 
   // League to country mapping with simplified naming
@@ -142,7 +168,33 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'Argentine Primera División': 'ARGENTINA PRIMERA',
     'Mexican Liga MX': 'MEXICO LIGA MX',
     'Liga MX': 'MEXICO LIGA MX',
-    'Saudi Pro League': 'SAUDI PRO LEAGUE'
+    'Saudi Pro League': 'SAUDI PRO LEAGUE',
+    // Additional European leagues with country distinction
+    'Scottish Premiership': 'SCOTLAND PREMIERSHIP',
+    'Swiss Super League': 'SWITZERLAND SUPER LEAGUE',
+    'Ukrainian Premier League': 'UKRAINE PREMIER LEAGUE',
+    'Polish Ekstraklasa': 'POLAND EKSTRAKLASA',
+    'Czech First League': 'CZECH REPUBLIC FIRST LEAGUE',
+    'Croatian First League': 'CROATIA FIRST LEAGUE',
+    'Serbian SuperLiga': 'SERBIA SUPER LIGA',
+    'Greek Super League': 'GREECE SUPER LEAGUE',
+    'Bulgarian First League': 'BULGARIA FIRST LEAGUE',
+    'Romanian Liga 1': 'ROMANIA LIGA 1',
+    'Slovenian PrvaLiga': 'SLOVENIA PRVA LIGA',
+    'Slovakian Super Liga': 'SLOVAKIA SUPER LIGA',
+    'Hungarian NB I': 'HUNGARY NB I',
+    'Estonian Meistriliiga': 'ESTONIA MEISTRILIIGA',
+    'Latvian Virsliga': 'LATVIA VIRSLIGA',
+    'Lithuanian A Lyga': 'LITHUANIA A LYGA',
+    'Belarusian Premier League': 'BELARUS PREMIER LEAGUE',
+    'Moldovan National Division': 'MOLDOVA NATIONAL DIVISION',
+    'Cyprus First Division': 'CYPRUS FIRST DIVISION',
+    'Malta Premier League': 'MALTA PREMIER LEAGUE',
+    'Gibraltar National League': 'GIBRALTAR NATIONAL LEAGUE',
+    'Andorran First Division': 'ANDORRA FIRST DIVISION',
+    'San Marino Championship': 'SAN MARINO CHAMPIONSHIP',
+    'Faroe Islands Premier League': 'FAROE ISLANDS PREMIER LEAGUE',
+    'Luxembourg National Division': 'LUXEMBOURG NATIONAL DIVISION'
   };
 
   // League color mapping for visual distinction
@@ -163,7 +215,33 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     'BRAZIL BRASILEIRAO': { bg: 'bg-lime-50', border: 'border-lime-200', icon: 'bg-lime-600' },
     'ARGENTINA PRIMERA': { bg: 'bg-sky-50', border: 'border-sky-200', icon: 'bg-sky-600' },
     'MEXICO LIGA MX': { bg: 'bg-pink-50', border: 'border-pink-200', icon: 'bg-pink-600' },
-    'SAUDI PRO LEAGUE': { bg: 'bg-amber-50', border: 'border-amber-200', icon: 'bg-amber-600' }
+    'SAUDI PRO LEAGUE': { bg: 'bg-amber-50', border: 'border-amber-200', icon: 'bg-amber-600' },
+    // Additional leagues with unique colors
+    'SCOTLAND PREMIERSHIP': { bg: 'bg-blue-100', border: 'border-blue-300', icon: 'bg-blue-700' },
+    'SWITZERLAND SUPER LEAGUE': { bg: 'bg-red-100', border: 'border-red-300', icon: 'bg-red-700' },
+    'UKRAINE PREMIER LEAGUE': { bg: 'bg-yellow-100', border: 'border-yellow-300', icon: 'bg-yellow-700' },
+    'POLAND EKSTRAKLASA': { bg: 'bg-red-200', border: 'border-red-400', icon: 'bg-red-800' },
+    'CZECH REPUBLIC FIRST LEAGUE': { bg: 'bg-blue-200', border: 'border-blue-400', icon: 'bg-blue-800' },
+    'CROATIA FIRST LEAGUE': { bg: 'bg-red-300', border: 'border-red-500', icon: 'bg-red-900' },
+    'SERBIA SUPER LIGA': { bg: 'bg-blue-300', border: 'border-blue-500', icon: 'bg-blue-900' },
+    'GREECE SUPER LEAGUE': { bg: 'bg-sky-200', border: 'border-sky-400', icon: 'bg-sky-800' },
+    'BULGARIA FIRST LEAGUE': { bg: 'bg-green-200', border: 'border-green-400', icon: 'bg-green-800' },
+    'ROMANIA LIGA 1': { bg: 'bg-yellow-200', border: 'border-yellow-400', icon: 'bg-yellow-800' },
+    'SLOVENIA PRVA LIGA': { bg: 'bg-green-300', border: 'border-green-500', icon: 'bg-green-900' },
+    'SLOVAKIA SUPER LIGA': { bg: 'bg-blue-400', border: 'border-blue-600', icon: 'bg-blue-950' },
+    'HUNGARY NB I': { bg: 'bg-red-400', border: 'border-red-600', icon: 'bg-red-950' },
+    'ESTONIA MEISTRILIIGA': { bg: 'bg-sky-300', border: 'border-sky-500', icon: 'bg-sky-900' },
+    'LATVIA VIRSLIGA': { bg: 'bg-red-500', border: 'border-red-700', icon: 'bg-red-950' },
+    'LITHUANIA A LYGA': { bg: 'bg-yellow-300', border: 'border-yellow-500', icon: 'bg-yellow-900' },
+    'BELARUS PREMIER LEAGUE': { bg: 'bg-green-400', border: 'border-green-600', icon: 'bg-green-950' },
+    'MOLDOVA NATIONAL DIVISION': { bg: 'bg-blue-500', border: 'border-blue-700', icon: 'bg-blue-950' },
+    'CYPRUS FIRST DIVISION': { bg: 'bg-orange-200', border: 'border-orange-400', icon: 'bg-orange-800' },
+    'MALTA PREMIER LEAGUE': { bg: 'bg-red-600', border: 'border-red-800', icon: 'bg-red-950' },
+    'GIBRALTAR NATIONAL LEAGUE': { bg: 'bg-yellow-400', border: 'border-yellow-600', icon: 'bg-yellow-950' },
+    'ANDORRA FIRST DIVISION': { bg: 'bg-blue-600', border: 'border-blue-800', icon: 'bg-blue-950' },
+    'SAN MARINO CHAMPIONSHIP': { bg: 'bg-sky-400', border: 'border-sky-600', icon: 'bg-sky-950' },
+    'FAROE ISLANDS PREMIER LEAGUE': { bg: 'bg-red-700', border: 'border-red-900', icon: 'bg-red-950' },
+    'LUXEMBOURG NATIONAL DIVISION': { bg: 'bg-orange-400', border: 'border-orange-600', icon: 'bg-orange-950' }
   };
 
   const leagues = Object.keys(groupedMatches).sort((a, b) => {
@@ -249,19 +327,19 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
                   {liveCount > 0 && (
                     <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-semibold text-red-600">{liveCount} CANLI</span>
+                      <span className="text-xs font-semibold text-red-600">{liveCount} CANLI MAÇ</span>
                     </div>
                   )}
                   {finishedCount > 0 && (
                     <div className="flex items-center space-x-1 text-gray-500">
                       <TrendingUp className="h-3 w-3" />
-                      <span className="text-xs font-medium">{finishedCount} Bitti</span>
+                      <span className="text-xs font-medium">{finishedCount} Bitti MAÇ</span>
                     </div>
                   )}
                   {scheduledCount > 0 && (
                     <div className="flex items-center space-x-1 text-blue-600">
                       <Clock className="h-3 w-3" />
-                      <span className="text-xs font-medium">{scheduledCount} Planlandı</span>
+                      <span className="text-xs font-medium">{scheduledCount} Planlandı MAÇ</span>
                     </div>
                   )}
                 </div>

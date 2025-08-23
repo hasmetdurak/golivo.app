@@ -29,7 +29,33 @@ const LEAGUE_ID_TO_NAME: Record<string, string> = {
   '266': 'Portuguese Primeira Liga',
   '63': 'Belgian Pro League',
   '332': 'American MLS',
-  '99': 'Brazilian Brasileirão'
+  '99': 'Brazilian Brasileirão',
+  // Additional leagues with potential name conflicts
+  '154': 'Scottish Premiership',
+  '218': 'Swiss Super League',
+  '181': 'Ukrainian Premier League',
+  '262': 'Polish Ekstraklasa',
+  '268': 'Czech First League',
+  '272': 'Croatian First League',
+  '276': 'Serbian SuperLiga',
+  '294': 'Greek Super League',
+  '271': 'Bulgarian First League',
+  '278': 'Romanian Liga 1',
+  '279': 'Slovenian PrvaLiga',
+  '284': 'Slovakian Super Liga',
+  '285': 'Hungarian NB I',
+  '286': 'Estonian Meistriliiga',
+  '287': 'Latvian Virsliga',
+  '288': 'Lithuanian A Lyga',
+  '289': 'Belarusian Premier League',
+  '290': 'Moldovan National Division',
+  '295': 'Cyprus First Division',
+  '296': 'Malta Premier League',
+  '297': 'Gibraltar National League',
+  '298': 'Andorran First Division',
+  '299': 'San Marino Championship',
+  '300': 'Faroe Islands Premier League',
+  '301': 'Luxembourg National Division'
 };
 
 interface ApiMatch {
