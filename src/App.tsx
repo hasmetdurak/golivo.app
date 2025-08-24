@@ -7,6 +7,8 @@ import { MatchList } from './components/MatchList';
 import { LeagueStandings } from './components/LeagueStandings';
 import { TeamDashboard } from './components/TeamDashboard';
 import { PlayerStatistics } from './components/PlayerStatistics';
+import { StatisticsDashboard } from './components/StatisticsDashboard';
+import { CountryDashboard } from './components/CountryDashboard';
 import { FootballApi } from './services/api';
 import { useTranslation } from './i18n/useTranslation';
 import { initGeoRedirect } from './utils/geoRedirect';
@@ -79,19 +81,9 @@ function App() {
           </div>
         );
       case 'statistics':
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">📊 İstatistikler</h2>
-            <p className="text-gray-600">Bu bölüm yakında tamamlanacak...</p>
-          </div>
-        );
+        return <StatisticsDashboard />;
       case 'countries':
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">🌍 Ülkeler</h2>
-            <p className="text-gray-600">Bu bölüm yakında tamamlanacak...</p>
-          </div>
-        );
+        return <CountryDashboard />;
       case 'matches':
       default:
         return (
