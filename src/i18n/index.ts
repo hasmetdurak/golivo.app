@@ -268,6 +268,69 @@ export const translations: Record<string, Translations> = {
     matchEvents: 'Evenimente meci', matchDetails: 'Detalii meci', statistics: 'Statistici meci',
     close: 'Închide', noMatches: 'Nu s-au găsit meciuri', checkLater: 'Reveniți mai târziu pentru actualizări',
     liveMatch: 'LIVE', matchesCount: 'MECIURI', appTitle: 'Rezultate Fotbal Live', todaysMatches: 'Meciurile de Azi'
+  },
+  bg: {
+    live: 'НА ЖИВО', finished: 'Приключени', scheduled: 'Планирани', matches: 'МАЧОВЕ', leagues: 'Лиги',
+    today: 'Днес', homeTeam: 'Домакин', awayTeam: 'Гост', halfTime: 'Почивка',
+    matchEvents: 'Събития от мача', matchDetails: 'Детайли за мача', statistics: 'Статистики на мача',
+    close: 'Затвори', noMatches: 'Няма намерени мачове', checkLater: 'Проверете отново по-късно за актуализации',
+    liveMatch: 'НА ЖИВО', matchesCount: 'МАЧОВЕ', appTitle: 'Резултати от Футбол на Живо', todaysMatches: 'Днешни Мачове'
+  },
+  sr: {
+    live: 'UŽIVO', finished: 'Završene', scheduled: 'Planirane', matches: 'UTAKMICE', leagues: 'Lige',
+    today: 'Danas', homeTeam: 'Domaći', awayTeam: 'Gosti', halfTime: 'Poluvreme',
+    matchEvents: 'Događaji utakmice', matchDetails: 'Detalji utakmice', statistics: 'Statistike utakmice',
+    close: 'Zatvori', noMatches: 'Nisu pronađene utakmice', checkLater: 'Vratite se kasnije za ažuriranja',
+    liveMatch: 'UŽIVO', matchesCount: 'UTAKMICE', appTitle: 'Rezultati Fudbal Uživo', todaysMatches: 'Današnje Utakmice'
+  },
+  hr: {
+    live: 'UŽIVO', finished: 'Završene', scheduled: 'Planirane', matches: 'UTAKMICE', leagues: 'Lige',
+    today: 'Danas', homeTeam: 'Domaći', awayTeam: 'Gosti', halfTime: 'Poluvrijeme',
+    matchEvents: 'Događaji utakmice', matchDetails: 'Detalji utakmice', statistics: 'Statistike utakmice',
+    close: 'Zatvori', noMatches: 'Nisu pronađene utakmice', checkLater: 'Vratite se kasnije za ažuriranja',
+    liveMatch: 'UŽIVO', matchesCount: 'UTAKMICE', appTitle: 'Rezultati Nogomet Uživo', todaysMatches: 'Današnje Utakmice'
+  },
+  uk: {
+    live: 'НАЖИВО', finished: 'Завершені', scheduled: 'Заплановані', matches: 'МАТЧІ', leagues: 'Ліги',
+    today: 'Сьогодні', homeTeam: 'Господарі', awayTeam: 'Гості', halfTime: 'Перерва',
+    matchEvents: 'Події матчу', matchDetails: 'Деталі матчу', statistics: 'Статистика матчу',
+    close: 'Закрити', noMatches: 'Матчі не знайдені', checkLater: 'Перевірте пізніше для оновлень',
+    liveMatch: 'НАЖИВО', matchesCount: 'МАТЧІ', appTitle: 'Результати Футболу Наживо', todaysMatches: 'Сьогоднішні Матчі'
+  },
+  bn: {
+    live: 'লাইভ', finished: 'সমাপ্ত', scheduled: 'নির্ধারিত', matches: 'ম্যাচ', leagues: 'লিগ',
+    today: 'আজ', homeTeam: 'হোম', awayTeam: 'অ্যাওয়ে', halfTime: 'হাফ টাইম',
+    matchEvents: 'ম্যাচ ইভেন্ট', matchDetails: 'ম্যাচ বিবরণ', statistics: 'ম্যাচ পরিসংখ্যান',
+    close: 'বন্ধ', noMatches: 'কোন ম্যাচ পাওয়া যায়নি', checkLater: 'আপডেটের জন্য পরে চেক করুন',
+    liveMatch: 'লাইভ', matchesCount: 'ম্যাচ', appTitle: 'লাইভ ফুটবল স্কোর', todaysMatches: 'আজকের ম্যাচ'
+  },
+  ur: {
+    live: 'براہ راست', finished: 'ختم', scheduled: 'طے شدہ', matches: 'میچز', leagues: 'لیگز',
+    today: 'آج', homeTeam: 'گھریلو', awayTeam: 'باہری', halfTime: 'ہاف ٹائم',
+    matchEvents: 'میچ واقعات', matchDetails: 'میچ تفصیلات', statistics: 'میچ اعداد و شمار',
+    close: 'بند', noMatches: 'کوئی میچ نہیں ملا', checkLater: 'اپ ڈیٹس کے لیے بعد میں چیک کریں',
+    liveMatch: 'براہ راست', matchesCount: 'میچز', appTitle: 'لائیو فٹ بال اسکور', todaysMatches: 'آج کے میچز'
+  },
+  ta: {
+    live: 'நேரடி', finished: 'முடிந்தது', scheduled: 'திட்டமிடப்பட்டது', matches: 'போட்டிகள்', leagues: 'லீக்குகள்',
+    today: 'இன்று', homeTeam: 'சொந்த', awayTeam: 'வெளியூர்', halfTime: 'அரை நேரம்',
+    matchEvents: 'போட்டி நிகழ்வுகள்', matchDetails: 'போட்டி விவரங்கள்', statistics: 'போட்டி புள்ளிவிவரங்கள்',
+    close: 'மூடு', noMatches: 'போட்டிகள் இல்லை', checkLater: 'புதுப்பிப்புகளுக்கு பின்னர் சரிபார்க்கவும்',
+    liveMatch: 'நேரடி', matchesCount: 'போட்டிகள்', appTitle: 'நேரடி கால்பந்து மதிப்பெண்கள்', todaysMatches: 'இன்றைய போட்டிகள்'
+  },
+  te: {
+    live: 'ప్రత్యక్ష', finished: 'పూర్తయ్యాయి', scheduled: 'షెడ్యూల్ చేయబడినవి', matches: 'మ్యాచ్‌లు', leagues: 'లీగ్‌లు',
+    today: 'ఈరోజు', homeTeam: 'హోమ్', awayTeam: 'అవే', halfTime: 'హాఫ్ టైమ్',
+    matchEvents: 'మ్యాచ్ ఈవెంట్‌లు', matchDetails: 'మ్యాచ్ వివరాలు', statistics: 'మ్యాచ్ గణాంకాలు',
+    close: 'మూసివేయండి', noMatches: 'మ్యాచ్‌లు కనుగొనబడలేదు', checkLater: 'అప్‌డేట్‌ల కోసం తర్వాత తనిఖీ చేయండి',
+    liveMatch: 'ప్రత్యక్ష', matchesCount: 'మ్యాచ్‌లు', appTitle: 'ప్రత్యక్ష ఫుట్‌బాల్ స్కోర్‌లు', todaysMatches: 'నేటి మ్యాచ్‌లు'
+  },
+  ml: {
+    live: 'തത്സമയം', finished: 'പൂർത്തിയായി', scheduled: 'ഷെഡ്യൂൾ ചെയ്തു', matches: 'മത്സരങ്ങൾ', leagues: 'ലീഗുകൾ',
+    today: 'ഇന്ന്', homeTeam: 'ഹോം', awayTeam: 'അവേ', halfTime: 'ഹാഫ് ടൈം',
+    matchEvents: 'മത്സര സംഭവങ്ങൾ', matchDetails: 'മത്സര വിശദാംശങ്ങൾ', statistics: 'മത്സര സ്ഥിതിവിവരക്കണക്കുകൾ',
+    close: 'അടയ്ക്കുക', noMatches: 'മത്സരങ്ങളൊന്നും കണ്ടെത്തിയില്ല', checkLater: 'അപ്ഡേറ്റുകൾക്കായി പിന്നീട് പരിശോധിക്കുക',
+    liveMatch: 'തത്സമയം', matchesCount: 'മത്സരങ്ങൾ', appTitle: 'തത്സമയ ഫുട്ബോൾ സ്കോറുകൾ', todaysMatches: 'ഇന്നത്തെ മത്സരങ്ങൾ'
   }
 };
 
