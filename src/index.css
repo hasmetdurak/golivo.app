@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import mobile enhancements */
+@import './styles/mobile-enhancements.css';
+
 /* Custom animations for background */
 @keyframes blob {
   0% {
