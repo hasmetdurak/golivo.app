@@ -8,18 +8,18 @@ const countryToLanguage: Record<string, string> = {
   
   // English
   'US': 'en', 'GB': 'en', 'AU': 'en', 'NZ': 'en', 'IE': 'en',
-  'ZA': 'en', 'NG': 'en', 'GH': 'en', 'UG': 'en',
+  'ZA': 'en', 'GH': 'en', 'UG': 'en',
   
   // English (India)
-  'IN': 'en-IN', 'BD': 'en-IN', 'PK': 'en-IN', 'LK': 'en-IN',
+  'IN': 'in', 'LK': 'in',
   
   // German  
   'DE': 'de', 'AT': 'de', 'LI': 'de',
   
   // Spanish
-  'ES': 'es', 'MX': 'es', 'AR': 'es', 'CO': 'es', 'VE': 'es', 'PE': 'es',
-  'CL': 'es', 'EC': 'es', 'GT': 'es', 'CU': 'es', 'BO': 'es', 'DO': 'es',
-  'HN': 'es', 'PY': 'es', 'SV': 'es', 'NI': 'es', 'CR': 'es', 'PA': 'es',
+  'ES': 'es', 'AR': 'es', 'CO': 'es', 'VE': 'es', 
+  'GT': 'es', 'CU': 'es', 'DO': 'es',
+  'HN': 'es', 'SV': 'es', 'NI': 'es', 'CR': 'es', 'PA': 'es',
   'UY': 'es', 'GQ': 'es',
   
   // Portuguese
@@ -28,7 +28,7 @@ const countryToLanguage: Record<string, string> = {
   
   // French
   'FR': 'fr', 'BE': 'fr', 'LU': 'fr', 'MC': 'fr',
-  'SN': 'fr', 'ML': 'fr', 'BF': 'fr', 'NE': 'fr', 'CI': 'fr', 'GN': 'fr',
+  'SN': 'fr', 'ML': 'fr', 'BF': 'fr', 'CI': 'fr', 'GN': 'fr',
   'TD': 'fr', 'CF': 'fr', 'CM': 'fr', 'GA': 'fr', 'CG': 'fr',
   'DJ': 'fr', 'KM': 'fr', 'MG': 'fr', 'SC': 'fr', 'VU': 'fr', 'NC': 'fr',
   'PF': 'fr', 'WF': 'fr',
@@ -49,8 +49,8 @@ const countryToLanguage: Record<string, string> = {
   'TW': 'zh-TW', 'HK': 'zh-TW', 'MO': 'zh-TW',
   
   // Russian
-  'RU': 'ru', 'BY': 'ru', 'KG': 'ru', 'TJ': 'ru', 'UZ': 'ru',
-  'TM': 'ru', 'AM': 'ru', 'AZ': 'ru', 'GE': 'ru', 'MD': 'ru',
+  'RU': 'ru', 'BY': 'ru', 'KG': 'ru', 'TJ': 'ru',
+  'TM': 'ru', 'AM': 'ru', 'MD': 'ru',
   
   // Polish
   'PL': 'pl',
@@ -68,7 +68,135 @@ const countryToLanguage: Record<string, string> = {
   'PH': 'tl',
   
   // Swahili
-  'TZ': 'sw', 'KE': 'sw', 'RW': 'sw', 'BI': 'sw'
+  'TZ': 'sw', 'KE': 'sw', 'RW': 'sw', 'BI': 'sw',
+  
+  // Arabic
+  'SA': 'ar', 'AE': 'ar', 'QA': 'ar', 'KW': 'ar', 'BH': 'ar', 'OM': 'ar',
+  'JO': 'ar', 'LB': 'ar', 'SY': 'ar', 'IQ': 'ar', 'YE': 'ar', 'LY': 'ar',
+  'EG': 'ar', 'SD': 'ar', 'MA': 'ar', 'TN': 'ar', 'DZ': 'ar', 'MR': 'ar',
+  
+  // Indonesian
+  'ID': 'id',
+  
+  // Thai
+  'TH': 'th',
+  
+  // Bengali
+  'BD': 'bn',
+  
+  // Urdu
+  'PK': 'ur',
+  
+  // Dutch
+  'NL': 'nl', 'SR': 'nl',
+  
+  // Swedish
+  'SE': 'sv',
+  
+  // Norwegian
+  'NO': 'no',
+  
+  // Finnish
+  'FI': 'fi',
+  
+  // Czech
+  'CZ': 'cs',
+  
+  // Romanian
+  'RO': 'ro',
+  
+  // Greek
+  'GR': 'el', 'CY': 'el',
+  
+  // Hungarian
+  'HU': 'hu',
+  
+  // Bulgarian
+  'BG': 'bg',
+  
+  // Serbian
+  'RS': 'sr', 'ME': 'sr', 'BA': 'sr',
+  
+  // Croatian
+  'HR': 'hr',
+  
+  // Slovak
+  'SK': 'sk',
+  
+  // Estonian
+  'EE': 'et',
+  
+  // Latvian
+  'LV': 'lv',
+  
+  // Lithuanian
+  'LT': 'lt',
+  
+  // Hebrew
+  'IL': 'he',
+  
+  // Malay
+  'MY': 'ms', 'BN': 'ms',
+  
+  // Azerbaijani
+  'AZ': 'az',
+  
+  // Georgian
+  'GE': 'ka',
+  
+  // Ukrainian
+  'UA': 'uk',
+  
+  // Uzbek
+  'UZ': 'uz',
+  
+  // Tamil
+  // Uses India mapping
+  
+  // Telugu
+  // Uses India mapping
+  
+  // Malayalam
+  // Uses India mapping
+  
+  // Khmer
+  'KH': 'km',
+  
+  // Burmese
+  'MM': 'my',
+  
+  // Hausa (Nigeria için spesifik)
+  'NG': 'ha',
+  
+  // Niger için Hausa da mümkün ama French öncelikli
+  'NE': 'ha',
+  
+  // Yoruba
+  // Uses Nigeria mapping
+  
+  // Zulu
+  // Uses South Africa mapping
+  
+  // Amharic
+  'ET': 'am',
+  
+  // Akan
+  // Uses Ghana mapping
+  
+  // Quechua
+  'PE': 'qu',
+  
+  // Aymara
+  // Uses Bolivia mapping
+  
+  // Guarani
+  'PY': 'gn',
+  
+  // Mapudungun
+  'CL': 'arn',
+  
+  // Nahuatl
+  'MX': 'nah'
 };
 
 // Get user's country code via IP geolocation
@@ -106,7 +234,14 @@ export const getUserCountry = async (): Promise<string | null> => {
 
 // Get language code from country
 export const getLanguageFromCountry = (countryCode: string): string => {
-  return countryToLanguage[countryCode.toUpperCase()] || 'en'; // Default to English
+  const mappedLang = countryToLanguage[countryCode.toUpperCase()];
+  
+  // Handle special cases for subdomain mapping
+  if (mappedLang === 'in') return 'en-IN';
+  if (mappedLang === 'zh-CN') return 'zh-CN';
+  if (mappedLang === 'zh-TW') return 'zh-TW';
+  
+  return mappedLang || 'en'; // Default to English
 };
 
 // Check if redirect is needed

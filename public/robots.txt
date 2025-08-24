@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: https://golivo.app/sitemap.xml
+
+# Affiliate pages
+Allow: /betting-sites/

@@ -1,0 +1,70 @@
+/* Mobile-specific enhancements for BettingSites component */
+
+/* Better touch targets for mobile */
+@media (max-width: 640px) {
+  /* Ensure all clickable elements are at least 44px */
+  .min-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Smooth scrolling for mobile */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better spacing for readability */
+  .mobile-spacing {
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+  }
+  
+  /* Enhanced focus states for accessibility */
+  button:focus,
+  a:focus,
+  details:focus {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+  }
+  
+  /* Improved details/summary styling */
+  details[open] summary span:last-child {
+    transform: rotate(90deg);
+  }
+  
+  /* Smooth transitions for interactions */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Better gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Dark mode support for future implementation */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-ready {
+    --bg-primary: #1f2937;
+    --bg-secondary: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+  }
+}
