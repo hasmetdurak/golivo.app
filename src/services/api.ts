@@ -34,7 +34,6 @@ const LEAGUE_ID_TO_NAME: Record<string, string> = {
   '154': 'Scottish Premiership',
   '218': 'Swiss Super League',
   '181': 'Ukrainian Premier League',
-  '262': 'Polish Ekstraklasa',
   '268': 'Czech First League',
   '272': 'Croatian First League',
   '276': 'Serbian SuperLiga',
@@ -50,9 +49,7 @@ const LEAGUE_ID_TO_NAME: Record<string, string> = {
   '289': 'Belarusian Premier League',
   '290': 'Moldovan National Division',
   '134': 'Czech Republic First League',
-  '181': 'Ukrainian Premier League',
   '262': 'Polish Ekstraklasa',
-  '295': 'Cyprus First Division',
   '295': 'Cyprus First Division',
   '296': 'Malta Premier League',
   '297': 'Gibraltar National League',
@@ -526,7 +523,6 @@ export const FootballApi = {
       
     } catch (error) {
       console.error('❌ Maç çekme hatası:', error);
-      console.error('📍 API URL:', url);
       console.error('🔍 Hata detayı:', error instanceof Error ? error.message : 'Bilinmeyen hata');
       
       // İnternet bağlantısı kontrol et
@@ -809,6 +805,151 @@ export const FootballApi = {
     } catch (error) {
       console.error('Error fetching leagues:', error);
       return [];
+    }
+  },
+
+  // Head-to-Head (Karşılaşma Geçmişi) - İki takım arasındaki geçmiş maçları getir
+  async getHeadToHead(team1: string, team2: string): Promise<Match[]> {
+    try {
+      // API'de H2H endpoint'i yok olabilir, bu durumda fallback data döneriz
+      const url = `${BASE_URL}/?action=get_H2H&firstTeam=${encodeURIComponent(team1)}&secondTeam=${encodeURIComponent(team2)}&APIkey=${API_KEY}`;
+      console.log('Fetching head-to-head:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.warn('H2H API not available, returning mock data');
+        return this.getMockHeadToHead(team1, team2);
+      }
+      
+      const data: ApiMatch[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return this.getMockHeadToHead(team1, team2);
+      }
+      
+      return data.map(transformApiMatch).filter(Boolean);
+      
+    } catch (error) {
+      console.error('Error fetching head-to-head:', error);
+      return this.getMockHeadToHead(team1, team2);
+    }
+  },
+
+  // Mock Head-to-Head verisi - API kullanılamadığında fallback
+  getMockHeadToHead(team1: string, team2: string): Match[] {
+    const today = new Date();
+    const mockMatches: Match[] = [
+      {
+        id: 'h2h-1',
+        league: 'Premier League',
+        country: 'England',
+        status: 'finished',
+        time: '15:00',
+        venue: 'Stadium',
+        homeTeam: {
+          name: team1,
+          logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
+        },
+        awayTeam: {
+          name: team2,
+          logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'
+        },
+        homeScore: 2,
+        awayScore: 1,
+        halftimeScore: { home: 1, away: 0 },
+        events: [
+          { type: 'Goal', minute: "25'", player: 'Oyuncu A', team: 'home', icon: '⚽' },
+          { type: 'Goal', minute: "67'", player: 'Oyuncu B', team: 'away', icon: '⚽' },
+          { type: 'Goal', minute: "85'", player: 'Oyuncu C', team: 'home', icon: '⚽' }
+        ],
+        statistics: [
+          { type: 'Topa Sahip Olma', home: '58', away: '42', homePercent: 58, awayPercent: 42 },
+          { type: 'Şutlar', home: '12', away: '8', homePercent: 60, awayPercent: 40 },
+          { type: 'İsabetli Şutlar', home: '5', away: '3', homePercent: 62.5, awayPercent: 37.5 }
+        ]
+      },
+      {
+        id: 'h2h-2',
+        league: 'Premier League',
+        country: 'England',
+        status: 'finished',
+        time: '17:30',
+        venue: 'Stadium',
+        homeTeam: {
+          name: team2,
+          logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'
+        },
+        awayTeam: {
+          name: team1,
+          logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
+        },
+        homeScore: 0,
+        awayScore: 3,
+        halftimeScore: { home: 0, away: 2 },
+        events: [
+          { type: 'Goal', minute: "12'", player: 'Oyuncu D', team: 'away', icon: '⚽' },
+          { type: 'Goal', minute: "34'", player: 'Oyuncu E', team: 'away', icon: '⚽' },
+          { type: 'Goal', minute: "78'", player: 'Oyuncu F', team: 'away', icon: '⚽' }
+        ],
+        statistics: [
+          { type: 'Topa Sahip Olma', home: '35', away: '65', homePercent: 35, awayPercent: 65 },
+          { type: 'Şutlar', home: '6', away: '15', homePercent: 28.6, awayPercent: 71.4 },
+          { type: 'İsabetli Şutlar', home: '2', away: '8', homePercent: 20, awayPercent: 80 }
+        ]
+      },
+      {
+        id: 'h2h-3',
+        league: 'Premier League',
+        country: 'England',
+        status: 'finished',
+        time: '20:00',
+        venue: 'Stadium',
+        homeTeam: {
+          name: team1,
+          logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
+        },
+        awayTeam: {
+          name: team2,
+          logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'
+        },
+        homeScore: 1,
+        awayScore: 1,
+        halftimeScore: { home: 0, away: 1 },
+        events: [
+          { type: 'Goal', minute: "28'", player: 'Oyuncu G', team: 'away', icon: '⚽' },
+          { type: 'Goal', minute: "71'", player: 'Oyuncu H', team: 'home', icon: '⚽' }
+        ],
+        statistics: [
+          { type: 'Topa Sahip Olma', home: '50', away: '50', homePercent: 50, awayPercent: 50 },
+          { type: 'Şutlar', home: '10', away: '9', homePercent: 52.6, awayPercent: 47.4 },
+          { type: 'İsabetli Şutlar', home: '4', away: '4', homePercent: 50, awayPercent: 50 }
+        ]
+      }
+    ];
+    
+    return mockMatches.slice(0, 5); // Son 5 karşılaşma
+  },
+
+  // Takım performans istatistiklerini getir
+  async getTeamStats(teamName: string, leagueId?: string): Promise<any> {
+    try {
+      // Mock team stats - API'den gelene kadar
+      return {
+        form: ['W', 'W', 'D', 'L', 'W'], // Son 5 maçın sonuçları
+        position: Math.floor(Math.random() * 20) + 1,
+        points: Math.floor(Math.random() * 50) + 20,
+        played: Math.floor(Math.random() * 10) + 15,
+        won: Math.floor(Math.random() * 15) + 5,
+        drawn: Math.floor(Math.random() * 5) + 2,
+        lost: Math.floor(Math.random() * 8) + 1,
+        goalsFor: Math.floor(Math.random() * 30) + 15,
+        goalsAgainst: Math.floor(Math.random() * 20) + 5,
+        cleanSheets: Math.floor(Math.random() * 8) + 2,
+        avgPossession: Math.floor(Math.random() * 30) + 45
+      };
+    } catch (error) {
+      console.error('Error fetching team stats:', error);
+      return null;
     }
   }
 };

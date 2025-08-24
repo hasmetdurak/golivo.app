@@ -1,5 +1,6 @@
-import React from 'react';
-import { X, Clock, Trophy, Target, Calendar, MapPin, Users, BarChart3, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Clock, Trophy, Target, Calendar, MapPin, Users, BarChart3, User, TrendingUp, Award } from 'lucide-react';
+import { FootballApi } from '../services/api';
 
 interface MatchDetailsModalProps {
   match: any;
@@ -8,7 +9,43 @@ interface MatchDetailsModalProps {
 }
 
 export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isOpen, onClose }) => {
+  const [headToHeadData, setHeadToHeadData] = useState<any[]>([]);
+  const [homeTeamStats, setHomeTeamStats] = useState<any>(null);
+  const [awayTeamStats, setAwayTeamStats] = useState<any>(null);
+  const [isLoadingH2H, setIsLoadingH2H] = useState(false);
+  
   if (!isOpen || !match) return null;
+
+  // Başlayacak maçlar için head-to-head ve takım istatistiklerini yükle
+  useEffect(() => {
+    if (match && match.status === 'scheduled') {
+      loadMatchPreviewData();
+    }
+  }, [match]);
+
+  const loadMatchPreviewData = async () => {
+    if (!match || match.status !== 'scheduled') return;
+    
+    setIsLoadingH2H(true);
+    try {
+      // Head-to-head verilerini yükle
+      const h2hData = await FootballApi.getHeadToHead(match.homeTeam.name, match.awayTeam.name);
+      setHeadToHeadData(h2hData);
+      
+      // Takım istatistiklerini yükle
+      const [homeStats, awayStats] = await Promise.all([
+        FootballApi.getTeamStats(match.homeTeam.name),
+        FootballApi.getTeamStats(match.awayTeam.name)
+      ]);
+      
+      setHomeTeamStats(homeStats);
+      setAwayTeamStats(awayStats);
+    } catch (error) {
+      console.error('Error loading match preview data:', error);
+    } finally {
+      setIsLoadingH2H(false);
+    }
+  };
 
   const getStatusText = (status: string, minute?: string) => {
     switch (status) {
@@ -135,8 +172,8 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
             </div>
           </div>
 
-          {/* Match Statistics */}
-          {match.statistics && match.statistics.length > 0 && (
+          {/* Match Statistics - Sadece canlı ve biten maçlar için */}
+          {(match.status === 'live' || match.status === 'finished') && match.statistics && match.statistics.length > 0 && (
             <div className="bg-white border border-gray-100 rounded-xl p-6">
               <div className="flex items-center space-x-2 mb-4">
                 <BarChart3 className="h-5 w-5 text-blue-600" />
@@ -172,6 +209,202 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Başlayacak Maçlar için Öncanı - Head-to-Head & Team Stats */}
+          {match.status === 'scheduled' && (
+            <div className="space-y-6">
+              {/* Takım Performansı */}
+              {(homeTeamStats && awayTeamStats) && (
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">Takım Performansı</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Ev Sahibi Takım */}
+                    <div className="bg-white rounded-lg p-4 border border-blue-200">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <img src={match.homeTeam.logo} alt={match.homeTeam.name} className="w-8 h-8 rounded" />
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{match.homeTeam.name}</h4>
+                          <p className="text-sm text-gray-500">Ev Sahibi</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Lig Sıralaması:</span>
+                          <span className="font-semibold text-blue-600">#{homeTeamStats.position}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Puan:</span>
+                          <span className="font-semibold">{homeTeamStats.points}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Son 5 Maç:</span>
+                          <div className="flex space-x-1">
+                            {homeTeamStats.form.map((result: string, idx: number) => (
+                              <span 
+                                key={idx}
+                                className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white ${
+                                  result === 'W' ? 'bg-green-500' : 
+                                  result === 'D' ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                              >
+                                {result}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Gol Ortalaması:</span>
+                          <span className="font-semibold">{(homeTeamStats.goalsFor / homeTeamStats.played).toFixed(1)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Deplasman Takımı */}
+                    <div className="bg-white rounded-lg p-4 border border-purple-200">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <img src={match.awayTeam.logo} alt={match.awayTeam.name} className="w-8 h-8 rounded" />
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{match.awayTeam.name}</h4>
+                          <p className="text-sm text-gray-500">Deplasman</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Lig Sıralaması:</span>
+                          <span className="font-semibold text-purple-600">#{awayTeamStats.position}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Puan:</span>
+                          <span className="font-semibold">{awayTeamStats.points}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Son 5 Maç:</span>
+                          <div className="flex space-x-1">
+                            {awayTeamStats.form.map((result: string, idx: number) => (
+                              <span 
+                                key={idx}
+                                className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white ${
+                                  result === 'W' ? 'bg-green-500' : 
+                                  result === 'D' ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                              >
+                                {result}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Gol Ortalaması:</span>
+                          <span className="font-semibold">{(awayTeamStats.goalsFor / awayTeamStats.played).toFixed(1)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Head-to-Head Karşılaşma Geçmişi */}
+              {headToHeadData.length > 0 && (
+                <div className="bg-gradient-to-br from-green-50 to-yellow-50 border border-green-200 rounded-xl p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Award className="h-5 w-5 text-green-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">Karşılaşma Geçmişi</h3>
+                    <span className="text-sm text-gray-500">(Son {headToHeadData.length} Maç)</span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {headToHeadData.map((h2hMatch: any, index: number) => {
+                      const isHomeWin = h2hMatch.homeScore > h2hMatch.awayScore;
+                      const isAwayWin = h2hMatch.awayScore > h2hMatch.homeScore;
+                      const isDraw = h2hMatch.homeScore === h2hMatch.awayScore;
+                      
+                      return (
+                        <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="text-sm text-gray-500">{h2hMatch.league}</div>
+                            </div>
+                            <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              isHomeWin ? 'bg-blue-100 text-blue-700' :
+                              isAwayWin ? 'bg-purple-100 text-purple-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {isDraw ? 'Berabere' : isHomeWin ? 'Ev Sahibi Galibi' : 'Deplasman Galibi'}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mt-2">
+                            <div className="flex items-center space-x-3">
+                              <img src={h2hMatch.homeTeam.logo} alt={h2hMatch.homeTeam.name} className="w-6 h-6" />
+                              <span className="text-sm font-medium">{h2hMatch.homeTeam.name}</span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-3 px-4">
+                              <span className={`text-lg font-bold ${
+                                isHomeWin ? 'text-blue-600' : isDraw ? 'text-gray-600' : 'text-gray-400'
+                              }`}>
+                                {h2hMatch.homeScore}
+                              </span>
+                              <span className="text-gray-400">-</span>
+                              <span className={`text-lg font-bold ${
+                                isAwayWin ? 'text-purple-600' : isDraw ? 'text-gray-600' : 'text-gray-400'
+                              }`}>
+                                {h2hMatch.awayScore}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <span className="text-sm font-medium">{h2hMatch.awayTeam.name}</span>
+                              <img src={h2hMatch.awayTeam.logo} alt={h2hMatch.awayTeam.name} className="w-6 h-6" />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* H2H Özeti */}
+                  <div className="mt-4 bg-white rounded-lg p-4 border border-gray-200">
+                    <h4 className="font-semibold text-gray-900 mb-3">Karşılaşma Özeti</h4>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-lg font-bold text-blue-600">
+                          {headToHeadData.filter(m => m.homeTeam.name === match.homeTeam.name ? m.homeScore > m.awayScore : m.awayScore > m.homeScore).length}
+                        </div>
+                        <div className="text-xs text-gray-500">{match.homeTeam.name} Galibiyet</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-600">
+                          {headToHeadData.filter(m => m.homeScore === m.awayScore).length}
+                        </div>
+                        <div className="text-xs text-gray-500">Beraberlik</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-purple-600">
+                          {headToHeadData.filter(m => m.homeTeam.name === match.awayTeam.name ? m.homeScore > m.awayScore : m.awayScore > m.homeScore).length}
+                        </div>
+                        <div className="text-xs text-gray-500">{match.awayTeam.name} Galibiyet</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Yükleniyor durumu */}
+              {isLoadingH2H && (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Maç önizlemesi yükleniyor...</p>
+                </div>
+              )}
             </div>
           )}
 
