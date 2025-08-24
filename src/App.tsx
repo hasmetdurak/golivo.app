@@ -52,44 +52,9 @@ function App() {
     }
   };
 
-  // Get current language URL for SEO
-  const getCurrentUrl = () => {
-    if (typeof window !== 'undefined') {
-      return window.location.origin + window.location.pathname;
-    }
-    // Fallback for SSR or initial load
-    const subdomainMap: Record<string, string> = {
-      'tr': 'https://tr.golivo.app/',
-      'en': 'https://en.golivo.app/',
-      'de': 'https://de.golivo.app/',
-      'es': 'https://es.golivo.app/',
-      'pt': 'https://pt.golivo.app/',
-      'fr': 'https://fr.golivo.app/',
-      'it': 'https://it.golivo.app/',
-      'ja': 'https://ja.golivo.app/',
-      'ru': 'https://ru.golivo.app/',
-      'ko': 'https://ko.golivo.app/',
-      'zh-CN': 'https://cn.golivo.app/',
-      'zh-TW': 'https://tw.golivo.app/',
-      'hi': 'https://hi.golivo.app/',
-      'pl': 'https://pl.golivo.app/',
-      'fa': 'https://fa.golivo.app/',
-      'vi': 'https://vi.golivo.app/',
-      'kk': 'https://kk.golivo.app/',
-      'tl': 'https://tl.golivo.app/',
-      'sw': 'https://sw.golivo.app/',
-      'en-IN': 'https://in.golivo.app/'
-    };
-    return subdomainMap[currentLang] || 'https://tr.golivo.app/';
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEO 
-        title={t.appTitle}
-        description={`${t.todaysMatches} - ${t.appTitle}. ${t.liveMatch} ${t.matchesCount.toLowerCase()}.`}
-        canonical={getCurrentUrl()}
-      />
+      <SEO />
       {/* Debug info - will remove later */}
       {import.meta.env.DEV && (
         <div className="bg-yellow-100 p-2 text-xs flex items-center space-x-4">
