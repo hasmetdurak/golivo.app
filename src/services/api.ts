@@ -401,218 +401,28 @@ interface Match {
 
 const transformApiMatch = (apiMatch: ApiMatch): Match => {
   try {
-    // Live match detection - more robust
-    const isLive = apiMatch.match_live === '1' || 
-                   (apiMatch.match_status && apiMatch.match_status.includes("'")) ||
-                   (apiMatch.match_status && apiMatch.match_status !== 'Finished' && apiMatch.match_status !== 'Not Started');
-    
+    // Durum ve dakika belirleme - daha basit ve güvenli
     let status: 'live' | 'finished' | 'scheduled' = 'scheduled';
     let minute: string | undefined = undefined;
     
-    // Status and minute determination
-    if (apiMatch.match_status === 'Finished') {
-      status = 'finished';
-    } else if (isLive) {
+    // Canlı maç kontrolü
+    if (apiMatch.match_live === '1') {
       status = 'live';
-      // Extract minute from match_status if it contains minute information (e.g., "67'")
-      if (apiMatch.match_status && apiMatch.match_status.includes("'")) {
-        minute = apiMatch.match_status;
-      } else if (apiMatch.match_status && apiMatch.match_status !== 'Finished' && apiMatch.match_status !== 'Not Started') {
-        // If match_status has some other value, use it as minute
-        minute = apiMatch.match_status;
-      }
-    }
-
-    // Smart league detection based on league_id, country + league name
-    let detectedLeague = apiMatch.league_name || 'Unknown League';
-    const country = apiMatch.country_name?.toLowerCase() || '';
-    const leagueName = apiMatch.league_name?.toLowerCase() || '';
-    
-    // First try: Direct league ID mapping (most reliable)
-    const leagueId = apiMatch.league_id || '';
-    if (leagueId && LEAGUE_ID_TO_NAME[leagueId]) {
-      detectedLeague = LEAGUE_ID_TO_NAME[leagueId];
-    } else {
-      // Fallback: Country-specific league mapping to prevent misclassification
-      if (country.includes('russia') || country.includes('rusya')) {
-        if (leagueName.includes('premier')) {
-          detectedLeague = 'Russian Premier League';
-        }
-      } else if (country.includes('england') || country.includes('ingiltere')) {
-        if (leagueName.includes('premier')) {
-          detectedLeague = 'English Premier League';
-        }
-      } else if (country.includes('spain') || country.includes('İspanya')) {
-        if (leagueName.includes('la liga') || leagueName.includes('liga')) {
-          detectedLeague = 'Spanish La Liga';
-        }
-      } else if (country.includes('germany') || country.includes('almanya')) {
-        if (leagueName.includes('bundesliga')) {
-          detectedLeague = 'German Bundesliga';
-        }
-      } else if (country.includes('austria') || country.includes('avusturya')) {
-        if (leagueName.includes('bundesliga')) {
-          detectedLeague = 'Austrian Bundesliga';
-        }
-      } else if (country.includes('italy') || country.includes('italya')) {
-        if (leagueName.includes('serie')) {
-          detectedLeague = 'Italian Serie A';
-        }
-      } else if (country.includes('france') || country.includes('fransa')) {
-        if (leagueName.includes('ligue')) {
-          detectedLeague = 'French Ligue 1';
-        }
-      } else if (country.includes('turkey') || country.includes('türkiye')) {
-        if (leagueName.includes('super') || leagueName.includes('süper')) {
-          detectedLeague = 'Turkish Super League';
-        }
-      } else if (country.includes('belarus') || country.includes('belarus')) {
-        if (leagueName.includes('vysshaya') || leagueName.includes('premier') || leagueName.includes('vysheyshaya')) {
-          detectedLeague = 'Belarus Premier League';
-        }
-      } else if (country.includes('czech') || country.includes('czechia')) {
-        if (leagueName.includes('liga') || leagueName.includes('fortuna')) {
-          detectedLeague = 'Czech Republic First League';
-        }
-      } else if (country.includes('ukraine') || country.includes('ukrayna')) {
-        if (leagueName.includes('premier') || leagueName.includes('перша')) {
-          detectedLeague = 'Ukraine Premier League';
-        }
-      } else if (country.includes('poland') || country.includes('polonya')) {
-        if (leagueName.includes('ekstraklasa')) {
-          detectedLeague = 'Poland Ekstraklasa';
-        }
-      } else {
-        // Eğer belirli bir ülke/lig eşleşmesi yoksa orijinal lig adını kullan
-        detectedLeague = apiMatch.league_name || 'Unknown League';
-      }
+    } else if (apiMatch.match_status === 'Finished') {
+      status = 'finished';
     }
     
-    // Combine all events (goals, cards, substitutions)
-    const events: Array<{
-      type: 'Goal' | 'Yellow Card' | 'Red Card' | 'Substitution';
-      minute: string;
-      player: string;
-      team: 'home' | 'away';
-      icon?: string;
-      assist?: string;
-    }> = [];
-
-    // Add goals
-    if (apiMatch.goalscorer) {
-      apiMatch.goalscorer.forEach(goal => {
-        if (goal.home_scorer) {
-          events.push({
-            type: 'Goal',
-            minute: goal.time,
-            player: goal.home_scorer,
-            team: 'home',
-            icon: '⚽',
-            assist: goal.home_assist || undefined
-          });
-        }
-        if (goal.away_scorer) {
-          events.push({
-            type: 'Goal',
-            minute: goal.time,
-            player: goal.away_scorer,
-            team: 'away',
-            icon: '⚽',
-            assist: goal.away_assist || undefined
-          });
-        }
-      });
-    }
-
-    // Add cards
-    if (apiMatch.cards) {
-      apiMatch.cards.forEach(card => {
-        const cardType = card.card === 'yellow card' ? 'Yellow Card' : 'Red Card';
-        const cardIcon = card.card === 'yellow card' ? '🟨' : '🟥';
-        
-        if (card.home_fault) {
-          events.push({
-            type: cardType,
-            minute: card.time,
-            player: card.home_fault,
-            team: 'home',
-            icon: cardIcon
-          });
-        }
-        if (card.away_fault) {
-          events.push({
-            type: cardType,
-            minute: card.time,
-            player: card.away_fault,
-            team: 'away',
-            icon: cardIcon
-          });
-        }
-      });
-    }
-
-    // Sort events by minute
-    events.sort((a, b) => {
-      const minuteA = parseInt(a.minute.replace("'", ""));
-      const minuteB = parseInt(b.minute.replace("'", ""));
-      return minuteA - minuteB;
-    });
-
-    // Process statistics
-    const processedStats = apiMatch.statistics?.map(stat => ({
-      type: stat.type,
-      home: stat.home,
-      away: stat.away,
-      homePercent: parseFloat(stat.home) || 0,
-      awayPercent: parseFloat(stat.away) || 0
-    })) || [];
-
-    // Process lineup
-    const processedLineup = {
-      home: apiMatch.lineup?.home ? {
-        starting11: apiMatch.lineup.home.starting_lineups?.map(player => ({
-          name: player.lineup_player,
-          number: player.lineup_number,
-          position: player.lineup_position
-        })) || [],
-        substitutes: apiMatch.lineup.home.substitutes?.map(player => ({
-          name: player.lineup_player,
-          number: player.lineup_number,
-          position: player.lineup_position
-        })) || []
-      } : undefined,
-      away: apiMatch.lineup?.away ? {
-        starting11: apiMatch.lineup.away.starting_lineups?.map(player => ({
-          name: player.lineup_player,
-          number: player.lineup_number,
-          position: player.lineup_position
-        })) || [],
-        substitutes: apiMatch.lineup.away.substitutes?.map(player => ({
-          name: player.lineup_player,
-          number: player.lineup_number,
-          position: player.lineup_position
-        })) || []
-      } : undefined
-    };
-
-    // Calculate half-time score from ft_score if available
-    let halftimeScore = undefined;
-    if (apiMatch.match_ft_score) {
-      const ftScores = apiMatch.match_ft_score.split('-');
-      if (ftScores.length === 2) {
-        halftimeScore = {
-          home: Math.floor(parseInt(ftScores[0]) / 2),
-          away: Math.floor(parseInt(ftScores[1]) / 2)
-        };
-      }
+    // Dakika bilgisi - sadece canlı maçlarda
+    if (status === 'live' && apiMatch.match_status && apiMatch.match_status.includes("'")) {
+      minute = apiMatch.match_status;
     }
 
     return {
-      id: apiMatch.match_id,
-      league: detectedLeague,
+      id: apiMatch.match_id || 'unknown',
+      league: apiMatch.league_name || 'Unknown League',
       country: apiMatch.country_name || 'Unknown',
       status,
-      minute, // This is the key fix - ensure minute is properly passed
+      minute,
       time: apiMatch.match_time || '00:00',
       venue: apiMatch.match_venue,
       referee: apiMatch.match_referee,
@@ -627,34 +437,34 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       },
       homeScore: parseInt(apiMatch.match_hometeam_score) || 0,
       awayScore: parseInt(apiMatch.match_awayteam_score) || 0,
-      halftimeScore,
-      events,
-      statistics: processedStats,
-      lineup: processedLineup
+      halftimeScore: undefined,
+      events: [],
+      statistics: [],
+      lineup: undefined
     };
   } catch (error) {
-    console.error('Error transforming match:', error, apiMatch);
-    // Return a safe fallback match object
+    console.error('Maç dönüşüm hatası:', error);
+    // Güvenli fallback
     return {
-      id: apiMatch?.match_id || 'unknown',
-      league: apiMatch?.league_name || 'Unknown League',
-      country: apiMatch?.country_name || 'Unknown',
+      id: 'error',
+      league: 'Error League',
+      country: 'Error Country',
       status: 'scheduled',
       minute: undefined,
-      time: apiMatch?.match_time || '00:00',
-      venue: apiMatch?.match_venue,
-      referee: apiMatch?.match_referee,
-      round: apiMatch?.match_round,
+      time: '00:00',
+      venue: undefined,
+      referee: undefined,
+      round: undefined,
       homeTeam: {
-        name: apiMatch?.match_hometeam_name || 'Home Team',
-        logo: apiMatch?.team_home_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
+        name: 'Error Team',
+        logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=E'
       },
       awayTeam: {
-        name: apiMatch?.match_awayteam_name || 'Away Team',
-        logo: apiMatch?.team_away_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'
+        name: 'Error Team',
+        logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=E'
       },
-      homeScore: parseInt(apiMatch?.match_hometeam_score) || 0,
-      awayScore: parseInt(apiMatch?.match_awayteam_score) || 0,
+      homeScore: 0,
+      awayScore: 0,
       halftimeScore: undefined,
       events: [],
       statistics: [],
