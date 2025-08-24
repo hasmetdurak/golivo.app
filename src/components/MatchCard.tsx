@@ -94,20 +94,41 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
           </div>
           
           {/* Score Display */}
-          <div className="flex items-center space-x-2 px-3">
-            <div className={`text-xl font-bold ${
-              isLive ? 'text-red-600' : 
-              isFinished ? 'text-gray-700' : 'text-gray-400'
-            }`}>
-              {isScheduled ? '-' : match.homeScore}
+          <div className="flex flex-col items-center space-y-1 px-3">
+            <div className="flex items-center space-x-2">
+              <div className={`text-xl font-bold ${
+                isLive ? 'text-red-600' : 
+                isFinished ? 'text-gray-700' : 'text-gray-400'
+              }`}>
+                {isScheduled ? '-' : match.homeScore}
+              </div>
+              <div className="text-gray-400 font-medium">:</div>
+              <div className={`text-xl font-bold ${
+                isLive ? 'text-red-600' : 
+                isFinished ? 'text-gray-700' : 'text-gray-400'
+              }`}>
+                {isScheduled ? '-' : match.awayScore}
+              </div>
             </div>
-            <div className="text-gray-400 font-medium">:</div>
-            <div className={`text-xl font-bold ${
-              isLive ? 'text-red-600' : 
-              isFinished ? 'text-gray-700' : 'text-gray-400'
-            }`}>
-              {isScheduled ? '-' : match.awayScore}
-            </div>
+            {/* Minute Information */}
+            {(isLive && match.minute) && (
+              <div className={`text-sm font-bold ${
+                isLive ? 'text-red-600' : 
+                isFinished ? 'text-gray-700' : 'text-gray-400'
+              }`}>
+                {match.minute}
+              </div>
+            )}
+            {isFinished && (
+              <div className="text-xs text-gray-500 font-medium">
+                Full Time
+              </div>
+            )}
+            {isScheduled && (
+              <div className="text-xs text-gray-500 font-medium">
+                {match.time}
+              </div>
+            )}
           </div>
           
           {/* Away Team */}

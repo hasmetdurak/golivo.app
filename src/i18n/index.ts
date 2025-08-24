@@ -381,17 +381,38 @@ export const translations: Record<string, Translations> = {
 
 // Get current language from subdomain
 export const getCurrentLanguage = (): string => {
-  if (typeof window === 'undefined') return 'tr';
+  if (typeof window === 'undefined') return 'en';
   
   const hostname = window.location.hostname;
+  console.log('🌍 Checking hostname:', hostname);
+  
   const parts = hostname.split('.');
   
   if (parts.length >= 2) {
     const subdomain = parts[0];
+    console.log('🌍 Subdomain detected:', subdomain);
+    
     const language = supportedLanguages.find(lang => lang.subdomain === subdomain);
-    if (language) return language.code;
+    if (language) {
+      console.log('🌍 Language found for subdomain:', language.code, language.nativeName);
+      return language.code;
+    }
   }
   
+  // Special case for localhost development
+  if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+    // Check for language parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get('lang');
+    if (langParam && supportedLanguages.find(lang => lang.code === langParam)) {
+      console.log('🌍 Using URL language parameter:', langParam);
+      return langParam;
+    }
+    console.log('🌍 Localhost detected, defaulting to Turkish for development');
+    return 'tr';
+  }
+  
+  console.log('🌍 No subdomain language found, defaulting to English');
   return 'en'; // Default to English for maximum global reach
 };
 

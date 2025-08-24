@@ -20,21 +20,21 @@ function App() {
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [currentView, setCurrentView] = useState('matches'); // New state for view management
+  const [currentView, setCurrentView] = useState('scores'); // New state for view management
 
   useEffect(() => {
-    console.log('App mounting, view changed to:', currentView);
+    console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
     // Initialize geo-redirect system - SSL certificates are now active!
     initGeoRedirect();
     
     // Fetch data based on current view
-    if (currentView === 'matches') {
+    if (currentView === 'scores') {
       fetchLiveMatches();
     }
-  }, [selectedDate, currentView]);
+  }, [selectedDate, currentView, currentLang]);
 
   const fetchLiveMatches = async () => {
-    if (currentView !== 'matches') return; // Only fetch when in matches view
+    if (currentView !== 'scores') return; // Only fetch when in scores view
     
     console.log('fetchLiveMatches called, setting loading=true');
     setLoading(true);
@@ -67,24 +67,105 @@ function App() {
   // Render different views based on currentView state
   const renderMainContent = () => {
     switch (currentView) {
+      case 'news':
+        return (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              📰 {currentLang === 'tr' ? 'Futbol Haberleri' : 
+                   currentLang === 'de' ? 'Fußball-Nachrichten' :
+                   currentLang === 'es' ? 'Noticias de Fútbol' :
+                   currentLang === 'fr' ? 'Actualités Football' :
+                   currentLang === 'it' ? 'Notizie Calcio' :
+                   currentLang === 'pt' ? 'Notícias de Futebol' :
+                   currentLang === 'ru' ? 'Футбольные Новости' :
+                   currentLang === 'ar' ? 'أخبار كرة القدم' :
+                   'Football News'}
+            </h2>
+            <p className="text-gray-600">
+              {currentLang === 'tr' ? 'En son futbol haberleri yakında...' : 
+               currentLang === 'de' ? 'Neueste Fußball-Nachrichten kommen bald...' :
+               currentLang === 'es' ? 'Las últimas noticias de fútbol próximamente...' :
+               currentLang === 'fr' ? 'Dernières actualités football bientôt...' :
+               currentLang === 'it' ? 'Ultime notizie calcio in arrivo...' :
+               currentLang === 'pt' ? 'Últimas notícias de futebol em breve...' :
+               currentLang === 'ru' ? 'Последние футбольные новости скоро...' :
+               currentLang === 'ar' ? 'آخر أخبار كرة القدم قريباً...' :
+               'Latest football news coming soon...'}
+            </p>
+          </div>
+        );
+      case 'analysis':
+        return (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              🎯 {currentLang === 'tr' ? 'Maç Analizi' : 
+                   currentLang === 'de' ? 'Spielanalyse' :
+                   currentLang === 'es' ? 'Análisis de Partidos' :
+                   currentLang === 'fr' ? 'Analyse de Match' :
+                   currentLang === 'it' ? 'Analisi Partite' :
+                   currentLang === 'pt' ? 'Análise de Jogos' :
+                   currentLang === 'ru' ? 'Анализ Матчей' :
+                   currentLang === 'ar' ? 'تحليل المباريات' :
+                   'Match Analysis'}
+            </h2>
+            <p className="text-gray-600">
+              {currentLang === 'tr' ? 'Profesyonel maç analizleri yakında...' : 
+               currentLang === 'de' ? 'Professionelle Spielanalysen kommen bald...' :
+               currentLang === 'es' ? 'Análisis profesional de partidos próximamente...' :
+               currentLang === 'fr' ? 'Analyses professionnelles de matchs bientôt...' :
+               currentLang === 'it' ? 'Analisi professionali delle partite in arrivo...' :
+               currentLang === 'pt' ? 'Análise profissional de jogos em breve...' :
+               currentLang === 'ru' ? 'Профессиональный анализ матчей скоро...' :
+               currentLang === 'ar' ? 'تحليل مهني للمباريات قريباً...' :
+               'Professional match analysis coming soon...'}
+            </p>
+          </div>
+        );
+      case 'contact':
+        return (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              💬 {currentLang === 'tr' ? 'İletişim' : 
+                   currentLang === 'de' ? 'Kontakt' :
+                   currentLang === 'es' ? 'Contacto' :
+                   currentLang === 'fr' ? 'Contact' :
+                   currentLang === 'it' ? 'Contatti' :
+                   currentLang === 'pt' ? 'Contato' :
+                   currentLang === 'ru' ? 'Контакты' :
+                   currentLang === 'ar' ? 'اتصل بنا' :
+                   'Contact Us'}
+            </h2>
+            <p className="text-gray-600">
+              {currentLang === 'tr' ? 'Bizimle iletişime geçin...' : 
+               currentLang === 'de' ? 'Nehmen Sie Kontakt mit uns auf...' :
+               currentLang === 'es' ? 'Ponte en contacto con nosotros...' :
+               currentLang === 'fr' ? 'Entrez en contact avec nous...' :
+               currentLang === 'it' ? 'Mettiti in contatto con noi...' :
+               currentLang === 'pt' ? 'Entre em contato conosco...' :
+               currentLang === 'ru' ? 'Свяжитесь с нами...' :
+               currentLang === 'ar' ? 'تواصل معنا...' :
+               'Get in touch with us...'}
+            </p>
+          </div>
+        );
+      case 'leagues':
+        return (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">🏆 Leagues</h2>
+            <p className="text-gray-600">This section will be completed soon...</p>
+          </div>
+        );
       case 'standings':
         return <LeagueStandings />;
       case 'teams':
         return <TeamDashboard />;
       case 'players':
         return <PlayerStatistics />;
-      case 'leagues':
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">🏆 Ligler</h2>
-            <p className="text-gray-600">Bu bölüm yakında tamamlanacak...</p>
-          </div>
-        );
       case 'statistics':
         return <StatisticsDashboard />;
       case 'countries':
         return <CountryDashboard />;
-      case 'matches':
+      case 'scores':
       default:
         return (
           <MatchList 

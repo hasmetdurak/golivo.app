@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Trophy, Calendar, ChevronLeft, ChevronRight, Menu, X, Users, User, BarChart3, Medal, Globe, TrendingUp } from 'lucide-react';
+import { Trophy, Calendar, ChevronLeft, ChevronRight, Menu, X, BarChart3, MessageCircle, Newspaper, Target, ChevronDown } from 'lucide-react';
+import { LanguageSelector } from './LanguageSelector';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface HeaderProps {
   selectedDate: string;
@@ -8,8 +10,10 @@ interface HeaderProps {
   onViewChange?: (view: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, currentView = 'matches', onViewChange }) => {
+export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, currentView = 'scores', onViewChange }) => {
+  const [isStatsDropdownOpen, setIsStatsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t, currentLang, changeLanguage } = useTranslation();
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -55,81 +59,159 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">GoLivo</h1>
-                <p className="text-xs text-gray-500 hidden sm:block">Canlı Futbol Skorları</p>
+                <p className="text-xs text-gray-500 hidden sm:block">Live Football Scores</p>
               </div>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-6">
+              {/* Language Selector */}
+              <LanguageSelector 
+                currentLang={currentLang} 
+                onLanguageChange={changeLanguage} 
+              />
+              
               {/* Navigation Menu */}
               <nav className="flex items-center space-x-1">
                 <button 
-                  onClick={() => onViewChange?.('matches')}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'matches' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  onClick={() => onViewChange?.('scores')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    currentView === 'scores' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <Trophy className="h-4 w-4 inline mr-1" />
-                  Maçlar
+                  {currentLang === 'tr' ? 'Skorlar' : 
+                   currentLang === 'de' ? 'Ergebnisse' :
+                   currentLang === 'es' ? 'Marcadores' :
+                   currentLang === 'fr' ? 'Scores' :
+                   currentLang === 'it' ? 'Punteggi' :
+                   currentLang === 'pt' ? 'Placares' :
+                   currentLang === 'ru' ? 'Счета' :
+                   currentLang === 'ar' ? 'النتائج' :
+                   'Scores'}
                 </button>
                 <button 
-                  onClick={() => onViewChange?.('leagues')}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'leagues' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  onClick={() => onViewChange?.('news')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    currentView === 'news' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  <Medal className="h-4 w-4 inline mr-1" />
-                  Ligler
+                  <Newspaper className="h-4 w-4 inline mr-1" />
+                  {currentLang === 'tr' ? 'Haberler' : 
+                   currentLang === 'de' ? 'Nachrichten' :
+                   currentLang === 'es' ? 'Noticias' :
+                   currentLang === 'fr' ? 'Actualités' :
+                   currentLang === 'it' ? 'Notizie' :
+                   currentLang === 'pt' ? 'Notícias' :
+                   currentLang === 'ru' ? 'Новости' :
+                   currentLang === 'ar' ? 'الأخبار' :
+                   'News'}
+                </button>
+                
+                {/* Stats Dropdown */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsStatsDropdownOpen(!isStatsDropdownOpen)}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center ${
+                      ['standings', 'teams', 'players', 'statistics', 'leagues', 'countries'].includes(currentView || '') 
+                        ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    }`}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-1" />
+                    {currentLang === 'tr' ? 'İstatistikler' : 
+                     currentLang === 'de' ? 'Statistiken' :
+                     currentLang === 'es' ? 'Estadísticas' :
+                     currentLang === 'fr' ? 'Statistiques' :
+                     currentLang === 'it' ? 'Statistiche' :
+                     currentLang === 'pt' ? 'Estatísticas' :
+                     currentLang === 'ru' ? 'Статистика' :
+                     currentLang === 'ar' ? 'الإحصائيات' :
+                     'Stats'}
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                  </button>
+                  
+                  {isStatsDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                      <div className="py-1">
+                        <button
+                          onClick={() => { onViewChange?.('standings'); setIsStatsDropdownOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          League Tables
+                        </button>
+                        <button
+                          onClick={() => { onViewChange?.('teams'); setIsStatsDropdownOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Teams
+                        </button>
+                        <button
+                          onClick={() => { onViewChange?.('players'); setIsStatsDropdownOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Players
+                        </button>
+                        <button
+                          onClick={() => { onViewChange?.('statistics'); setIsStatsDropdownOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Advanced Stats
+                        </button>
+                        <button
+                          onClick={() => { onViewChange?.('leagues'); setIsStatsDropdownOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Leagues
+                        </button>
+                        <button
+                          onClick={() => { onViewChange?.('countries'); setIsStatsDropdownOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Countries
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <button 
+                  onClick={() => onViewChange?.('analysis')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    currentView === 'analysis' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Target className="h-4 w-4 inline mr-1" />
+                  {currentLang === 'tr' ? 'Analiz' : 
+                   currentLang === 'de' ? 'Analyse' :
+                   currentLang === 'es' ? 'Análisis' :
+                   currentLang === 'fr' ? 'Analyse' :
+                   currentLang === 'it' ? 'Analisi' :
+                   currentLang === 'pt' ? 'Análise' :
+                   currentLang === 'ru' ? 'Анализ' :
+                   currentLang === 'ar' ? 'تحليل' :
+                   'Analysis'}
                 </button>
                 <button 
-                  onClick={() => onViewChange?.('standings')}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'standings' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  onClick={() => onViewChange?.('contact')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    currentView === 'contact' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  <BarChart3 className="h-4 w-4 inline mr-1" />
-                  Puan Durumu
-                </button>
-                <button 
-                  onClick={() => onViewChange?.('teams')}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'teams' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Users className="h-4 w-4 inline mr-1" />
-                  Takımlar
-                </button>
-                <button 
-                  onClick={() => onViewChange?.('players')}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'players' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <User className="h-4 w-4 inline mr-1" />
-                  Oyuncular
-                </button>
-                <button 
-                  onClick={() => onViewChange?.('statistics')}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'statistics' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <TrendingUp className="h-4 w-4 inline mr-1" />
-                  İstatistikler
-                </button>
-                <button 
-                  onClick={() => onViewChange?.('countries')}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'countries' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Globe className="h-4 w-4 inline mr-1" />
-                  Ülkeler
+                  <MessageCircle className="h-4 w-4 inline mr-1" />
+                  {currentLang === 'tr' ? 'İletişim' : 
+                   currentLang === 'de' ? 'Kontakt' :
+                   currentLang === 'es' ? 'Contacto' :
+                   currentLang === 'fr' ? 'Contact' :
+                   currentLang === 'it' ? 'Contatti' :
+                   currentLang === 'pt' ? 'Contato' :
+                   currentLang === 'ru' ? 'Контакты' :
+                   currentLang === 'ar' ? 'اتصل بنا' :
+                   'Contact Us'}
                 </button>
               </nav>
               
-              {/* Date Navigation - Only show for matches view */}
-              {currentView === 'matches' && (
+              {/* Date Navigation - Only show for scores view */}
+              {currentView === 'scores' && (
                 <>
                   <div className="flex items-center space-x-1 bg-gray-50 rounded-xl px-3 py-2">
                     <button 
@@ -158,7 +240,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
                     onClick={goToToday}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
                   >
-                    Bugün
+                    Today
                   </button>
                 </>
               )}
@@ -166,6 +248,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
 
             {/* Mobile Navigation */}
             <div className="flex lg:hidden items-center space-x-3">
+              {/* Mobile Language Selector */}
+              <LanguageSelector 
+                currentLang={currentLang} 
+                onLanguageChange={changeLanguage} 
+              />
+              
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -188,80 +276,171 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
             <div className="grid grid-cols-2 gap-2 mb-4">
               <button 
                 onClick={() => {
-                  onViewChange?.('matches');
+                  onViewChange?.('scores');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 text-sm font-medium rounded-lg transition-colors flex items-center justify-center ${
-                  currentView === 'matches' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  currentView === 'scores' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
                 <Trophy className="h-4 w-4 mr-1" />
-                Maçlar
+                {currentLang === 'tr' ? 'Skorlar' : 
+                 currentLang === 'de' ? 'Ergebnisse' :
+                 currentLang === 'es' ? 'Marcadores' :
+                 currentLang === 'fr' ? 'Scores' :
+                 currentLang === 'it' ? 'Punteggi' :
+                 currentLang === 'pt' ? 'Placares' :
+                 currentLang === 'ru' ? 'Счета' :
+                 currentLang === 'ar' ? 'النتائج' :
+                 'Scores'}
               </button>
               <button 
                 onClick={() => {
-                  onViewChange?.('leagues');
+                  onViewChange?.('news');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 text-sm font-medium rounded-lg transition-colors flex items-center justify-center ${
-                  currentView === 'leagues' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  currentView === 'news' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <Medal className="h-4 w-4 mr-1" />
-                Ligler
+                <Newspaper className="h-4 w-4 mr-1" />
+                {currentLang === 'tr' ? 'Haberler' : 
+                 currentLang === 'de' ? 'Nachrichten' :
+                 currentLang === 'es' ? 'Noticias' :
+                 currentLang === 'fr' ? 'Actualités' :
+                 currentLang === 'it' ? 'Notizie' :
+                 currentLang === 'pt' ? 'Notícias' :
+                 currentLang === 'ru' ? 'Новости' :
+                 currentLang === 'ar' ? 'الأخبار' :
+                 'News'}
               </button>
               <button 
                 onClick={() => {
-                  onViewChange?.('standings');
+                  onViewChange?.('analysis');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 text-sm font-medium rounded-lg transition-colors flex items-center justify-center ${
-                  currentView === 'standings' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  currentView === 'analysis' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <BarChart3 className="h-4 w-4 mr-1" />
-                Puan Durumu
+                <Target className="h-4 w-4 mr-1" />
+                {currentLang === 'tr' ? 'Analiz' : 
+                 currentLang === 'de' ? 'Analyse' :
+                 currentLang === 'es' ? 'Análisis' :
+                 currentLang === 'fr' ? 'Analyse' :
+                 currentLang === 'it' ? 'Analisi' :
+                 currentLang === 'pt' ? 'Análise' :
+                 currentLang === 'ru' ? 'Анализ' :
+                 currentLang === 'ar' ? 'تحليل' :
+                 'Analysis'}
               </button>
               <button 
                 onClick={() => {
-                  onViewChange?.('teams');
+                  onViewChange?.('contact');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 text-sm font-medium rounded-lg transition-colors flex items-center justify-center ${
-                  currentView === 'teams' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  currentView === 'contact' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <Users className="h-4 w-4 mr-1" />
-                Takımlar
-              </button>
-              <button 
-                onClick={() => {
-                  onViewChange?.('players');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`p-3 text-sm font-medium rounded-lg transition-colors flex items-center justify-center ${
-                  currentView === 'players' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <User className="h-4 w-4 mr-1" />
-                Oyuncular
-              </button>
-              <button 
-                onClick={() => {
-                  onViewChange?.('statistics');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`p-3 text-sm font-medium rounded-lg transition-colors flex items-center justify-center ${
-                  currentView === 'statistics' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <TrendingUp className="h-4 w-4 mr-1" />
-                İstatistikler
+                <MessageCircle className="h-4 w-4 mr-1" />
+                {currentLang === 'tr' ? 'İletişim' : 
+                 currentLang === 'de' ? 'Kontakt' :
+                 currentLang === 'es' ? 'Contacto' :
+                 currentLang === 'fr' ? 'Contact' :
+                 currentLang === 'it' ? 'Contatti' :
+                 currentLang === 'pt' ? 'Contato' :
+                 currentLang === 'ru' ? 'Контакты' :
+                 currentLang === 'ar' ? 'اتصل بنا' :
+                 'Contact'}
               </button>
             </div>
             
-            {/* Mobile Date Navigation - Only show for matches view */}
-            {currentView === 'matches' && (
+            {/* Stats Submenu */}
+            <div className="border-t pt-4">
+              <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                {currentLang === 'tr' ? '📊 İstatistikler' : 
+                 currentLang === 'de' ? '📊 Statistiken' :
+                 currentLang === 'es' ? '📊 Estadísticas' :
+                 currentLang === 'fr' ? '📊 Statistiques' :
+                 currentLang === 'it' ? '📊 Statistiche' :
+                 currentLang === 'pt' ? '📊 Estatísticas' :
+                 currentLang === 'ru' ? '📊 Статистика' :
+                 currentLang === 'ar' ? '📊 الإحصائيات' :
+                 '📊 Statistics'}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => {
+                    onViewChange?.('standings');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-2 text-xs font-medium rounded-lg transition-colors ${
+                    currentView === 'standings' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  League Tables
+                </button>
+                <button 
+                  onClick={() => {
+                    onViewChange?.('teams');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-2 text-xs font-medium rounded-lg transition-colors ${
+                    currentView === 'teams' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  Teams
+                </button>
+                <button 
+                  onClick={() => {
+                    onViewChange?.('players');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-2 text-xs font-medium rounded-lg transition-colors ${
+                    currentView === 'players' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  Players
+                </button>
+                <button 
+                  onClick={() => {
+                    onViewChange?.('statistics');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-2 text-xs font-medium rounded-lg transition-colors ${
+                    currentView === 'statistics' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  Advanced Stats
+                </button>
+                <button 
+                  onClick={() => {
+                    onViewChange?.('leagues');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-2 text-xs font-medium rounded-lg transition-colors ${
+                    currentView === 'leagues' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  Leagues
+                </button>
+                <button 
+                  onClick={() => {
+                    onViewChange?.('countries');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-2 text-xs font-medium rounded-lg transition-colors ${
+                    currentView === 'countries' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  Countries
+                </button>
+              </div>
+            </div>
+            
+            {/* Mobile Date Navigation - Only show for scores view */}
+            {currentView === 'scores' && (
               <>
                 <div className="flex items-center justify-center space-x-1 bg-gray-50 rounded-xl p-3">
                   <button 
@@ -293,7 +472,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
                   }}
                   className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
                 >
-                  Bugüne Git
+                  Go to Today
                 </button>
               </>
             )}
