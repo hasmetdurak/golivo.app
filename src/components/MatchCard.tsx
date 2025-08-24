@@ -15,13 +15,19 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
   const isFinished = safeMatch.status === 'finished';
   const isScheduled = !isLive && !isFinished;
   
-  const getMatchTime = () => {
-    if (isLive && safeMatch.minute) {
-      return `${safeMatch.minute} CANLI`;
+  // Safer match time display
+  const getMatchDisplayTime = () => {
+    if (isLive) {
+      // For live matches, show minute if available, otherwise show "CANLI"
+      if (safeMatch.minute) {
+        return safeMatch.minute;
+      }
+      return 'CANLI';
     }
     if (isFinished) {
       return 'MS'; // Maç Sonu
     }
+    // For scheduled matches, show the scheduled time
     return safeMatch.time || '00:00';
   };
   
@@ -72,9 +78,9 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
       }`}>
         <div className="flex items-center space-x-2">
           <div className="text-white text-sm font-semibold">
-            {getMatchTime()}
+            {getMatchDisplayTime()}
           </div>
-          {isLive && (
+          {isLive && safeMatch.minute && (
             <div className="flex items-center space-x-1">
               <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
               <span className="text-xs font-bold text-white">CANLI</span>
@@ -130,21 +136,18 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
                 {awayScore}
               </div>
             </div>
-            {/* Minute Information */}
-            {(isLive || safeMatch.minute) && (
-              <div className={`text-sm font-bold ${
-                isLive ? 'text-red-600' : 
-                isFinished ? 'text-gray-700' : 'text-gray-400'
-              }`}>
-                {safeMatch.minute || (isScheduled ? safeMatch.time : '')}
+            {/* Minute Information - Simplified */}
+            {isLive && safeMatch.minute && (
+              <div className="text-xs text-red-600 font-bold">
+                CANLI
               </div>
             )}
-            {isFinished && !safeMatch.minute && (
+            {isFinished && (
               <div className="text-xs text-gray-500 font-medium">
                 Full Time
               </div>
             )}
-            {isScheduled && !safeMatch.minute && (
+            {isScheduled && (
               <div className="text-xs text-gray-500 font-medium">
                 {safeMatch.time || '00:00'}
               </div>

@@ -401,17 +401,26 @@ interface Match {
 
 const transformApiMatch = (apiMatch: ApiMatch): Match => {
   try {
-    const isLive = apiMatch.match_live === '1' || (apiMatch.match_status && apiMatch.match_status.includes("'"));
-    let status = 'scheduled';
-    let minute = undefined;
+    // Live match detection - more robust
+    const isLive = apiMatch.match_live === '1' || 
+                   (apiMatch.match_status && apiMatch.match_status.includes("'")) ||
+                   (apiMatch.match_status && apiMatch.match_status !== 'Finished' && apiMatch.match_status !== 'Not Started');
     
-    if (isLive) {
+    let status: 'live' | 'finished' | 'scheduled' = 'scheduled';
+    let minute: string | undefined = undefined;
+    
+    // Status and minute determination
+    if (apiMatch.match_status === 'Finished') {
+      status = 'finished';
+    } else if (isLive) {
       status = 'live';
+      // Extract minute from match_status if it contains minute information (e.g., "67'")
       if (apiMatch.match_status && apiMatch.match_status.includes("'")) {
         minute = apiMatch.match_status;
+      } else if (apiMatch.match_status && apiMatch.match_status !== 'Finished' && apiMatch.match_status !== 'Not Started') {
+        // If match_status has some other value, use it as minute
+        minute = apiMatch.match_status;
       }
-    } else if (apiMatch.match_status === 'Finished') {
-      status = 'finished';
     }
 
     // Smart league detection based on league_id, country + league name
@@ -423,7 +432,6 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
     const leagueId = apiMatch.league_id || '';
     if (leagueId && LEAGUE_ID_TO_NAME[leagueId]) {
       detectedLeague = LEAGUE_ID_TO_NAME[leagueId];
-      console.log(`League ID Match: ID=${leagueId} -> ${detectedLeague}`);
     } else {
       // Fallback: Country-specific league mapping to prevent misclassification
       if (country.includes('russia') || country.includes('rusya')) {
@@ -478,17 +486,8 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
         // Eğer belirli bir ülke/lig eşleşmesi yoksa orijinal lig adını kullan
         detectedLeague = apiMatch.league_name || 'Unknown League';
       }
-      console.log(`Country Match: Country="${country}" + League="${leagueName}" -> ${detectedLeague}`);
     }
     
-    // Final debug log for league detection
-    console.log(`🏆 League Detection Result:`);
-    console.log(`   📍 Country: "${apiMatch.country_name}"`);
-    console.log(`   🆔 League ID: "${leagueId}"`);
-    console.log(`   📝 Original: "${apiMatch.league_name}"`);
-    console.log(`   ✅ Detected: "${detectedLeague}"`);
-    console.log(`   🏠 Home: ${apiMatch.match_hometeam_name} vs 🚪 Away: ${apiMatch.match_awayteam_name}`);
-    console.log(`---`);
     // Combine all events (goals, cards, substitutions)
     const events: Array<{
       type: 'Goal' | 'Yellow Card' | 'Red Card' | 'Substitution';
@@ -613,7 +612,7 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       league: detectedLeague,
       country: apiMatch.country_name || 'Unknown',
       status,
-      minute: minute || undefined,
+      minute, // This is the key fix - ensure minute is properly passed
       time: apiMatch.match_time || '00:00',
       venue: apiMatch.match_venue,
       referee: apiMatch.match_referee,
