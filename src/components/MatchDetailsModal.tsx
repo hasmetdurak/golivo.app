@@ -29,19 +29,33 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
     setIsLoadingH2H(true);
     try {
       // Head-to-head verilerini yükle
-      const h2hData = await FootballApi.getHeadToHead(match.homeTeam.name, match.awayTeam.name);
-      setHeadToHeadData(h2hData);
+      try {
+        const h2hData = await FootballApi.getHeadToHead(match.homeTeam.name, match.awayTeam.name);
+        setHeadToHeadData(h2hData || []);
+      } catch (error) {
+        console.error('Error loading H2H data:', error);
+        setHeadToHeadData([]);
+      }
       
       // Takım istatistiklerini yükle
-      const [homeStats, awayStats] = await Promise.all([
-        FootballApi.getTeamStats(match.homeTeam.name),
-        FootballApi.getTeamStats(match.awayTeam.name)
-      ]);
-      
-      setHomeTeamStats(homeStats);
-      setAwayTeamStats(awayStats);
+      try {
+        const [homeStats, awayStats] = await Promise.all([
+          FootballApi.getTeamStats(match.homeTeam.name).catch(() => null),
+          FootballApi.getTeamStats(match.awayTeam.name).catch(() => null)
+        ]);
+        
+        setHomeTeamStats(homeStats);
+        setAwayTeamStats(awayStats);
+      } catch (error) {
+        console.error('Error loading team stats:', error);
+        setHomeTeamStats(null);
+        setAwayTeamStats(null);
+      }
     } catch (error) {
       console.error('Error loading match preview data:', error);
+      setHeadToHeadData([]);
+      setHomeTeamStats(null);
+      setAwayTeamStats(null);
     } finally {
       setIsLoadingH2H(false);
     }

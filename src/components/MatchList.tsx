@@ -20,8 +20,17 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
   const displayMatches = matches;
 
   const handleMatchClick = (match: any) => {
-    setSelectedMatch(match);
-    setIsModalOpen(true);
+    try {
+      if (match) {
+        setSelectedMatch(match);
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error handling match click:', error);
+      // Modalı kapat
+      setIsModalOpen(false);
+      setSelectedMatch(null);
+    }
   };
 
   const handleCloseModal = () => {

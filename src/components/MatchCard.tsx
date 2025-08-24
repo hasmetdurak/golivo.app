@@ -152,19 +152,6 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
           </div>
         </div>
         
-        {/* Latest Goal for Live Matches */}
-        {isLive && match.events && match.events.length > 0 && (
-          <div className="mt-4 text-center">
-            <div className="inline-flex items-center space-x-2 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
-              <span className="text-red-600">⚽</span>
-              <span className="text-sm text-red-700 font-medium">
-                {match.events[match.events.length - 1].player} 
-                <span className="text-red-500 ml-1">{match.events[match.events.length - 1].minute}</span>
-              </span>
-            </div>
-          </div>
-        )}
-        
         {/* Match Events Timeline - Two Column Layout */}
         {match.events && match.events.length > 0 && (
           <div className="mt-3 border-t pt-3">
