@@ -131,6 +131,7 @@ interface ApiMatch {
   }>;
 }
 
+// Deprecated - use StandingsTeam instead
 interface TeamStanding {
   country_name: string;
   league_id: string;
@@ -170,6 +171,161 @@ interface LeagueInfo {
   league_logo: string;
   country_name: string;
   country_logo: string;
+}
+
+// New comprehensive interfaces for API expansion
+interface Country {
+  country_id: string;
+  country_name: string;
+  country_logo: string;
+}
+
+interface TeamDetails {
+  team_key: string;
+  team_name: string;
+  team_country: string;
+  team_founded: string;
+  team_badge: string;
+  venue: {
+    venue_name: string;
+    venue_address: string;
+    venue_city: string;
+    venue_capacity: string;
+    venue_surface: string;
+  };
+  players: Player[];
+  coaches: Coach[];
+}
+
+interface Player {
+  player_key: number;
+  player_id: string;
+  player_image: string;
+  player_name: string;
+  player_number: string;
+  player_country: string;
+  player_type: 'Goalkeepers' | 'Defenders' | 'Midfielders' | 'Forwards';
+  player_age: string;
+  player_match_played: string;
+  player_goals: string;
+  player_yellow_cards: string;
+  player_red_cards: string;
+  player_injured: 'Yes' | 'No';
+  player_substitute_out: string;
+  player_substitutes_on_bench: string;
+  player_assists: string;
+  player_birthdate: string;
+  player_is_captain: string;
+  player_shots_total: string;
+  player_goals_conceded: string;
+  player_fouls_committed: string;
+  player_tackles: string;
+  player_blocks: string;
+  player_crosses_total: string;
+  player_interceptions: string;
+  player_clearances: string;
+  player_dispossesed: string;
+  player_saves: string;
+  player_inside_box_saves: string;
+  player_duels_total: string;
+  player_duels_won: string;
+  player_dribble_attempts: string;
+  player_dribble_succ: string;
+  player_pen_comm: string;
+  player_pen_won: string;
+  player_pen_scored: string;
+  player_pen_missed: string;
+  player_passes: string;
+  player_passes_accuracy: string;
+  player_key_passes: string;
+  player_woordworks: string;
+  player_rating: string;
+  player_minutes?: string;
+  team_name?: string;
+  team_key?: string;
+}
+
+interface Coach {
+  coach_name: string;
+  coach_country: string;
+  coach_age: string;
+}
+
+interface StandingsTeam {
+  country_name: string;
+  league_id: string;
+  league_name: string;
+  team_id: string;
+  team_name: string;
+  team_badge: string;
+  overall_league_position: string;
+  overall_league_payed: string;
+  overall_league_W: string;
+  overall_league_D: string;
+  overall_league_L: string;
+  overall_league_GF: string;
+  overall_league_GA: string;
+  overall_league_PTS: string;
+  home_league_position?: string;
+  home_league_payed?: string;
+  home_league_W?: string;
+  home_league_D?: string;
+  home_league_L?: string;
+  home_league_GF?: string;
+  home_league_GA?: string;
+  home_league_PTS?: string;
+  away_league_position?: string;
+  away_league_payed?: string;
+  away_league_W?: string;
+  away_league_D?: string;
+  away_league_L?: string;
+  away_league_GF?: string;
+  away_league_GA?: string;
+  away_league_PTS?: string;
+}
+
+interface TopScorer {
+  player_place: string;
+  player_name: string;
+  player_key: string;
+  team_name: string;
+  team_key: string;
+  goals: string;
+  assists: string;
+  penalty_goals: string;
+  matches: string;
+}
+
+interface MatchPrediction {
+  match_id: string;
+  prob_HW: string;
+  prob_D: string;
+  prob_AW: string;
+  prob_HW_D: string;
+  prob_AW_D: string;
+  prob_O: string;
+  prob_U: string;
+}
+
+interface Injury {
+  player_id: string;
+  player_name: string;
+  player_image: string;
+  player_position: string;
+  team_name: string;
+  team_id: string;
+  injury_reason: string;
+  injury_date: string;
+  injury_date_end: string;
+}
+
+interface Transfer {
+  transfer_date: string;
+  type: string;
+  player_name: string;
+  team_from: string;
+  team_to: string;
+  transfer_amount: string;
 }
 
 interface Match {
@@ -731,32 +887,6 @@ export const FootballApi = {
     }
   },
 
-  // Oyuncu istatistiklerini çek
-  async getTopScorers(leagueId: string): Promise<PlayerStats[]> {
-    try {
-      const url = `${BASE_URL}/?action=get_topscorers&league_id=${leagueId}&APIkey=${API_KEY}`;
-      console.log('Fetching top scorers:', url);
-      
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
-      
-      const data: PlayerStats[] = await response.json();
-      console.log('Top scorers data:', data);
-      
-      if (!Array.isArray(data)) {
-        return [];
-      }
-      
-      return data.sort((a, b) => parseInt(b.player_goals) - parseInt(a.player_goals));
-      
-    } catch (error) {
-      console.error('Error fetching top scorers:', error);
-      return [];
-    }
-  },
-
   // Detaylı maç bilgilerini çek (lineup, statistics dahil)
   async getMatchDetails(matchId: string): Promise<Match | null> {
     try {
@@ -949,6 +1079,380 @@ export const FootballApi = {
       };
     } catch (error) {
       console.error('Error fetching team stats:', error);
+      return null;
+    }
+  },
+
+  // ==============================================
+  // NEW COMPREHENSIVE API FUNCTIONS FOR MAXIMUM UTILIZATION
+  // ==============================================
+
+  // 1. Ülkeleri getir - Global coverage için
+  async getCountries(): Promise<Country[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_countries&APIkey=${API_KEY}`;
+      console.log('Fetching countries:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Countries API Error: ${response.status}`);
+      }
+      
+      const data: Country[] = await response.json();
+      console.log('Countries data received:', data.length, 'countries');
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching countries:', error);
+      // Fallback mock data
+      return [
+        { country_id: '44', country_name: 'England', country_logo: 'https://apiv3.apifootball.com/badges/logo_country/44_england.png' },
+        { country_id: '6', country_name: 'Spain', country_logo: 'https://apiv3.apifootball.com/badges/logo_country/6_spain.png' },
+        { country_id: '4', country_name: 'Germany', country_logo: 'https://apiv3.apifootball.com/badges/logo_country/4_germany.png' },
+        { country_id: '5', country_name: 'Italy', country_logo: 'https://apiv3.apifootball.com/badges/logo_country/5_italy.png' },
+        { country_id: '3', country_name: 'France', country_logo: 'https://apiv3.apifootball.com/badges/logo_country/3_france.png' }
+      ];
+    }
+  },
+
+  // 2. Belirli ülkenin liglerini getir
+  async getLeaguesByCountry(countryId: string): Promise<LeagueInfo[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_leagues&country_id=${countryId}&APIkey=${API_KEY}`;
+      console.log('Fetching leagues for country:', countryId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Leagues API Error: ${response.status}`);
+      }
+      
+      const data: LeagueInfo[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching leagues by country:', error);
+      return [];
+    }
+  },
+
+  // 3. Takım detaylarını getir (oyuncular, venue, koç dahil)
+  async getTeamDetails(teamId: string): Promise<TeamDetails | null> {
+    try {
+      const url = `${BASE_URL}/?action=get_teams&team_id=${teamId}&APIkey=${API_KEY}`;
+      console.log('Fetching team details:', teamId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Team API Error: ${response.status}`);
+      }
+      
+      const data: TeamDetails[] = await response.json();
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        return null;
+      }
+      
+      return data[0];
+    } catch (error) {
+      console.error('Error fetching team details:', error);
+      return null;
+    }
+  },
+
+  // 4. Lig takımlarını getir
+  async getTeamsByLeague(leagueId: string): Promise<TeamDetails[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_teams&league_id=${leagueId}&APIkey=${API_KEY}`;
+      console.log('Fetching teams for league:', leagueId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Teams API Error: ${response.status}`);
+      }
+      
+      const data: TeamDetails[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching teams by league:', error);
+      return [];
+    }
+  },
+
+  // 5. Oyuncu detaylarını getir
+  async getPlayerDetails(playerId: string): Promise<Player | null> {
+    try {
+      const url = `${BASE_URL}/?action=get_players&player_id=${playerId}&APIkey=${API_KEY}`;
+      console.log('Fetching player details:', playerId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Player API Error: ${response.status}`);
+      }
+      
+      const data: Player[] = await response.json();
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        return null;
+      }
+      
+      return data[0];
+    } catch (error) {
+      console.error('Error fetching player details:', error);
+      return null;
+    }
+  },
+
+  // 6. Oyuncu araması (isimle)
+  async searchPlayer(playerName: string): Promise<Player[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_players&player_name=${encodeURIComponent(playerName)}&APIkey=${API_KEY}`;
+      console.log('Searching player:', playerName);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Player Search API Error: ${response.status}`);
+      }
+      
+      const data: Player[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error searching player:', error);
+      return [];
+    }
+  },
+
+  // 7. Lig sıralamasını getir
+  async getStandings(leagueId: string): Promise<StandingsTeam[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_standings&league_id=${leagueId}&APIkey=${API_KEY}`;
+      console.log('Fetching standings for league:', leagueId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Standings API Error: ${response.status}`);
+      }
+      
+      const data: StandingsTeam[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data.sort((a, b) => parseInt(a.overall_league_position) - parseInt(b.overall_league_position));
+    } catch (error) {
+      console.error('Error fetching standings:', error);
+      return [];
+    }
+  },
+
+  // 8. Gol kralları listesi
+  async getTopScorers(leagueId: string): Promise<TopScorer[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_topscorers&league_id=${leagueId}&APIkey=${API_KEY}`;
+      console.log('Fetching top scorers for league:', leagueId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Top Scorers API Error: ${response.status}`);
+      }
+      
+      const data: TopScorer[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data.sort((a, b) => parseInt(b.goals) - parseInt(a.goals));
+    } catch (error) {
+      console.error('Error fetching top scorers:', error);
+      return [];
+    }
+  },
+
+  // 9. Maç tahminleri
+  async getMatchPredictions(matchId: string): Promise<MatchPrediction | null> {
+    try {
+      const url = `${BASE_URL}/?action=get_predictions&match_id=${matchId}&APIkey=${API_KEY}`;
+      console.log('Fetching predictions for match:', matchId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Predictions API Error: ${response.status}`);
+      }
+      
+      const data: MatchPrediction[] = await response.json();
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        return null;
+      }
+      
+      return data[0];
+    } catch (error) {
+      console.error('Error fetching match predictions:', error);
+      return null;
+    }
+  },
+
+  // 10. Sakatlıklar
+  async getInjuries(leagueId?: string): Promise<Injury[]> {
+    try {
+      let url = `${BASE_URL}/?action=get_injuries&APIkey=${API_KEY}`;
+      if (leagueId) {
+        url += `&league_id=${leagueId}`;
+      }
+      console.log('Fetching injuries:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Injuries API Error: ${response.status}`);
+      }
+      
+      const data: Injury[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching injuries:', error);
+      return [];
+    }
+  },
+
+  // 11. Transferler
+  async getTransfers(teamId?: string): Promise<Transfer[]> {
+    try {
+      let url = `${BASE_URL}/?action=get_transfers&APIkey=${API_KEY}`;
+      if (teamId) {
+        url += `&team_id=${teamId}`;
+      }
+      console.log('Fetching transfers:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Transfers API Error: ${response.status}`);
+      }
+      
+      const data: Transfer[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching transfers:', error);
+      return [];
+    }
+  },
+
+  // 12. Belirli tarih aralığında maçları getir
+  async getMatchesByDate(fromDate: string, toDate: string, leagueId?: string): Promise<Match[]> {
+    try {
+      let url = `${BASE_URL}/?action=get_events&from=${fromDate}&to=${toDate}&APIkey=${API_KEY}`;
+      if (leagueId) {
+        url += `&league_id=${leagueId}`;
+      }
+      console.log('Fetching matches by date range:', fromDate, 'to', toDate);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Matches API Error: ${response.status}`);
+      }
+      
+      const data: ApiMatch[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data.map(transformApiMatch).filter(Boolean);
+    } catch (error) {
+      console.error('Error fetching matches by date:', error);
+      return [];
+    }
+  },
+
+  // 14. Fikstür - Takımın gelecek maçları
+  async getTeamFixtures(teamId: string, numberOfMatches: number = 10): Promise<Match[]> {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
+      const future = futureDate.toISOString().split('T')[0];
+      
+      const url = `${BASE_URL}/?action=get_events&from=${today}&to=${future}&team_id=${teamId}&APIkey=${API_KEY}`;
+      console.log('Fetching team fixtures:', teamId);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Team Fixtures API Error: ${response.status}`);
+      }
+      
+      const data: ApiMatch[] = await response.json();
+      
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      
+      return data.map(transformApiMatch).filter(Boolean).slice(0, numberOfMatches);
+    } catch (error) {
+      console.error('Error fetching team fixtures:', error);
+      return [];
+    }
+  },
+
+  // 15. Comprehensive data fetcher - Bir lig için tüm verileri getir
+  async getComprehensiveLeagueData(leagueId: string) {
+    try {
+      console.log('🏆 Fetching comprehensive league data for:', leagueId);
+      
+      const [standings, topScorers, teams, todayMatches] = await Promise.all([
+        this.getStandings(leagueId),
+        this.getTopScorers(leagueId),
+        this.getTeamsByLeague(leagueId),
+        this.getLiveMatches('all')
+      ]);
+      
+      const leagueMatches = todayMatches.filter((match: Match) => 
+        match.league && LEAGUE_ID_TO_NAME[leagueId] && 
+        match.league.includes(LEAGUE_ID_TO_NAME[leagueId].split(' ')[0])
+      );
+      
+      return {
+        leagueId,
+        standings,
+        topScorers,
+        teams,
+        matches: leagueMatches,
+        stats: {
+          totalTeams: teams.length,
+          totalPlayers: teams.reduce((acc: number, team: TeamDetails) => acc + (team.players?.length || 0), 0),
+          totalMatches: leagueMatches.length,
+          liveMatches: leagueMatches.filter((m: Match) => m.status === 'live').length
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching comprehensive league data:', error);
       return null;
     }
   }

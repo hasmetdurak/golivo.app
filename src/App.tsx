@@ -1,9 +1,12 @@
-// GoLivo Modern Football App - Updated Design - Force Deploy 2024
-// Last update: Modern horizontal layout without old components
-// Vercel sync trigger: DEPLOY_NOW_2024
+// GoLivo Modern Football App - Comprehensive Statistical Dashboard
+// Major update: Complete API utilization with visual components
+// Features: Teams, Players, Leagues, Standings, Statistics
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { MatchList } from './components/MatchList';
+import { LeagueStandings } from './components/LeagueStandings';
+import { TeamDashboard } from './components/TeamDashboard';
+import { PlayerStatistics } from './components/PlayerStatistics';
 import { FootballApi } from './services/api';
 import { useTranslation } from './i18n/useTranslation';
 import { initGeoRedirect } from './utils/geoRedirect';
@@ -15,15 +18,22 @@ function App() {
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [currentView, setCurrentView] = useState('matches'); // New state for view management
 
   useEffect(() => {
-    console.log('App mounting, fetching matches...');
+    console.log('App mounting, view changed to:', currentView);
     // Initialize geo-redirect system - SSL certificates are now active!
     initGeoRedirect();
-    fetchLiveMatches();
-  }, [selectedDate]);
+    
+    // Fetch data based on current view
+    if (currentView === 'matches') {
+      fetchLiveMatches();
+    }
+  }, [selectedDate, currentView]);
 
   const fetchLiveMatches = async () => {
+    if (currentView !== 'matches') return; // Only fetch when in matches view
+    
     console.log('fetchLiveMatches called, setting loading=true');
     setLoading(true);
     try {
@@ -52,6 +62,50 @@ function App() {
     }
   };
 
+  // Render different views based on currentView state
+  const renderMainContent = () => {
+    switch (currentView) {
+      case 'standings':
+        return <LeagueStandings />;
+      case 'teams':
+        return <TeamDashboard />;
+      case 'players':
+        return <PlayerStatistics />;
+      case 'leagues':
+        return (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">🏆 Ligler</h2>
+            <p className="text-gray-600">Bu bölüm yakında tamamlanacak...</p>
+          </div>
+        );
+      case 'statistics':
+        return (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">📊 İstatistikler</h2>
+            <p className="text-gray-600">Bu bölüm yakında tamamlanacak...</p>
+          </div>
+        );
+      case 'countries':
+        return (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">🌍 Ülkeler</h2>
+            <p className="text-gray-600">Bu bölüm yakında tamamlanacak...</p>
+          </div>
+        );
+      case 'matches':
+      default:
+        return (
+          <MatchList 
+            matches={liveMatches}
+            loading={loading}
+            selectedLeague={selectedLeague}
+            selectedDate={selectedDate}
+            translations={t}
+          />
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SEO />
@@ -71,17 +125,13 @@ function App() {
       <Header 
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
+        currentView={currentView}
+        onViewChange={setCurrentView}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="space-y-4">
-          <MatchList 
-            matches={liveMatches}
-            loading={loading}
-            selectedLeague={selectedLeague}
-            selectedDate={selectedDate}
-            translations={t}
-          />
+          {renderMainContent()}
         </div>
       </main>
     </div>
