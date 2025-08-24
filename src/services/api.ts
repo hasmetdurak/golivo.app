@@ -613,7 +613,7 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
       league: detectedLeague,
       country: apiMatch.country_name || 'Unknown',
       status,
-      minute,
+      minute: minute || undefined,
       time: apiMatch.match_time || '00:00',
       venue: apiMatch.match_venue,
       referee: apiMatch.match_referee,
@@ -635,7 +635,32 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
     };
   } catch (error) {
     console.error('Error transforming match:', error, apiMatch);
-    return null as any;
+    // Return a safe fallback match object
+    return {
+      id: apiMatch?.match_id || 'unknown',
+      league: apiMatch?.league_name || 'Unknown League',
+      country: apiMatch?.country_name || 'Unknown',
+      status: 'scheduled',
+      minute: undefined,
+      time: apiMatch?.match_time || '00:00',
+      venue: apiMatch?.match_venue,
+      referee: apiMatch?.match_referee,
+      round: apiMatch?.match_round,
+      homeTeam: {
+        name: apiMatch?.match_hometeam_name || 'Home Team',
+        logo: apiMatch?.team_home_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
+      },
+      awayTeam: {
+        name: apiMatch?.match_awayteam_name || 'Away Team',
+        logo: apiMatch?.team_away_badge || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'
+      },
+      homeScore: parseInt(apiMatch?.match_hometeam_score) || 0,
+      awayScore: parseInt(apiMatch?.match_awayteam_score) || 0,
+      halftimeScore: undefined,
+      events: [],
+      statistics: [],
+      lineup: undefined
+    };
   }
 };
 

@@ -1,168 +1,105 @@
 import React, { useState } from 'react';
-import { ChevronDown, Globe } from 'lucide-react';
-import { supportedLanguages, getLanguageUrl, type Language } from '../i18n/index';
+import { supportedLanguages } from '../i18n';
 
 interface LanguageSelectorProps {
   currentLang: string;
-  onLanguageChange?: (langCode: string) => void;
+  onLanguageChange: (langCode: string) => void;
 }
 
-// Country flag emojis for popular languages
-const getFlagEmoji = (langCode: string): string => {
-  const flagMap: Record<string, string> = {
-    'tr': '🇹🇷', 'en': '🇬🇧', 'de': '🇩🇪', 'es': '🇪🇸', 'pt': '🇵🇹', 
-    'fr': '🇫🇷', 'it': '🇮🇹', 'ja': '🇯🇵', 'ko': '🇰🇷', 'zh-CN': '🇨🇳',
-    'zh-TW': '🇹🇼', 'hi': '🇮🇳', 'ru': '🇷🇺', 'pl': '🇵🇱', 'fa': '🇮🇷',
-    'vi': '🇻🇳', 'kk': '🇰🇿', 'tl': '🇵🇭', 'sw': '🇹🇿', 'en-IN': '🇮🇳',
-    'nl': '🇳🇱', 'cs': '🇨🇿', 'sk': '🇸🇰', 'hu': '🇭🇺', 'el': '🇬🇷',
-    'ro': '🇷🇴', 'bg': '🇧🇬', 'sr': '🇷🇸', 'hr': '🇭🇷', 'uk': '🇺🇦',
-    'bn': '🇧🇩', 'ur': '🇵🇰', 'ta': '🇮🇳', 'te': '🇮🇳', 'ml': '🇮🇳',
-    'id': '🇮🇩', 'ms': '🇲🇾', 'th': '🇹🇭', 'km': '🇰🇭', 'my': '🇲🇲',
-    'ha': '🇳🇬', 'yo': '🇳🇬', 'zu': '🇿🇦', 'am': '🇪🇹', 'ak': '🇬🇭',
-    'gn': '🇵🇾', 'qu': '🇵🇪', 'ay': '🇧🇴', 'arn': '🇨🇱', 'nah': '🇲🇽',
-    'sv': '🇸🇪', 'no': '🇳🇴', 'fi': '🇫🇮', 'et': '🇪🇪', 'lv': '🇱🇻',
-    'lt': '🇱🇹', 'he': '🇮🇱', 'ar': '🇸🇦', 'az': '🇦🇿', 'ka': '🇬🇪',
-    'uz': '🇺🇿', 'af': '🇿🇦', 'sq': '🇦🇱', 'mk': '🇲🇰'
-  };
-  
-  return flagMap[langCode] || '🌍';
-};
-
-// Get most popular languages for quick access
-const getPopularLanguages = (): Language[] => {
-  const popularCodes = ['tr', 'en', 'de', 'es', 'pt', 'fr', 'it', 'ja', 'ru', 'ar', 'zh-CN', 'hi'];
-  return supportedLanguages.filter(lang => popularCodes.includes(lang.code));
-};
+// Popular languages sorted by usage (English first, then by global usage)
+const popularLanguages = [
+  'en', 'es', 'pt', 'fr', 'de', 'it', 'zh-CN', 'ja', 'ru', 'ar',
+  'hi', 'ko', 'tr', 'nl', 'pl', 'sv', 'no', 'da', 'fi', 'cs',
+  'sk', 'hu', 'ro', 'bg', 'el', 'th', 'vi', 'id', 'ms', 'fa',
+  'he', 'ur', 'bn', 'ta', 'te', 'ml', 'ka', 'hy', 'az', 'kk',
+  'uz', 'tk', 'ky', 'tg', 'mn', 'ps', 'ku', 'sd', 'bal', 'ug',
+  'zh-TW', 'yue', 'nan', 'ko', 'ja', 'vi', 'th', 'id', 'ms', 'tl',
+  'sw', 'ha', 'yo', 'am', 'om', 'so', 'ti', 'rw', 'ln', 'kg',
+  'ak', 'ee', 'bm', 'ff', 'wo', 'sn', 'ny', 'to', 'sm', 'haw'
+];
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ 
   currentLang, 
   onLanguageChange 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const currentLanguage = supportedLanguages.find(lang => lang.code === currentLang);
-  const popularLanguages = getPopularLanguages();
-  const otherLanguages = supportedLanguages.filter(lang => 
-    !popularLanguages.some(pop => pop.code === lang.code)
-  );
-
-  const handleLanguageSelect = (langCode: string) => {
-    console.log('🌍 Language selected:', langCode);
+  
+  // Get language objects sorted by popularity
+  const sortedLanguages = [...supportedLanguages].sort((a, b) => {
+    const indexA = popularLanguages.indexOf(a.code);
+    const indexB = popularLanguages.indexOf(b.code);
     
-    // If onLanguageChange is provided, use it (for manual changes)
-    if (onLanguageChange) {
-      onLanguageChange(langCode);
+    // If both languages are in our popularity list, sort by that
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
     }
     
-    // Always redirect to the appropriate subdomain
-    const targetUrl = getLanguageUrl(langCode);
-    const currentPath = window.location.pathname + window.location.search;
-    const fullUrl = targetUrl + currentPath;
+    // If only one is in the popularity list, it comes first
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
     
-    console.log('🌍 Redirecting to:', fullUrl);
-    window.location.href = fullUrl;
-    
+    // If neither is in the popularity list, sort alphabetically
+    return a.name.localeCompare(b.name);
+  });
+
+  const currentLanguage = supportedLanguages.find(lang => lang.code === currentLang) || supportedLanguages[0];
+
+  const handleLanguageChange = (langCode: string) => {
     setIsOpen(false);
+    // Redirect to the appropriate subdomain
+    const language = supportedLanguages.find(lang => lang.code === langCode);
+    if (language) {
+      const newUrl = `https://${language.subdomain}.golivo.app${window.location.pathname}${window.location.search}`;
+      window.location.href = newUrl;
+    }
   };
 
   return (
     <div className="relative">
-      {/* Current Language Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-        title={`Current: ${currentLanguage?.nativeName || 'English'}`}
+        className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 hover:bg-white transition-colors shadow-sm"
       >
-        <span className="text-lg">{getFlagEmoji(currentLang)}</span>
-        <span className="text-sm font-medium text-gray-700 hidden sm:block">
-          {currentLanguage?.code.toUpperCase() || 'EN'}
+        <span className="text-sm font-medium text-gray-700">
+          {currentLanguage?.nativeName || 'English'}
         </span>
-        <ChevronDown className="h-4 w-4 text-gray-500" />
+        <svg 
+          className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
-      {/* Dropdown Menu */}
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-          
-          {/* Dropdown Content */}
-          <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
-            {/* Header */}
-            <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
-              <div className="flex items-center space-x-2">
-                <Globe className="h-5 w-5 text-blue-600" />
-                <h3 className="font-semibold text-gray-900">Dil Seçin / Select Language</h3>
-              </div>
-              <p className="text-xs text-gray-600 mt-1">Site otomatik olarak seçilen subdomaine yönlendirilecek</p>
-            </div>
-
-            {/* Popular Languages */}
-            <div className="p-3">
-              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-                🔥 Popüler Diller / Popular
-              </h4>
-              <div className="grid grid-cols-2 gap-1">
-                {popularLanguages.map((language) => (
-                  <button
-                    key={language.code}
-                    onClick={() => handleLanguageSelect(language.code)}
-                    className={`flex items-center space-x-2 p-2 rounded-lg text-left hover:bg-gray-100 transition-colors ${
-                      currentLang === language.code ? 'bg-blue-50 border border-blue-200' : ''
-                    }`}
-                  >
-                    <span className="text-base">{getFlagEmoji(language.code)}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 truncate">
-                        {language.nativeName}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {language.subdomain}.golivo.app
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Other Languages */}
-            <div className="p-3 border-t border-gray-100">
-              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-                🌍 Diğer Diller / Other Languages
-              </h4>
-              <div className="space-y-1 max-h-48 overflow-y-auto">
-                {otherLanguages.map((language) => (
-                  <button
-                    key={language.code}
-                    onClick={() => handleLanguageSelect(language.code)}
-                    className={`w-full flex items-center space-x-2 p-2 rounded-lg text-left hover:bg-gray-100 transition-colors ${
-                      currentLang === language.code ? 'bg-blue-50 border border-blue-200' : ''
-                    }`}
-                  >
-                    <span className="text-sm">{getFlagEmoji(language.code)}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 truncate">
-                        {language.nativeName}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {language.name} • {language.subdomain}.golivo.app
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-3 border-t border-gray-100 bg-gray-50 rounded-b-xl">
-              <p className="text-xs text-gray-600 text-center">
-                50+ dil desteği ile global futbol deneyimi
-              </p>
-            </div>
+        <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+          <div className="py-2">
+            {sortedLanguages.map((language) => (
+              <button
+                key={language.code}
+                onClick={() => handleLanguageChange(language.code)}
+                className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${
+                  currentLang === language.code ? 'bg-blue-50 border-r-2 border-blue-500' : ''
+                }`}
+              >
+                <span className="text-sm font-medium text-gray-700 flex-1">
+                  {language.nativeName}
+                </span>
+                {/* Country code badge */}
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                  {language.subdomain.toUpperCase()}
+                </span>
+                {currentLang === language.code && (
+                  <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+            ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

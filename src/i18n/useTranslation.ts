@@ -13,26 +13,35 @@ export const useTranslation = () => {
       setT(getTranslations(lang));
     };
 
-    // Initial load
+    // Initial language detection
     updateLanguage();
-    
-    // Listen for URL changes (in case of programmatic navigation)
+
+    // Listen for URL changes (for SPA navigation)
     const handleLocationChange = () => {
-      setTimeout(updateLanguage, 100);
+      updateLanguage();
     };
-    
+
+    // Add event listeners for navigation
     window.addEventListener('popstate', handleLocationChange);
-    
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    history.pushState = function() {
+      originalPushState.apply(history, arguments as any);
+      setTimeout(handleLocationChange, 0);
+    };
+
+    history.replaceState = function() {
+      originalReplaceState.apply(history, arguments as any);
+      setTimeout(handleLocationChange, 0);
+    };
+
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
+      history.pushState = originalPushState;
+      history.replaceState = originalReplaceState;
     };
   }, []);
 
-  const changeLanguage = (langCode: string) => {
-    console.log('🌍 Manually changing language to:', langCode);
-    setCurrentLang(langCode);
-    setT(getTranslations(langCode));
-  };
-
-  return { t, currentLang, changeLanguage };
+  return { t, currentLang };
 };

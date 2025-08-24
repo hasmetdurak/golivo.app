@@ -17,13 +17,19 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const displayMatches = matches;
+  // Güvenli veri erişimi
+  const displayMatches = Array.isArray(matches) ? matches : [];
 
   const handleMatchClick = (match: any) => {
     try {
-      if (match) {
-        setSelectedMatch(match);
+      console.log('Match clicked:', match);
+      if (match && match.id) {
+        // Güvenli kopyalama
+        const safeMatch = JSON.parse(JSON.stringify(match));
+        setSelectedMatch(safeMatch);
         setIsModalOpen(true);
+      } else {
+        console.warn('Invalid match data:', match);
       }
     } catch (error) {
       console.error('Error handling match click:', error);
@@ -44,24 +50,44 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
 
   // Group matches by league and sort by priority
   const groupedMatches = displayMatches.reduce((acc, match) => {
-    const league = match.league;
-    if (!acc[league]) {
-      acc[league] = [];
+    try {
+      // Güvenli lig adı erişimi
+      const league = (match && match.league) || 'Unknown League';
+      if (!acc[league]) {
+        acc[league] = [];
+      }
+      acc[league].push(match);
+    } catch (error) {
+      console.error('Error grouping matches:', error, match);
     }
-    acc[league].push(match);
     return acc;
   }, {} as Record<string, any[]>);
 
   // Sort matches within each league: live matches first, then by time
   Object.keys(groupedMatches).forEach(league => {
-    groupedMatches[league].sort((a: any, b: any) => {
-      // Live matches first
-      if (a.status === 'live' && b.status !== 'live') return -1;
-      if (b.status === 'live' && a.status !== 'live') return 1;
-      
-      // Then by time
-      return a.time.localeCompare(b.time);
-    });
+    try {
+      groupedMatches[league].sort((a: any, b: any) => {
+        try {
+          // Güvenli veri erişimi
+          const statusA = (a && a.status) || '';
+          const statusB = (b && b.status) || '';
+          const timeA = (a && a.time) || '';
+          const timeB = (b && b.time) || '';
+          
+          // Live matches first
+          if (statusA === 'live' && statusB !== 'live') return -1;
+          if (statusB === 'live' && statusA !== 'live') return 1;
+          
+          // Then by time
+          return timeA.localeCompare(timeB);
+        } catch (error) {
+          console.error('Error sorting matches:', error);
+          return 0;
+        }
+      });
+    } catch (error) {
+      console.error('Error sorting league matches:', error, league);
+    }
   });
 
   // Sort leagues by priority (patron's preferred order - more distinct naming)
@@ -303,9 +329,14 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
   };
 
   const leagues = Object.keys(groupedMatches).sort((a, b) => {
-    const priorityA = leaguePriority[a as keyof typeof leaguePriority] || 999;
-    const priorityB = leaguePriority[b as keyof typeof leaguePriority] || 999;
-    return priorityA - priorityB;
+    try {
+      const priorityA = leaguePriority[a as keyof typeof leaguePriority] || 999;
+      const priorityB = leaguePriority[b as keyof typeof leaguePriority] || 999;
+      return priorityA - priorityB;
+    } catch (error) {
+      console.error('Error sorting leagues:', error);
+      return 0;
+    }
   });
 
   const formatSelectedDate = () => {
@@ -357,58 +388,70 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
 
       {/* Leagues */}
       {leagues.map((league) => {
-        const leagueMatches = groupedMatches[league];
-        const liveCount = leagueMatches.filter((match: any) => match.status === 'live').length;
-        const finishedCount = leagueMatches.filter((match: any) => match.status === 'finished').length;
-        const scheduledCount = leagueMatches.filter((match: any) => match.status !== 'live' && match.status !== 'finished').length;
-        
-        // Get simplified league name, colors and flag
-        const displayName = leagueCountryMap[league] || league.toUpperCase();
-        const colors = leagueColorMap[displayName] || { bg: 'bg-gray-50', border: 'border-gray-200', icon: 'bg-gray-600' };
-        const countryFlag = leagueCountryFlags[displayName] || '🏆';
-        
-        return (
-          <div key={league} className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border ${colors.border}`}>
-            <div className={`${colors.bg} px-3 sm:px-4 py-2 sm:py-3 border-b ${colors.border}`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-                <div className="flex items-center space-x-3">
-                  <div className={`p-1.5 sm:p-2 ${colors.icon} rounded-lg flex items-center justify-center`}>
-                    <span className="text-lg">{countryFlag}</span>
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h2 className="text-base sm:text-lg font-semibold text-gray-800">{displayName}</h2>
+        try {
+          const leagueMatches = groupedMatches[league] || [];
+          const liveCount = leagueMatches.filter((match: any) => match && match.status === 'live').length;
+          const finishedCount = leagueMatches.filter((match: any) => match && match.status === 'finished').length;
+          const scheduledCount = leagueMatches.filter((match: any) => match && match.status !== 'live' && match.status !== 'finished').length;
+          
+          // Get simplified league name, colors and flag
+          const displayName = leagueCountryMap[league] || league.toUpperCase();
+          const colors = leagueColorMap[displayName] || { bg: 'bg-gray-50', border: 'border-gray-200', icon: 'bg-gray-600' };
+          const countryFlag = leagueCountryFlags[displayName] || '🏆';
+          
+          return (
+            <div key={league} className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border ${colors.border}`}>
+              <div className={`${colors.bg} px-3 sm:px-4 py-2 sm:py-3 border-b ${colors.border}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-1.5 sm:p-2 ${colors.icon} rounded-lg flex items-center justify-center`}>
+                      <span className="text-lg">{countryFlag}</span>
                     </div>
-                    <p className="text-gray-500 text-xs font-medium">Bugünkü Karşılaşmalar</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  {liveCount > 0 && (
-                    <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
-                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-semibold text-red-600">{liveCount} {translations.live}</span>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-800">{displayName}</h2>
+                      </div>
+                      <p className="text-gray-500 text-xs font-medium">Bugünkü Karşılaşmalar</p>
                     </div>
-                  )}
-                  <div className="flex items-center space-x-1 text-gray-600">
-                    <span className="text-xs font-medium">{leagueMatches.length} {translations.matches}</span>
+                  </div>
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    {liveCount > 0 && (
+                      <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
+                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-semibold text-red-600">{liveCount} {translations.live}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-1 text-gray-600">
+                      <span className="text-xs font-medium">{leagueMatches.length} {translations.matches}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="p-2 sm:p-3">
-              <div className="grid gap-2 sm:gap-3">
-                {leagueMatches.map((match: any, index: number) => (
-                  <MatchCard 
-                    key={match.id || index} 
-                    match={match} 
-                    onClick={() => handleMatchClick(match)}
-                  />
-                ))}
+              
+              <div className="p-2 sm:p-3">
+                <div className="grid gap-2 sm:gap-3">
+                  {leagueMatches.map((match: any, index: number) => {
+                    try {
+                      return (
+                        <MatchCard 
+                          key={(match && match.id) || index} 
+                          match={match} 
+                          onClick={() => handleMatchClick(match)}
+                        />
+                      );
+                    } catch (error) {
+                      console.error('Error rendering match card:', error, match);
+                      return null;
+                    }
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        );
+          );
+        } catch (error) {
+          console.error('Error rendering league:', error, league);
+          return null;
+        }
       })}
       
       {/* Match Details Modal */}

@@ -6,29 +6,40 @@ interface MatchCardProps {
 }
 
 export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
-  const isLive = match.status === 'live';
-  const isFinished = match.status === 'finished';
+  // Güvenli veri erişimi için varsayılan değerler
+  const safeMatch = match || {};
+  const homeTeam = safeMatch.homeTeam || { name: 'Home Team', logo: '' };
+  const awayTeam = safeMatch.awayTeam || { name: 'Away Team', logo: '' };
+  
+  const isLive = safeMatch.status === 'live';
+  const isFinished = safeMatch.status === 'finished';
   const isScheduled = !isLive && !isFinished;
   
   const getMatchTime = () => {
-    if (isLive && match.minute) {
-      return `${match.minute} CANLI`;
+    if (isLive && safeMatch.minute) {
+      return `${safeMatch.minute} CANLI`;
     }
     if (isFinished) {
       return 'MS'; // Maç Sonu
     }
-    return match.time || '00:00';
+    return safeMatch.time || '00:00';
   };
   
   const getHalfTimeScore = () => {
     if (isFinished || isLive) {
-      // Simulate half-time score for demo
-      const htHome = Math.floor(match.homeScore / 2);
-      const htAway = Math.floor(match.awayScore / 2);
+      // Güvenli skor erişimi
+      const homeScore = parseInt(safeMatch.homeScore) || 0;
+      const awayScore = parseInt(safeMatch.awayScore) || 0;
+      const htHome = Math.floor(homeScore / 2);
+      const htAway = Math.floor(awayScore / 2);
       return `İY ${htHome}-${htAway}`;
     }
     return null;
   };
+  
+  // Güvenli skor değerleri
+  const homeScore = !isScheduled ? (parseInt(safeMatch.homeScore) || 0) : '-';
+  const awayScore = !isScheduled ? (parseInt(safeMatch.awayScore) || 0) : '-';
   
   return (
     <div 
@@ -39,7 +50,16 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
         ? 'border-gray-200 bg-gradient-to-r from-gray-50/30 to-white' 
         : 'border-blue-200 bg-gradient-to-r from-blue-50/30 to-white'
     }`}
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onClick) {
+          try {
+            onClick();
+          } catch (error) {
+            console.error('Error handling match click:', error);
+          }
+        }
+      }}
     >
       
       {/* Status Header */}
@@ -77,8 +97,8 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
           <div className="flex items-center space-x-2 flex-1 min-w-0">
             <div className="relative">
               <img 
-                src={match.homeTeam.logo} 
-                alt={match.homeTeam.name}
+                src={homeTeam.logo || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'} 
+                alt={homeTeam.name}
                 className="w-8 h-8 object-contain rounded-lg bg-white shadow-sm p-0.5"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H';
@@ -87,7 +107,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-gray-900 text-sm truncate">
-                {match.homeTeam.name}
+                {homeTeam.name}
               </div>
               <div className="text-xs text-gray-500 truncate">Ev Sahibi</div>
             </div>
@@ -100,33 +120,33 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
                 isLive ? 'text-red-600' : 
                 isFinished ? 'text-gray-700' : 'text-gray-400'
               }`}>
-                {isScheduled ? '-' : match.homeScore}
+                {homeScore}
               </div>
               <div className="text-gray-400 font-medium">:</div>
               <div className={`text-xl font-bold ${
                 isLive ? 'text-red-600' : 
                 isFinished ? 'text-gray-700' : 'text-gray-400'
               }`}>
-                {isScheduled ? '-' : match.awayScore}
+                {awayScore}
               </div>
             </div>
             {/* Minute Information */}
-            {(isLive && match.minute) && (
+            {(isLive || safeMatch.minute) && (
               <div className={`text-sm font-bold ${
                 isLive ? 'text-red-600' : 
                 isFinished ? 'text-gray-700' : 'text-gray-400'
               }`}>
-                {match.minute}
+                {safeMatch.minute || (isScheduled ? safeMatch.time : '')}
               </div>
             )}
-            {isFinished && (
+            {isFinished && !safeMatch.minute && (
               <div className="text-xs text-gray-500 font-medium">
                 Full Time
               </div>
             )}
-            {isScheduled && (
+            {isScheduled && !safeMatch.minute && (
               <div className="text-xs text-gray-500 font-medium">
-                {match.time}
+                {safeMatch.time || '00:00'}
               </div>
             )}
           </div>
@@ -135,14 +155,14 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
           <div className="flex items-center space-x-2 flex-1 min-w-0">
             <div className="flex-1 min-w-0 text-right">
               <div className="font-semibold text-gray-900 text-sm truncate">
-                {match.awayTeam.name}
+                {awayTeam.name}
               </div>
               <div className="text-xs text-gray-500 truncate">Deplasman</div>
             </div>
             <div className="relative">
               <img 
-                src={match.awayTeam.logo} 
-                alt={match.awayTeam.name}
+                src={awayTeam.logo || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'} 
+                alt={awayTeam.name}
                 className="w-8 h-8 object-contain rounded-lg bg-white shadow-sm p-0.5"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A';
@@ -153,7 +173,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
         </div>
         
         {/* Match Events Timeline - Two Column Layout */}
-        {match.events && match.events.length > 0 && (
+        {safeMatch.events && safeMatch.events.length > 0 && (
           <div className="mt-3 border-t pt-3">
             <div className="text-xs text-gray-500 mb-3 font-medium text-center">Maç Olayları</div>
             <div className="grid grid-cols-2 gap-3">
@@ -161,7 +181,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
               <div className="space-y-1">
                 <div className="text-xs text-gray-400 font-medium text-center">Ev Sahibi</div>
                 <div className="space-y-1">
-                  {match.events.filter((event: any) => event.team === 'home').map((event: any, index: number) => (
+                  {safeMatch.events.filter((event: any) => event && event.team === 'home').map((event: any, index: number) => (
                     <div 
                       key={index}
                       className={`flex items-center space-x-2 px-2 py-1 rounded text-xs ${
@@ -174,17 +194,17 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
                           : 'bg-blue-50 text-blue-700 border border-blue-200'
                       }`}
                     >
-                      <span className="text-xs">{event.icon}</span>
-                      <span className="text-xs font-bold">{event.minute}</span>
+                      <span className="text-xs">{event.icon || '⚽'}</span>
+                      <span className="text-xs font-bold">{event.minute || '0'}</span>
                       <span 
                         className="text-xs truncate flex-1 text-blue-600"
-                        title={event.player}
+                        title={event.player || 'Unknown'}
                       >
-                        {event.player.split(' ').slice(-1)[0]}
+                        {(event.player || 'Unknown').split(' ').slice(-1)[0]}
                       </span>
                     </div>
                   ))}
-                  {match.events.filter((event: any) => event.team === 'home').length === 0 && (
+                  {safeMatch.events.filter((event: any) => event && event.team === 'home').length === 0 && (
                     <div className="text-xs text-gray-400 italic text-center py-2">Olay yok</div>
                   )}
                 </div>
@@ -194,7 +214,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
               <div className="space-y-1">
                 <div className="text-xs text-gray-400 font-medium text-center">Deplasman</div>
                 <div className="space-y-1">
-                  {match.events.filter((event: any) => event.team === 'away').map((event: any, index: number) => (
+                  {safeMatch.events.filter((event: any) => event && event.team === 'away').map((event: any, index: number) => (
                     <div 
                       key={index}
                       className={`flex items-center space-x-2 px-2 py-1 rounded text-xs ${
@@ -207,17 +227,17 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onClick }) => {
                           : 'bg-blue-50 text-blue-700 border border-blue-200'
                       }`}
                     >
-                      <span className="text-xs">{event.icon}</span>
-                      <span className="text-xs font-bold">{event.minute}</span>
+                      <span className="text-xs">{event.icon || '⚽'}</span>
+                      <span className="text-xs font-bold">{event.minute || '0'}</span>
                       <span 
                         className="text-xs truncate flex-1 text-purple-600"
-                        title={event.player}
+                        title={event.player || 'Unknown'}
                       >
-                        {event.player.split(' ').slice(-1)[0]}
+                        {(event.player || 'Unknown').split(' ').slice(-1)[0]}
                       </span>
                     </div>
                   ))}
-                  {match.events.filter((event: any) => event.team === 'away').length === 0 && (
+                  {safeMatch.events.filter((event: any) => event && event.team === 'away').length === 0 && (
                     <div className="text-xs text-gray-400 italic text-center py-2">Olay yok</div>
                   )}
                 </div>

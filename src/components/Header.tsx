@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Trophy, Calendar, ChevronLeft, ChevronRight, Menu, X, BarChart3, MessageCircle, Newspaper, Target, ChevronDown } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import { useTranslation } from '../i18n/useTranslation';
+import { supportedLanguages } from '../i18n';
 
 interface HeaderProps {
   selectedDate: string;
@@ -13,7 +14,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, currentView = 'scores', onViewChange }) => {
   const [isStatsDropdownOpen, setIsStatsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { t, currentLang, changeLanguage } = useTranslation();
+  const { t, currentLang } = useTranslation();
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -44,6 +45,15 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
     onDateChange(new Date().toISOString().split('T')[0]);
   };
 
+  // Handle language change by redirecting to the appropriate subdomain
+  const handleLanguageChange = (langCode: string) => {
+    const language = supportedLanguages.find(lang => lang.code === langCode);
+    if (language) {
+      const newUrl = `https://${language.subdomain}.golivo.app${window.location.pathname}${window.location.search}`;
+      window.location.href = newUrl;
+    }
+  };
+
   return (
     <>
       <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
@@ -68,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
               {/* Language Selector */}
               <LanguageSelector 
                 currentLang={currentLang} 
-                onLanguageChange={changeLanguage} 
+                onLanguageChange={handleLanguageChange} 
               />
               
               {/* Navigation Menu */}
@@ -80,15 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
                   }`}
                 >
                   <Trophy className="h-4 w-4 inline mr-1" />
-                  {currentLang === 'tr' ? 'Skorlar' : 
-                   currentLang === 'de' ? 'Ergebnisse' :
-                   currentLang === 'es' ? 'Marcadores' :
-                   currentLang === 'fr' ? 'Scores' :
-                   currentLang === 'it' ? 'Punteggi' :
-                   currentLang === 'pt' ? 'Placares' :
-                   currentLang === 'ru' ? 'Счета' :
-                   currentLang === 'ar' ? 'النتائج' :
-                   'Scores'}
+                  {t.matches}
                 </button>
                 <button 
                   onClick={() => onViewChange?.('news')}
@@ -251,7 +253,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
               {/* Mobile Language Selector */}
               <LanguageSelector 
                 currentLang={currentLang} 
-                onLanguageChange={changeLanguage} 
+                onLanguageChange={handleLanguageChange} 
               />
               
               <button 
@@ -284,15 +286,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
                 }`}
               >
                 <Trophy className="h-4 w-4 mr-1" />
-                {currentLang === 'tr' ? 'Skorlar' : 
-                 currentLang === 'de' ? 'Ergebnisse' :
-                 currentLang === 'es' ? 'Marcadores' :
-                 currentLang === 'fr' ? 'Scores' :
-                 currentLang === 'it' ? 'Punteggi' :
-                 currentLang === 'pt' ? 'Placares' :
-                 currentLang === 'ru' ? 'Счета' :
-                 currentLang === 'ar' ? 'النتائج' :
-                 'Scores'}
+                {t.matches}
               </button>
               <button 
                 onClick={() => {
