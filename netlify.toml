@@ -6,6 +6,12 @@
   NODE_VERSION = "18"
 
 [[redirects]]
+  from = "/yandex_3781a3df7bd9998e.html"
+  to = "/yandex_3781a3df7bd9998e.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

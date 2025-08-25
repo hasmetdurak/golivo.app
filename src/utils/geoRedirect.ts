@@ -272,9 +272,25 @@ export const getCurrentSubdomain = (): string | null => {
   return null;
 };
 
+// Check if user agent is Googlebot
+export const isGooglebot = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return userAgent.includes('googlebot');
+};
+
 // Perform redirect to appropriate subdomain
 export const redirectToSubdomain = async (): Promise<void> => {
   if (!shouldRedirect()) return;
+  
+  // Googlebot SEO safety: Always redirect Googlebot to English version
+  if (isGooglebot()) {
+    const targetUrl = `https://en.golivo.app` + window.location.pathname + window.location.search;
+    console.log(`Redirecting Googlebot to English version: ${targetUrl}`);
+    window.location.href = targetUrl;
+    return;
+  }
   
   try {
     const countryCode = await getUserCountry();
@@ -304,8 +320,6 @@ export const redirectToSubdomain = async (): Promise<void> => {
 
 // Initialize geo-redirect on app load
 export const initGeoRedirect = (): void => {
-  // Temporarily disabled to prevent redirects during testing
-  /*
   // Only run in browser and on main domain
   if (typeof window !== 'undefined' && shouldRedirect()) {
     // Add small delay to prevent too aggressive redirects
@@ -313,5 +327,4 @@ export const initGeoRedirect = (): void => {
       redirectToSubdomain();
     }, 100);
   }
-  */
 };

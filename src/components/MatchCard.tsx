@@ -6,8 +6,8 @@ interface MatchCardProps {
 }
 
 export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick }) => {
-  // Güvenli veri erişimi
-  if (!match) {
+  // Güvenli veri erişimi - daha sağlam hata önleyici
+  if (!match || typeof match !== 'object') {
     return (
       <div className="bg-white rounded-xl shadow-sm border p-4 text-center text-gray-500">
         Geçersiz maç verisi
@@ -15,33 +15,63 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
     );
   }
 
-  // Temel veriler
-  const homeTeam = match.homeTeam || { name: 'Home Team', logo: '' };
-  const awayTeam = match.awayTeam || { name: 'Away Team', logo: '' };
+  // Temel veriler - hata önleyici erişim
+  const homeTeam = match.homeTeam && typeof match.homeTeam === 'object' 
+    ? match.homeTeam 
+    : { name: 'Home Team', logo: '' };
+    
+  const awayTeam = match.awayTeam && typeof match.awayTeam === 'object' 
+    ? match.awayTeam 
+    : { name: 'Away Team', logo: '' };
   
-  const isLive = match.status === 'live';
-  const isFinished = match.status === 'finished';
-  const isScheduled = match.status === 'scheduled';
+  // Durum kontrolü - varsayılan değerlerle
+  const status = match.status && typeof match.status === 'string' 
+    ? match.status 
+    : 'scheduled';
+    
+  const isLive = status === 'live';
+  const isFinished = status === 'finished';
+  const isScheduled = status === 'scheduled';
   
   // Dakika bilgisini güvenli şekilde al
-  const minuteInfo = match.minute || null;
+  const minuteInfo = match.minute && typeof match.minute === 'string' 
+    ? match.minute 
+    : null;
   
-  // Skor bilgilerini güvenli şekilde al
-  const homeScore = match.homeScore !== undefined ? match.homeScore : '-';
-  const awayScore = match.awayScore !== undefined ? match.awayScore : '-';
+  // Skor bilgilerini güvenli şekilde al - sayıya çevirme hatası önleyici
+  const homeScore = match.homeScore !== undefined 
+    ? (typeof match.homeScore === 'number' ? match.homeScore : 
+       (typeof match.homeScore === 'string' ? parseInt(match.homeScore) || 0 : 0))
+    : 0;
+    
+  const awayScore = match.awayScore !== undefined 
+    ? (typeof match.awayScore === 'number' ? match.awayScore : 
+       (typeof match.awayScore === 'string' ? parseInt(match.awayScore) || 0 : 0))
+    : 0;
 
-  // Maç zamanı gösterimi
+  // Maç zamanı gösterimi - hata önleyici
   const getTimeDisplay = () => {
-    if (isLive) {
-      if (minuteInfo) {
-        return minuteInfo;
+    try {
+      if (isLive) {
+        if (minuteInfo) {
+          return minuteInfo;
+        }
+        return 'CANLI';
       }
-      return 'CANLI';
+      if (isFinished) {
+        return 'MS';
+      }
+      
+      // Zaman bilgisi kontrolü
+      if (match.time && typeof match.time === 'string') {
+        return match.time;
+      }
+      
+      return '00:00';
+    } catch (error) {
+      console.error('Zaman gösterimi hatası:', error);
+      return '00:00';
     }
-    if (isFinished) {
-      return 'MS';
-    }
-    return match.time || '00:00';
   };
 
   // Tıklama olayı - hata yakalama ile
@@ -96,7 +126,7 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
             <div className="relative">
               <img 
                 src={homeTeam.logo || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'} 
-                alt={homeTeam.name}
+                alt={homeTeam.name || 'Home Team'}
                 className="w-8 h-8 object-contain rounded-lg bg-white shadow-sm p-0.5"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H';
@@ -127,6 +157,12 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
                 {awayScore}
               </div>
             </div>
+            {/* Dakika bilgisi skorun hemen altında */}
+            {isLive && minuteInfo && (
+              <div className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                {minuteInfo}'
+              </div>
+            )}
           </div>
           
           {/* Away Team */}
@@ -139,7 +175,7 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
             <div className="relative">
               <img 
                 src={awayTeam.logo || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'} 
-                alt={awayTeam.name}
+                alt={awayTeam.name || 'Away Team'}
                 className="w-8 h-8 object-contain rounded-lg bg-white shadow-sm p-0.5"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A';

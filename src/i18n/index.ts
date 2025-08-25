@@ -381,10 +381,6 @@ export const translations: Record<string, Translations> = {
 
 // Get current language from subdomain
 export const getCurrentLanguage = (): string => {
-  // Temporarily return a fixed language to prevent redirects
-  return 'en';
-  
-  /*
   if (typeof window === 'undefined') return 'en';
   
   const hostname = window.location.hostname;
@@ -418,7 +414,6 @@ export const getCurrentLanguage = (): string => {
   
   console.log('🌍 No subdomain language found, defaulting to English');
   return 'en'; // Default to English for maximum global reach
-  */
 };
 
 // Get translations for current language

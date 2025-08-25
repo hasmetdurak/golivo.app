@@ -473,202 +473,287 @@ const transformApiMatch = (apiMatch: ApiMatch): Match => {
   }
 };
 
+// Demo veriler - daha kapsamlı ve çeşitli
+const getDemoMatches = (): Match[] => {
+  console.log('🎭 Returning demo matches as fallback');
+  return [
+    {
+      id: '1',
+      league: 'English Premier League',
+      country: 'ENGLAND PREMIER LEAGUE',
+      status: 'live',
+      minute: "67'",
+      time: '15:00',
+      homeTeam: {
+        name: 'Manchester City',
+        logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=MC'
+      },
+      awayTeam: {
+        name: 'Liverpool',
+        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=LIV'
+      },
+      homeScore: 2,
+      awayScore: 1,
+      events: [
+        {
+          type: 'Goal' as const,
+          minute: "23'",
+          player: 'Haaland',
+          team: 'home' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Yellow Card' as const,
+          minute: "34'",
+          player: 'Van Dijk',
+          team: 'away' as const,
+          icon: '🟨'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "51'",
+          player: 'Salah',
+          team: 'away' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "65'",
+          player: 'De Bruyne',
+          team: 'home' as const,
+          icon: '⚽'
+        }
+      ],
+      statistics: [
+        { type: 'Topa Sahip Olma', home: '65', away: '35', homePercent: 65, awayPercent: 35 },
+        { type: 'Şutlar', home: '12', away: '8', homePercent: 60, awayPercent: 40 },
+        { type: 'İsabetli Şutlar', home: '5', away: '3', homePercent: 62.5, awayPercent: 37.5 }
+      ]
+    },
+    {
+      id: '2',
+      league: 'Spanish La Liga',
+      country: 'SPAIN LA LIGA',
+      status: 'finished',
+      time: '18:00',
+      venue: 'Camp Nou',
+      referee: 'Carlos del Cerro',
+      round: '3',
+      homeTeam: {
+        name: 'Barcelona',
+        logo: 'https://via.placeholder.com/40x40/004D98/FFFFFF?text=BAR'
+      },
+      awayTeam: {
+        name: 'Real Madrid',
+        logo: 'https://via.placeholder.com/40x40/FFFFFF/000000?text=RM'
+      },
+      homeScore: 3,
+      awayScore: 2,
+      halftimeScore: { home: 1, away: 1 },
+      events: [
+        {
+          type: 'Goal' as const,
+          minute: "12'",
+          player: 'Lewandowski',
+          team: 'home' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "28'",
+          player: 'Benzema',
+          team: 'away' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Red Card' as const,
+          minute: "45'",
+          player: 'Casemiro',
+          team: 'away' as const,
+          icon: '🟥'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "67'",
+          player: 'Pedri',
+          team: 'home' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "78'",
+          player: 'Ansu Fati',
+          team: 'home' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "89'",
+          player: 'Vinicius',
+          team: 'away' as const,
+          icon: '⚽'
+        }
+      ],
+      statistics: [
+        { type: 'Topa Sahip Olma', home: '58', away: '42', homePercent: 58, awayPercent: 42 },
+        { type: 'Şutlar', home: '15', away: '9', homePercent: 62.5, awayPercent: 37.5 },
+        { type: 'Kornerler', home: '7', away: '3', homePercent: 70, awayPercent: 30 }
+      ]
+    },
+    {
+      id: '3',
+      league: 'German Bundesliga',
+      country: 'GERMANY BUNDESLIGA',
+      status: 'scheduled',
+      time: '20:30',
+      venue: 'Allianz Arena',
+      round: '2',
+      homeTeam: {
+        name: 'Bayern Munich',
+        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=FCB'
+      },
+      awayTeam: {
+        name: 'Borussia Dortmund',
+        logo: 'https://via.placeholder.com/40x40/FFFF00/000000?text=BVB'
+      },
+      homeScore: 0,
+      awayScore: 0,
+      events: []
+    },
+    {
+      id: '4',
+      league: 'Turkish Super League',
+      country: 'TURKEY SUPER LEAGUE',
+      status: 'live',
+      minute: "34'",
+      time: '14:00',
+      homeTeam: {
+        name: 'Galatasaray',
+        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=GS'
+      },
+      awayTeam: {
+        name: 'Fenerbahçe',
+        logo: 'https://via.placeholder.com/40x40/FFFF00/000000?text=FB'
+      },
+      homeScore: 1,
+      awayScore: 0,
+      events: [
+        {
+          type: 'Goal' as const,
+          minute: "22'",
+          player: 'Icardi',
+          team: 'home' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Yellow Card' as const,
+          minute: "31'",
+          player: 'Fred',
+          team: 'away' as const,
+          icon: '🟨'
+        }
+      ],
+      statistics: [
+        { type: 'Topa Sahip Olma', home: '52', away: '48', homePercent: 52, awayPercent: 48 },
+        { type: 'Şutlar', home: '8', away: '6', homePercent: 57, awayPercent: 43 },
+        { type: 'Kornerler', home: '4', away: '3', homePercent: 57, awayPercent: 43 }
+      ]
+    },
+    {
+      id: '5',
+      league: 'French Ligue 1',
+      country: 'FRANCE LIGUE 1',
+      status: 'scheduled',
+      time: '21:00',
+      venue: 'Parc des Princes',
+      round: '4',
+      homeTeam: {
+        name: 'Paris Saint-Germain',
+        logo: 'https://via.placeholder.com/40x40/000000/FFFFFF?text=PSG'
+      },
+      awayTeam: {
+        name: 'Olympique Lyonnais',
+        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=OL'
+      },
+      homeScore: 0,
+      awayScore: 0,
+      events: []
+    }
+  ];
+};
+
+// Error handling wrapper for API calls
+const safeApiCall = async <T>(apiCall: () => Promise<T>, fallback: T): Promise<T> => {
+  try {
+    return await apiCall();
+  } catch (error) {
+    console.error('API call failed, using fallback:', error);
+    return fallback;
+  }
+};
+
 export const FootballApi = {
   async getLiveMatches(selectedLeague: string = 'all', selectedDate?: string): Promise<Match[]> {
-    try {
-      // Use selected date or default to today
-      const targetDate = selectedDate || new Date().toISOString().split('T')[0];
-      
-      let url = `${BASE_URL}/?action=get_events&from=${targetDate}&to=${targetDate}&APIkey=${API_KEY}`;
-      
-      // Add specific league filter if not 'all'
-      if (selectedLeague !== 'all' && LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]) {
-        url += `&league_id=${LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]}`;
-      }
-      
-      console.log('🔥 API İsteği:', url);
-      console.log('📅 Seçilen tarih:', targetDate);
-      console.log('📊 Bugünün tarihi:', new Date().toISOString().split('T')[0]);
-      console.log('🎯 Tarih eşleşme:', targetDate === new Date().toISOString().split('T')[0] ? 'EVET' : 'HAYIR');
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
-      
-      const data: ApiMatch[] = await response.json();
-      console.log('📊 API Yanıtı:', data.length, 'maç bulundu');
-      console.log('🎯 İlk 3 maç örneği:', data.slice(0, 3));
-      
-      if (!Array.isArray(data)) {
-        console.warn('⚠️ API array olmayan veri döndürdü:', data);
-        return [];
-      }
-      
-      const transformedMatches = data.map(transformApiMatch).filter(match => match !== null);
-      console.log('✅ Dönüştürülen maçlar:', transformedMatches.length);
-      
-      return transformedMatches;
-      
-    } catch (error) {
-      console.error('❌ Maç çekme hatası:', error);
-      console.error('🔍 Hata detayı:', error instanceof Error ? error.message : 'Bilinmeyen hata');
-      
-      // İnternet bağlantısı kontrol et
-      if (!navigator.onLine) {
-        console.error('🌐 İnternet bağlantısı yok!');
-      }
-      
-      // Return demo data with Turkish messages
-      console.log('🎭 Demo veriler yükleniyor...');
-      // Return some demo data so site isn't completely empty
-      return [
-        {
-          id: '1',
-          league: 'English Premier League',
-          country: 'ENGLAND PREMIER LEAGUE',
-          status: 'live',
-          minute: "67'",
-          time: '15:00',
-          homeTeam: {
-            name: 'Manchester City',
-            logo: 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=MC'
-          },
-          awayTeam: {
-            name: 'Liverpool',
-            logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=LIV'
-          },
-          homeScore: 2,
-          awayScore: 1,
-          events: [
-            {
-              type: 'Goal' as const,
-              minute: "23'",
-              player: 'Haaland',
-              team: 'home' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Yellow Card' as const,
-              minute: "34'",
-              player: 'Van Dijk',
-              team: 'away' as const,
-              icon: '🟨'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "51'",
-              player: 'Salah',
-              team: 'away' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "65'",
-              player: 'De Bruyne',
-              team: 'home' as const,
-              icon: '⚽'
-            }
-          ],
-          statistics: [
-            { type: 'Topa Sahip Olma', home: '65', away: '35', homePercent: 65, awayPercent: 35 },
-            { type: 'Şutlar', home: '12', away: '8', homePercent: 60, awayPercent: 40 },
-            { type: 'İsabetli Şutlar', home: '5', away: '3', homePercent: 62.5, awayPercent: 37.5 }
-          ]
-        },
-        {
-          id: '2',
-          league: 'Spanish La Liga',
-          country: 'SPAIN LA LIGA',
-          status: 'finished',
-          time: '18:00',
-          venue: 'Camp Nou',
-          referee: 'Carlos del Cerro',
-          round: '3',
-          homeTeam: {
-            name: 'Barcelona',
-            logo: 'https://via.placeholder.com/40x40/004D98/FFFFFF?text=BAR'
-          },
-          awayTeam: {
-            name: 'Real Madrid',
-            logo: 'https://via.placeholder.com/40x40/FFFFFF/000000?text=RM'
-          },
-          homeScore: 3,
-          awayScore: 2,
-          halftimeScore: { home: 1, away: 1 },
-          events: [
-            {
-              type: 'Goal' as const,
-              minute: "12'",
-              player: 'Lewandowski',
-              team: 'home' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "28'",
-              player: 'Benzema',
-              team: 'away' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Red Card' as const,
-              minute: "45'",
-              player: 'Casemiro',
-              team: 'away' as const,
-              icon: '🟥'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "67'",
-              player: 'Pedri',
-              team: 'home' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "78'",
-              player: 'Ansu Fati',
-              team: 'home' as const,
-              icon: '⚽'
-            },
-            {
-              type: 'Goal' as const,
-              minute: "89'",
-              player: 'Vinicius',
-              team: 'away' as const,
-              icon: '⚽'
-            }
-          ],
-          statistics: [
-            { type: 'Topa Sahip Olma', home: '58', away: '42', homePercent: 58, awayPercent: 42 },
-            { type: 'Şutlar', home: '15', away: '9', homePercent: 62.5, awayPercent: 37.5 },
-            { type: 'Kornerler', home: '7', away: '3', homePercent: 70, awayPercent: 30 }
-          ]
-        },
-        {
-          id: '3',
-          league: 'German Bundesliga',
-          country: 'GERMANY BUNDESLIGA',
-          status: 'scheduled',
-          time: '20:30',
-          venue: 'Allianz Arena',
-          round: '2',
-          homeTeam: {
-            name: 'Bayern Munich',
-            logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=FCB'
-          },
-          awayTeam: {
-            name: 'Borussia Dortmund',
-            logo: 'https://via.placeholder.com/40x40/FFFF00/000000?text=BVB'
-          },
-          homeScore: 0,
-          awayScore: 0,
-          events: []
+    return safeApiCall(
+      async () => {
+        try {
+          // Use selected date or default to today
+          const targetDate = selectedDate || new Date().toISOString().split('T')[0];
+          
+          let url = `${BASE_URL}/?action=get_events&from=${targetDate}&to=${targetDate}&APIkey=${API_KEY}`;
+          
+          // Add specific league filter if not 'all'
+          if (selectedLeague !== 'all' && LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]) {
+            url += `&league_id=${LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]}`;
+          }
+          
+          console.log('🔥 API İsteği:', url);
+          console.log('📅 Seçilen tarih:', targetDate);
+          console.log('📊 Bugünün tarihi:', new Date().toISOString().split('T')[0]);
+          console.log('🎯 Tarih eşleşme:', targetDate === new Date().toISOString().split('T')[0] ? 'EVET' : 'HAYIR');
+          
+          const response = await fetch(url);
+          
+          if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+          }
+          
+          const data: ApiMatch[] = await response.json();
+          console.log('📊 API Yanıtı:', data.length, 'maç bulundu');
+          console.log('🎯 İlk 3 maç örneği:', data.slice(0, 3));
+          
+          if (!Array.isArray(data)) {
+            console.warn('⚠️ API array olmayan veri döndürdü:', data);
+            return getDemoMatches();
+          }
+          
+          const transformedMatches = data.map(transformApiMatch).filter(match => match !== null);
+          console.log('✅ Dönüştürülen maçlar:', transformedMatches.length);
+          
+          // Eğer API'den veri gelmediyse demo verileri döndür
+          if (transformedMatches.length === 0) {
+            console.log('🎭 API boş veri döndürdü, demo veriler yükleniyor...');
+            return getDemoMatches();
+          }
+          
+          return transformedMatches;
+          
+        } catch (error) {
+          console.error('❌ Maç çekme hatası:', error);
+          console.error('🔍 Hata detayı:', error instanceof Error ? error.message : 'Bilinmeyen hata');
+          
+          // İnternet bağlantısı kontrol et
+          if (!navigator.onLine) {
+            console.error('🌐 İnternet bağlantısı yok!');
+          }
+          
+          // Return demo data with Turkish messages
+          console.log('🎭 Demo veriler yükleniyor...');
+          return getDemoMatches();
         }
-      ];
-    }
+      },
+      getDemoMatches()
+    );
   },
 
   async getLiveMatchesOnly(): Promise<Match[]> {

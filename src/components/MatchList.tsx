@@ -18,8 +18,30 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Güvenli veri erişimi
+  // Güvenli veri erişimi - daha sağlam hata önleyici
   const displayMatches = Array.isArray(matches) ? matches : [];
+  
+  // Hata durumunda bile uygulamanın çalışmasını sağlayan güvenli gruplama
+  const groupedMatches: Record<string, any[]> = {};
+  
+  try {
+    displayMatches.forEach(match => {
+      // Null veya undefined maçları atla
+      if (!match) return;
+      
+      // Lig adı olmayan maçlar için varsayılan değer
+      const league = (match.league && typeof match.league === 'string') ? match.league : 'Bilinmeyen Lig';
+      
+      if (!groupedMatches[league]) {
+        groupedMatches[league] = [];
+      }
+      groupedMatches[league].push(match);
+    });
+  } catch (error) {
+    console.error('Maç gruplama hatası:', error);
+    // Hata durumunda boş bir nesne döndür
+    Object.keys(groupedMatches).forEach(key => delete groupedMatches[key]);
+  }
 
   // Maç tıklama olayı - hata önleyici
   const handleMatchClick = useCallback((match: any) => {
@@ -45,38 +67,43 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     return <LoadingSpinner />;
   }
 
-  // Basit gruplama - lig bazında
-  const groupedMatches: Record<string, any[]> = {};
-  displayMatches.forEach(match => {
-    if (!match) return;
-    
-    const league = match.league || 'Bilinmeyen Lig';
-    if (!groupedMatches[league]) {
-      groupedMatches[league] = [];
-    }
-    groupedMatches[league].push(match);
-  });
-
-  // Ligleri öncelik sırasına göre sırala
+  // Ligleri öncelik sırasına göre sırala - hata önleyici versiyon
   const getLeaguePriority = (leagueName: string) => {
-    const league = leagues.find(l => l.name === leagueName);
-    return league ? (league.priority ? 0 : 1) : 1; // Öncelikli ligler önce gelir
+    try {
+      const league = leagues.find(l => l.name === leagueName);
+      return league ? (league.priority ? 0 : 1) : 1; // Öncelikli ligler önce gelir
+    } catch (error) {
+      console.error('Lig öncelik hatası:', error);
+      return 1; // Varsayılan olarak öncelikli değil
+    }
   };
 
   const sortLeagues = (a: string, b: string) => {
-    const priorityA = getLeaguePriority(a);
-    const priorityB = getLeaguePriority(b);
-    
-    // Öncelikli ligler önce gelir
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
+    try {
+      const priorityA = getLeaguePriority(a);
+      const priorityB = getLeaguePriority(b);
+      
+      // Öncelikli ligler önce gelir
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      // Aynı öncelikte ise alfabetik sırala
+      return a.localeCompare(b);
+    } catch (error) {
+      console.error('Lig sıralama hatası:', error);
+      return 0; // Hata durumunda sıralama yapma
     }
-    
-    // Aynı öncelikte ise alfabetik sırala
-    return a.localeCompare(b);
   };
 
-  const leagues = Object.keys(groupedMatches).sort(sortLeagues);
+  // Hata durumunda bile uygulamanın çalışmasını sağlayan lig listesi
+  let leagues: string[] = [];
+  try {
+    leagues = Object.keys(groupedMatches).sort(sortLeagues);
+  } catch (error) {
+    console.error('Lig listesi oluşturma hatası:', error);
+    leagues = []; // Boş liste ile devam et
+  }
 
   const formatSelectedDate = () => {
     try {
@@ -92,7 +119,10 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     }
   };
 
-  if (displayMatches.length === 0) {
+  // Boş veri durumu için daha sağlam kontrol
+  const hasMatches = displayMatches && displayMatches.length > 0;
+  
+  if (!hasMatches) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 text-center border border-gray-100">
         <div className="text-gray-300 mb-4 text-5xl sm:text-6xl">⚽</div>
@@ -130,42 +160,56 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
       </div>
 
       {/* Leagues */}
-      {leagues.map((league) => {
-        const leagueMatches = groupedMatches[league] || [];
-        
-        return (
-          <div key={league} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border border-gray-200">
-            <div className="bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-                <div className="flex items-center space-x-3">
-                  <div className="p-1.5 sm:p-2 bg-gray-600 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">🏆</span>
-                  </div>
-                  <div>
-                    <h2 className="text-base sm:text-lg font-semibold text-gray-800">{league}</h2>
-                    <p className="text-gray-500 text-xs font-medium">Bugünkü Karşılaşmalar</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1 text-gray-600">
-                  <span className="text-xs font-medium">{leagueMatches.length} {translations.matches}</span>
-                </div>
-              </div>
-            </div>
+      {leagues.length > 0 ? (
+        leagues.map((league) => {
+          try {
+            const leagueMatches = groupedMatches[league] || [];
             
-            <div className="p-2 sm:p-3">
-              <div className="grid gap-2 sm:gap-3">
-                {leagueMatches.map((match: any, index: number) => (
-                  <MatchCard 
-                    key={match?.id || index} 
-                    match={match} 
-                    onClick={() => handleMatchClick(match)}
-                  />
-                ))}
+            return (
+              <div key={league} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border border-gray-200">
+                <div className="bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-1.5 sm:p-2 bg-gray-600 rounded-lg flex items-center justify-center">
+                        <span className="text-lg">🏆</span>
+                      </div>
+                      <div>
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-800">{league}</h2>
+                        <p className="text-gray-500 text-xs font-medium">Bugünkü Karşılaşmalar</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 text-gray-600">
+                      <span className="text-xs font-medium">{leagueMatches.length} {translations.matches}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-2 sm:p-3">
+                  <div className="grid gap-2 sm:gap-3">
+                    {leagueMatches.map((match: any, index: number) => (
+                      <MatchCard 
+                        key={match?.id || index} 
+                        match={match} 
+                        onClick={() => handleMatchClick(match)}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        );
-      })}
+            );
+          } catch (error) {
+            console.error('Lig render hatası:', league, error);
+            return null; // Hatalı ligi atla
+          }
+        })
+      ) : (
+        // Lig bulunamadığında gösterilecek fallback
+        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 text-center border border-gray-100">
+          <div className="text-gray-300 mb-4 text-5xl sm:text-6xl">🏆</div>
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">Lig Verisi Bulunamadı</h3>
+          <p className="text-gray-500 text-sm sm:text-base">Maçlar mevcut ancak lig gruplandırması yapılamadı</p>
+        </div>
+      )}
       
       {/* Match Details Modal */}
       <MatchDetailsModal 

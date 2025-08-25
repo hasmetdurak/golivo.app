@@ -75,7 +75,7 @@ const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords, path
   const finalDescription = description || seoConfig.description;
   const finalKeywords = keywords || seoConfig.keywords;
   
-  // Dinamik canonical URL oluşturma
+  // Dinamik canonical URL oluşturma - her dil kendi subdomain ile canonical olmalı
   const finalCanonical = canonical || `${languages[currentLang] || languages['en']}${path}`;
 
   return (
@@ -86,6 +86,9 @@ const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords, path
       <meta name="keywords" content={finalKeywords} />
       <link rel="canonical" href={finalCanonical} />
       
+      {/* Yandex Verification */}
+      <meta name="yandex-verification" content="3781a3df7bd9998e" />
+      
       {/* Locale */}
       <meta property="og:locale" content={seoConfig.locale} />
 
@@ -94,8 +97,8 @@ const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords, path
         <link key={lang} rel="alternate" hrefLang={lang} href={`${baseUrl}${path}`} />
       ))}
 
-      {/* Varsayılan (x-default) */}
-      <link rel="alternate" hrefLang="x-default" href={`https://golivo.app/${path}`} />
+      {/* Varsayılan (x-default) - İngilizceye işaret etmeli */}
+      <link rel="alternate" hrefLang="x-default" href={`https://golivo.app${path}`} />
 
       {/* Open Graph (sosyal medya önizlemeleri için) */}
       <meta property="og:title" content={finalTitle} />

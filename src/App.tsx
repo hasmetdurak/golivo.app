@@ -26,8 +26,7 @@ function App() {
     console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
     // Initialize geo-redirect system - SSL certificates are now active!
     // Only run once on initial mount
-    // Temporarily disabled to prevent redirects during testing
-    // initGeoRedirect();
+    initGeoRedirect();
   }, []); // Empty dependency array to run only once
 
   useEffect(() => {
