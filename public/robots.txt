@@ -1,5 +1,21 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /backup/
+Disallow: /api/
+Disallow: /*?sort=
+Disallow: /*?filter=
+Disallow: /*?page=
+Disallow: /*&sort=
+Disallow: /*&filter=
+Disallow: /*&page=
+Disallow: /*.pdf$
+Disallow: /*.doc$
+Disallow: /*.xls$
+Disallow: /*.ppt$
 
 Sitemap: https://golivo.app/sitemap-index.xml
 
@@ -28,17 +44,15 @@ Allow: /
 User-agent: Yandex
 Allow: /
 
-# Disallow certain file types
-Disallow: /*.pdf$
-Disallow: /*.doc$
-Disallow: /*.xls$
-Disallow: /*.ppt$
+# Performance optimization - slower crawl rate for SEO tools
+User-agent: AhrefsBot
+Crawl-delay: 10
 
-# Disallow certain directories
-Disallow: /admin/
-Disallow: /private/
-Disallow: /temp/
-Disallow: /backup/
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: DotBot
+Disallow: /
 
 # Allow search engines to crawl CSS and JS
 Allow: /*.css$

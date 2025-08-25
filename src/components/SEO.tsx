@@ -18,7 +18,8 @@ const languages: Record<string, string> = {
   hi: "https://hi.golivo.app/",
   ja: "https://ja.golivo.app/",
   ko: "https://ko.golivo.app/",
-  zh: "https://cn.golivo.app/",
+  'zh-CN': "https://cn.golivo.app/",
+  'zh-TW': "https://tw.golivo.app/",
   pl: "https://pl.golivo.app/",
   vi: "https://vi.golivo.app/",
   sw: "https://sw.golivo.app/",
@@ -54,9 +55,7 @@ const languages: Record<string, string> = {
   ay: "https://ay.golivo.app/",
   arn: "https://arn.golivo.app/",
   nah: "https://nah.golivo.app/",
-  'en-IN': "https://in.golivo.app/",
-  'zh-CN': "https://cn.golivo.app/",
-  'zh-TW': "https://tw.golivo.app/"
+  'en-IN': "https://in.golivo.app/"
 };
 
 type SEOProps = {
@@ -64,17 +63,20 @@ type SEOProps = {
   description?: string;
   canonical?: string;
   keywords?: string;
+  path?: string; // Mevcut sayfa yolu
 };
 
-const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords }) => {
+const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords, path = '' }) => {
   const currentLang = getCurrentLanguage();
   const seoConfig = getSEOConfig(currentLang);
   
   // Use passed props or fallback to config
   const finalTitle = title || seoConfig.title;
   const finalDescription = description || seoConfig.description;
-  const finalCanonical = canonical || languages[currentLang] || languages['en'];
   const finalKeywords = keywords || seoConfig.keywords;
+  
+  // Dinamik canonical URL oluşturma
+  const finalCanonical = canonical || `${languages[currentLang] || languages['en']}${path}`;
 
   return (
     <Helmet>
@@ -87,13 +89,13 @@ const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords }) =>
       {/* Locale */}
       <meta property="og:locale" content={seoConfig.locale} />
 
-      {/* Çoklu dil hreflang */}
-      {Object.entries(languages).map(([lang, url]) => (
-        <link key={lang} rel="alternate" hrefLang={lang} href={url} />
+      {/* Çoklu dil hreflang - doğru subdomain ile */}
+      {Object.entries(languages).map(([lang, baseUrl]) => (
+        <link key={lang} rel="alternate" hrefLang={lang} href={`${baseUrl}${path}`} />
       ))}
 
       {/* Varsayılan (x-default) */}
-      <link rel="alternate" hrefLang="x-default" href="https://golivo.app/" />
+      <link rel="alternate" hrefLang="x-default" href={`https://golivo.app/${path}`} />
 
       {/* Open Graph (sosyal medya önizlemeleri için) */}
       <meta property="og:title" content={finalTitle} />
@@ -113,7 +115,7 @@ const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords }) =>
       <meta name="robots" content="index, follow" />
       <meta name="googlebot" content="index, follow" />
       <meta name="language" content={currentLang} />
-      <meta name="geo.region" content={seoConfig.locale.split('_')[1]} />
+      <meta name="geo.region" content={seoConfig.locale.split('_')[1] || 'US'} />
       <meta name="geo.placename" content={seoConfig.locale} />
     </Helmet>
   );
