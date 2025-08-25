@@ -202,6 +202,19 @@ const countryToLanguage: Record<string, string> = {
 // Get user's country code via IP geolocation
 export const getUserCountry = async (): Promise<string | null> => {
   try {
+    // Only run in production and if user hasn't manually selected a language
+    if (import.meta.env.DEV) {
+      console.log('🌍 Development mode - skipping geo redirect');
+      return null;
+    }
+
+    // Check if user has manually selected a language (stored in localStorage)
+    const manualLanguage = localStorage.getItem('golivo-language');
+    if (manualLanguage) {
+      console.log('🌍 User has manually selected language:', manualLanguage);
+      return null;
+    }
+
     // Try multiple geolocation services for reliability
     const services = [
       'https://ipapi.co/country_code/',
@@ -212,7 +225,9 @@ export const getUserCountry = async (): Promise<string | null> => {
     
     for (const service of services) {
       try {
-        const response = await fetch(service);
+        const response = await fetch(service, { 
+          signal: AbortSignal.timeout(3000) // 3 second timeout
+        });
         const data = await response.text();
         const countryCode = data.trim().toUpperCase();
         
@@ -295,8 +310,8 @@ export const redirectToSubdomain = async (): Promise<void> => {
   try {
     const countryCode = await getUserCountry();
     if (!countryCode) {
-      // Default to Turkish if geolocation fails
-      window.location.href = 'https://tr.golivo.app' + window.location.pathname + window.location.search;
+      // Don't redirect if geolocation fails - stay on main domain
+      console.log('🌍 No country detected or development mode - staying on main domain');
       return;
     }
     
@@ -308,13 +323,12 @@ export const redirectToSubdomain = async (): Promise<void> => {
       console.log(`Redirecting user from ${countryCode} to ${targetUrl}`);
       window.location.href = targetUrl;
     } else {
-      // Fallback to English
-      window.location.href = 'https://en.golivo.app' + window.location.pathname + window.location.search;
+      // Don't redirect if language not found - stay on main domain
+      console.log('🌍 Language not found for country - staying on main domain');
     }
   } catch (error) {
     console.error('Redirect failed:', error);
-    // Fallback to Turkish
-    window.location.href = 'https://tr.golivo.app' + window.location.pathname + window.location.search;
+    // Don't redirect on error - stay on main domain
   }
 };
 
@@ -327,4 +341,20 @@ export const initGeoRedirect = (): void => {
       redirectToSubdomain();
     }, 100);
   }
+};
+
+// Save user's manual language selection
+export const saveUserLanguage = (languageCode: string): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('golivo-language', languageCode);
+    console.log('🌍 User language saved:', languageCode);
+  }
+};
+
+// Get user's saved language
+export const getUserLanguage = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('golivo-language');
+  }
+  return null;
 };

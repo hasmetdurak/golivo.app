@@ -408,8 +408,19 @@ export const getCurrentLanguage = (): string => {
       console.log('🌍 Using URL language parameter:', langParam);
       return langParam;
     }
-    console.log('🌍 Localhost detected, defaulting to Turkish for development');
-    return 'tr';
+    console.log('🌍 Localhost detected, defaulting to English for development');
+    return 'en';
+  }
+  
+  // Main domain - check for saved user preference
+  if (hostname === 'golivo.app' || hostname === 'www.golivo.app' || hostname === 'golivo.netlify.app') {
+    const savedLanguage = localStorage.getItem('golivo-language');
+    if (savedLanguage && supportedLanguages.find(lang => lang.code === savedLanguage)) {
+      console.log('🌍 Using saved user language preference:', savedLanguage);
+      return savedLanguage;
+    }
+    console.log('🌍 Main domain detected, defaulting to English');
+    return 'en'; // Default to English for maximum global reach
   }
   
   console.log('🌍 No subdomain language found, defaulting to English');

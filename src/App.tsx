@@ -21,12 +21,18 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [currentView, setCurrentView] = useState('scores'); // New state for view management
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
-    // Initialize geo-redirect system - SSL certificates are now active!
-    // Only run once on initial mount
-    initGeoRedirect();
+    
+    // Initialize geo-redirect system with error handling
+    try {
+      initGeoRedirect();
+    } catch (error) {
+      console.error('Geo redirect initialization failed:', error);
+      // Don't let geo redirect errors crash the app
+    }
   }, []); // Empty dependency array to run only once
 
   useEffect(() => {
@@ -41,6 +47,8 @@ function App() {
     
     console.log('fetchLiveMatches called, setting loading=true');
     setLoading(true);
+    setError(null); // Clear previous errors
+    
     try {
       console.log('Fetching all matches for date:', selectedDate);
       const matches = await FootballApi.getLiveMatches('all', selectedDate);
@@ -49,6 +57,7 @@ function App() {
     } catch (error) {
       console.error('Error loading matches:', error);
       setLiveMatches([]);
+      setError('Failed to load matches. Please try again later.');
     } finally {
       console.log('fetchLiveMatches completed, setting loading=false');
       setLoading(false);
@@ -207,6 +216,33 @@ function App() {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="space-y-4">
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+                <div className="ml-auto pl-3">
+                  <button
+                    onClick={() => setError(null)}
+                    className="text-red-400 hover:text-red-600"
+                  >
+                    <span className="sr-only">Dismiss</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {renderMainContent()}
         </div>
       </main>

@@ -45,21 +45,6 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
     onDateChange(new Date().toISOString().split('T')[0]);
   };
 
-  // Handle language change by redirecting to the appropriate subdomain
-  const handleLanguageChange = (langCode: string) => {
-    // Temporarily disabled to prevent redirects during testing
-    console.log('Language change requested to:', langCode);
-    return;
-    
-    /*
-    const language = supportedLanguages.find(lang => lang.code === langCode);
-    if (language) {
-      const newUrl = `https://${language.subdomain}.golivo.app${window.location.pathname}${window.location.search}`;
-      window.location.href = newUrl;
-    }
-    */
-  };
-
   return (
     <>
       <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
@@ -84,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
               {/* Language Selector */}
               <LanguageSelector 
                 currentLang={currentLang} 
-                onLanguageChange={handleLanguageChange} 
+                onLanguageChange={() => {}} 
               />
               
               {/* Navigation Menu */}
@@ -259,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
               {/* Mobile Language Selector */}
               <LanguageSelector 
                 currentLang={currentLang} 
-                onLanguageChange={handleLanguageChange} 
+                onLanguageChange={() => {}} 
               />
               
               <button 
