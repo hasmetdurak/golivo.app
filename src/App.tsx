@@ -1,7 +1,7 @@
 // GoLivo Modern Football App - Comprehensive Statistical Dashboard
 // Major update: Complete API utilization with visual components
 // Features: Teams, Players, Leagues, Standings, Statistics
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { MatchList } from './components/MatchList';
 import { MatchDetailsModal } from './components/MatchDetailsModal';
@@ -11,7 +11,6 @@ import { FootballApi } from './services/api';
 import { Match } from './types';
 import { useTranslation } from './i18n/useTranslation';
 import SEO from './components/SEO';
-import './App.css';
 
 function App() {
   const [matches, setMatches] = useState<Match[]>([]);
@@ -32,7 +31,7 @@ function App() {
 
   const { t } = useTranslation();
 
-  const fetchLiveMatches = async () => {
+  const fetchLiveMatches = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -40,20 +39,51 @@ function App() {
       console.log('🌍 GeoIP redirect is disabled, using manual language selection');
       
       const data = await FootballApi.getLiveMatches('all', selectedDate);
-      setMatches(data as Match[]);
+      
+      // API'den gelen veriyi Match tipine dönüştür
+      const normalizedMatches: Match[] = data.map((match: any) => ({
+        id: match.id || '',
+        league: match.league || 'Bilinmeyen Lig',
+        country: match.country || '',
+        status: match.status || 'scheduled',
+        time: match.time || '',
+        venue: match.venue || '',
+        homeTeam: {
+          name: match.homeTeam?.name || 'Ev Sahibi',
+          logo: match.homeTeam?.logo || '',
+          country: match.homeTeam?.country || ''
+        },
+        awayTeam: {
+          name: match.awayTeam?.name || 'Deplasman',
+          logo: match.awayTeam?.logo || '',
+          country: match.awayTeam?.country || ''
+        },
+        homeScore: match.homeScore || 0,
+        awayScore: match.awayScore || 0,
+        halftimeScore: {
+          home: 0,
+          away: 0
+        },
+        events: [],
+        statistics: [],
+        minute: match.minute,
+        referee: match.referee
+      }));
+      
+      setMatches(normalizedMatches);
       
       // İstatistikleri hesapla
       const stats = {
-        totalMatches: data.length,
-        liveMatches: data.filter(m => m.status === 'live').length,
-        finishedMatches: data.filter(m => m.status === 'finished').length,
-        upcomingMatches: data.filter(m => m.status === 'scheduled').length
+        totalMatches: normalizedMatches.length,
+        liveMatches: normalizedMatches.filter(m => m.status === 'live').length,
+        finishedMatches: normalizedMatches.filter(m => m.status === 'finished').length,
+        upcomingMatches: normalizedMatches.filter(m => m.status === 'scheduled').length
       };
       setQuickStats(stats);
       setLiveMatchesCount(stats.liveMatches);
       
       // Top ligleri hesapla
-      const leagueStats = data.reduce((acc: any, match) => {
+      const leagueStats = normalizedMatches.reduce((acc: any, match) => {
         if (!acc[match.league]) {
           acc[match.league] = {
             name: match.league,
@@ -77,225 +107,246 @@ function App() {
       
     } catch (err) {
       console.error('Error fetching matches:', err);
-      setError('Maç verileri yüklenirken bir hata oluştu');
+      setError('Maç verileri yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedDate]);
 
   useEffect(() => {
     if (currentView === 'dashboard' || currentView === 'scores') {
       fetchLiveMatches();
     }
-  }, [selectedDate, currentView]);
+  }, [selectedDate, currentView, fetchLiveMatches]);
 
-  const handleMatchClick = (match: Match) => {
-    setSelectedMatch(match);
-    setIsModalOpen(true);
-  };
+  // Otomatik yenileme - canlı maçlar için
+  useEffect(() => {
+    if (liveMatchesCount > 0) {
+      const interval = setInterval(() => {
+        fetchLiveMatches();
+      }, 30000); // 30 saniyede bir yenile
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedMatch(null);
-  };
-
-  // Render different views based on currentView state
-  const renderMainContent = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return (
-          <>
-            {/* Modern Dashboard Header */}
-            <div className="mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                {/* Canlı Maçlar Kartı */}
-                <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-xl shadow-red-500/25">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-red-100 text-sm font-medium">Canlı Maçlar</p>
-                      <p className="text-3xl font-bold">{liveMatchesCount}</p>
-                    </div>
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                      <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Toplam Maçlar Kartı */}
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl shadow-blue-500/25">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-blue-100 text-sm font-medium">Toplam Maçlar</p>
-                      <p className="text-3xl font-bold">{quickStats.totalMatches}</p>
-                    </div>
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                      <div className="w-6 h-6 bg-white rounded-lg"></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bitmiş Maçlar Kartı */}
-                <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl shadow-green-500/25">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-green-100 text-sm font-medium">Bitmiş Maçlar</p>
-                      <p className="text-3xl font-bold">{quickStats.finishedMatches}</p>
-                    </div>
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                      <div className="w-4 h-4 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Gelecek Maçlar Kartı */}
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl shadow-purple-500/25">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-purple-100 text-sm font-medium">Gelecek Maçlar</p>
-                      <p className="text-3xl font-bold">{quickStats.upcomingMatches}</p>
-                    </div>
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                      <div className="w-4 h-4 bg-white rounded-sm"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Top Ligler */}
-              {topLeagues.length > 0 && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                    <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg mr-3 flex items-center justify-center">
-                      <div className="w-3 h-3 bg-white rounded-sm"></div>
-                    </div>
-                    En Aktif Ligler
-            </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {topLeagues.map((league: any, index) => (
-                      <div key={index} className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-900">{league.name}</span>
-                          <span className="text-xs text-gray-500">{league.country}</span>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center space-x-1">
-                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs text-gray-600">{league.liveCount} canlı</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                            <span className="text-xs text-gray-600">{league.matchCount} maç</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Error Display */}
-            {error && (
-              <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                  <p className="text-red-800 font-medium">{error}</p>
-                </div>
-          </div>
-            )}
-
-            {/* Loading State */}
-            {isLoading && (
-              <div className="flex items-center justify-center py-12">
-                <div className="relative">
-                  <div className="w-12 h-12 border-4 border-blue-200 rounded-full"></div>
-                  <div className="absolute top-0 left-0 w-12 h-12 border-4 border-blue-600 rounded-full animate-spin border-t-transparent"></div>
-          </div>
-          </div>
-            )}
-
-            {/* Match List */}
-            {!isLoading && (
-              <MatchList 
-                matches={matches} 
-                onMatchClick={handleMatchClick}
-                selectedDate={selectedDate}
-              />
-            )}
-          </>
-        );
-      case 'scores':
-        return (
-          <MatchList 
-            matches={matches} 
-            onMatchClick={handleMatchClick}
-            selectedDate={selectedDate}
-          />
-        );
-      case 'standings':
-        return <LeagueStandings />;
-      case 'teams':
-        return <TeamDashboard />;
-      case 'players':
-        return (
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg mr-3 flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-full"></div>
-              </div>
-              Oyuncular
-            </h2>
-            <p className="text-gray-600">Oyuncu istatistikleri yakında eklenecek...</p>
-          </div>
-        );
-      case 'news':
-        return (
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg mr-3 flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
-              Futbol Haberleri
-            </h2>
-            <p className="text-gray-600">En son futbol haberleri yakında eklenecek...</p>
-          </div>
-        );
-      default:
-        return (
-          <MatchList 
-            matches={matches} 
-            onMatchClick={handleMatchClick}
-            selectedDate={selectedDate}
-          />
-        );
+      return () => clearInterval(interval);
     }
-  };
+  }, [liveMatchesCount, fetchLiveMatches]);
+
+  const handleMatchClick = useCallback((match: Match) => {
+    try {
+      console.log('Maç seçildi:', match.id);
+      setSelectedMatch(match);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Maç tıklama hatası:', error);
+      alert('Maç detayları açılırken bir hata oluştu. Lütfen tekrar deneyin.');
+    }
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    try {
+      setIsModalOpen(false);
+      // Kısa bir gecikme ile state'i temizle
+      setTimeout(() => {
+        setSelectedMatch(null);
+      }, 300);
+    } catch (error) {
+      console.error('Modal kapatma hatası:', error);
+      // Hata durumunda zorla kapat
+      setIsModalOpen(false);
+      setSelectedMatch(null);
+    }
+  }, []);
+
+  const handleDateChange = useCallback((date: string) => {
+    setSelectedDate(date);
+  }, []);
+
+  const handleViewChange = useCallback((view: string) => {
+    setCurrentView(view);
+  }, []);
+
+  // Hata durumunda yeniden deneme
+  const handleRetry = useCallback(() => {
+    setError(null);
+    fetchLiveMatches();
+  }, [fetchLiveMatches]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <SEO />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
+      <SEO 
+        title="GoLivo - Canlı Futbol Skorları ve İstatistikler"
+        description="En güncel canlı futbol skorları, maç istatistikleri, lig sıralamaları ve oyuncu performansları. Premier Lig, La Liga, Bundesliga ve daha fazlası."
+        keywords="canlı skor, futbol, maç sonuçları, lig sıralaması, istatistikler"
+      />
       
       <Header 
         selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
+        onDateChange={handleDateChange}
         currentView={currentView}
-        onViewChange={setCurrentView}
+        onViewChange={handleViewChange}
       />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {renderMainContent()}
+
+      <main className="container mx-auto px-4 py-6">
+        {/* Hata mesajı */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">!</span>
+                </div>
+                <span className="text-red-800 font-medium">{error}</span>
+              </div>
+              <button
+                onClick={handleRetry}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Tekrar Dene
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Ana içerik */}
+        {currentView === 'dashboard' && (
+          <div className="space-y-6">
+            {/* Hızlı istatistikler */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Toplam Maç</p>
+                    <p className="text-2xl font-bold text-gray-900">{quickStats.totalMatches}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600 text-xl">⚽</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Canlı Maç</p>
+                    <p className="text-2xl font-bold text-red-600">{quickStats.liveMatches}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Tamamlanan</p>
+                    <p className="text-2xl font-bold text-gray-900">{quickStats.finishedMatches}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span className="text-gray-600 text-xl">🏁</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Başlayacak</p>
+                    <p className="text-2xl font-bold text-blue-600">{quickStats.upcomingMatches}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600 text-xl">⏰</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top ligler */}
+            {topLeagues.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Popüler Ligler</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {topLeagues.map((league, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">{league.name}</p>
+                        <p className="text-sm text-gray-600">{league.country}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-blue-600">{league.matchCount}</p>
+                        <p className="text-xs text-gray-500">maç</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Maç listesi */}
+            <div className="bg-white rounded-xl shadow-sm border">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900">Günün Maçları</h2>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => handleDateChange(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="p-6">
+                <MatchList
+                  matches={matches}
+                  onMatchClick={handleMatchClick}
+                  selectedDate={selectedDate}
+                  loading={isLoading}
+                  translations={t}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentView === 'scores' && (
+          <div className="bg-white rounded-xl shadow-sm border">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Canlı Skorlar</h2>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="p-6">
+              <MatchList
+                matches={matches}
+                onMatchClick={handleMatchClick}
+                selectedDate={selectedDate}
+                loading={isLoading}
+                translations={t}
+              />
+            </div>
+          </div>
+        )}
+
+        {currentView === 'standings' && (
+          <LeagueStandings />
+        )}
+
+        {currentView === 'teams' && (
+          <TeamDashboard />
+        )}
       </main>
 
-      {/* Match Details Modal */}
-      {selectedMatch && (
-        <MatchDetailsModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          match={selectedMatch}
-        />
-      )}
+      {/* Maç detay modalı */}
+      <MatchDetailsModal
+        match={selectedMatch}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

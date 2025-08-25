@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FootballApi } from '../services/api';
-import { X, Calendar, MapPin, User, Clock, Trophy, Activity, Target, Users, TrendingUp } from 'lucide-react';
+import { X, Calendar, MapPin, User, Clock, Trophy, Activity, Target, Users, TrendingUp, AlertCircle } from 'lucide-react';
 
 interface MatchDetailsModalProps {
   match: any;
@@ -14,18 +14,61 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
   const [awayTeamStats, setAwayTeamStats] = useState<any>(null);
   const [isLoadingH2H, setIsLoadingH2H] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
   
   // Güvenlik kontrolü - match yoksa modal'ı açma
   if (!isOpen || !match || typeof match !== 'object') {
     return null;
   }
 
+  // Modal kapatma işlemi - güvenli şekilde
+  const handleClose = useCallback(() => {
+    try {
+      setIsClosing(true);
+      // Kısa bir gecikme ile modal'ı kapat - animasyon için
+      setTimeout(() => {
+        setError(null);
+        setHeadToHeadData([]);
+        setHomeTeamStats(null);
+        setAwayTeamStats(null);
+        setIsLoadingH2H(false);
+        setIsClosing(false);
+        onClose();
+      }, 150);
+    } catch (error) {
+      console.error('Modal kapatma hatası:', error);
+      // Hata durumunda zorla kapat
+      setIsClosing(false);
+      onClose();
+    }
+  }, [onClose]);
+
+  // ESC tuşu ile kapatma
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscKey);
+      // Body scroll'unu engelle
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, handleClose]);
+
   // Başlayacak maçlar için head-to-head ve takım istatistiklerini yükle
   useEffect(() => {
-    if (match && match.status === 'scheduled') {
+    if (match && match.status === 'scheduled' && isOpen) {
       loadMatchPreviewData();
     }
-  }, [match]);
+  }, [match, isOpen]);
 
   const loadMatchPreviewData = async () => {
     if (!match || match.status !== 'scheduled') return;
@@ -70,14 +113,14 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
 
   const getStatusText = (status: string, minute?: string) => {
     try {
-    switch (status) {
-      case 'live':
+      switch (status) {
+        case 'live':
           return minute ? `${minute} - CANLI` : 'CANLI';
-      case 'finished':
+        case 'finished':
           return 'MS';
-      case 'scheduled':
+        case 'scheduled':
           return 'BAŞLAYACAK';
-      default:
+        default:
           return 'BİLİNMEYEN';
       }
     } catch (error) {
@@ -88,14 +131,14 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
 
   const getStatusColor = (status: string) => {
     try {
-    switch (status) {
-      case 'live':
+      switch (status) {
+        case 'live':
           return 'text-red-600 bg-red-100';
-      case 'finished':
+        case 'finished':
           return 'text-gray-600 bg-gray-100';
-      case 'scheduled':
+        case 'scheduled':
           return 'text-blue-600 bg-blue-100';
-      default:
+        default:
           return 'text-gray-600 bg-gray-100';
       }
     } catch (error) {
@@ -105,255 +148,256 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({ match, isO
   };
 
   // Güvenli veri erişimi
-  const safeMatch = match && typeof match === 'object' ? match : {};
-  const homeTeam = safeMatch.homeTeam && typeof safeMatch.homeTeam === 'object' ? safeMatch.homeTeam : { name: 'Ev Sahibi', logo: '' };
-  const awayTeam = safeMatch.awayTeam && typeof safeMatch.awayTeam === 'object' ? safeMatch.awayTeam : { name: 'Deplasman', logo: '' };
-  const status = safeMatch.status || 'scheduled';
-  const minute = safeMatch.minute || '';
-  const time = safeMatch.time || '00:00';
-  const venue = safeMatch.venue || 'Bilinmeyen Stadyum';
-  const referee = safeMatch.referee || 'Bilinmeyen Hakem';
-  const league = safeMatch.league || 'Bilinmeyen Lig';
-  const homeScore = typeof safeMatch.homeScore === 'number' ? safeMatch.homeScore : 0;
-  const awayScore = typeof safeMatch.awayScore === 'number' ? safeMatch.awayScore : 0;
+  const homeTeam = match.homeTeam && typeof match.homeTeam === 'object' 
+    ? match.homeTeam 
+    : { name: 'Ev Sahibi', logo: '', country: '' };
+    
+  const awayTeam = match.awayTeam && typeof match.awayTeam === 'object' 
+    ? match.awayTeam 
+    : { name: 'Deplasman', logo: '', country: '' };
+
+  const homeScore = match.homeScore !== undefined 
+    ? (typeof match.homeScore === 'number' ? match.homeScore : 
+       (typeof match.homeScore === 'string' ? parseInt(match.homeScore) || 0 : 0))
+    : 0;
+    
+  const awayScore = match.awayScore !== undefined 
+    ? (typeof match.awayScore === 'number' ? match.awayScore : 
+       (typeof match.awayScore === 'string' ? parseInt(match.awayScore) || 0 : 0))
+    : 0;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+    <>
+      {/* Backdrop */}
+      <div 
+        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={handleClose}
+      />
+      
+      {/* Modal */}
+      <div 
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
+          isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+        }`}
+      >
+        <div 
+          className={`bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ${
+            isClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <Trophy className="w-6 h-6 text-white" />
+              </div>
+              <div>
                 <h2 className="text-xl font-bold text-gray-900">Maç Detayları</h2>
+                <p className="text-sm text-gray-600">{match.league || 'Bilinmeyen Lig'}</p>
+              </div>
+            </div>
             <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
             >
-              <X className="h-5 w-5 text-gray-500" />
+              <X className="w-6 h-6 text-gray-600" />
             </button>
           </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mx-6 mt-4">
-            <p className="text-red-800 text-sm">{error}</p>
-          </div>
-        )}
-
-        {/* Match Info */}
-        <div className="p-6">
-          {/* Teams and Score */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4 flex-1">
-              <img 
-                src={homeTeam.logo || 'https://via.placeholder.com/60x60/3B82F6/FFFFFF?text=H'} 
-                alt={homeTeam.name}
-                className="w-12 h-12 object-contain rounded-lg bg-gray-100 p-1"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/60x60/3B82F6/FFFFFF?text=H';
-                }}
-              />
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{homeTeam.name}</h3>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4 px-6">
-              <div className="text-3xl font-bold text-gray-900">{homeScore}</div>
-              <div className="text-2xl font-medium text-gray-400">:</div>
-              <div className="text-3xl font-bold text-gray-900">{awayScore}</div>
-        </div>
-
-            <div className="flex items-center space-x-4 flex-1 justify-end">
-              <div className="text-right">
-                <h3 className="text-lg font-semibold text-gray-900">{awayTeam.name}</h3>
-              </div>
-              <img 
-                src={awayTeam.logo || 'https://via.placeholder.com/60x60/3B82F6/FFFFFF?text=A'} 
-                alt={awayTeam.name}
-                className="w-12 h-12 object-contain rounded-lg bg-gray-100 p-1"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/60x60/3B82F6/FFFFFF?text=A';
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Match Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-              <div className="flex items-center space-x-2 mb-2">
-                {/* Modern kupa ikonu */}
-                <div className="relative">
-                  <div className="w-4 h-4 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-sm flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-sm"></div>
-                  </div>
-                  <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-2.5 h-0.5 bg-yellow-400 rounded-sm"></div>
-                  </div>
-                <span className="text-sm font-medium text-gray-600">Lig</span>
-              </div>
-              <p className="text-gray-900 font-medium">{league}</p>
-            </div>
-
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-              <div className="flex items-center space-x-2 mb-2">
-                {/* Modern saat ikonu */}
-                <div className="relative w-4 h-4">
-                  <div className="absolute inset-0 bg-blue-500 rounded-full"></div>
-                  <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-0.5 h-1.5 bg-white rounded-full"></div>
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-0.5 bg-white rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Durum</span>
-              </div>
-              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${getStatusColor(status)}`}>
-                {getStatusText(status, minute)}
-              </span>
-              </div>
-
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-              <div className="flex items-center space-x-2 mb-2">
-                {/* Modern takvim ikonu */}
-                <div className="relative w-4 h-4">
-                  <div className="absolute inset-0 bg-green-500 rounded-sm"></div>
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-green-600 rounded-t-sm"></div>
-                  <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-0.5 h-1 bg-white rounded-full"></div>
-                  <div className="absolute top-1 left-1/3 w-0.5 h-1 bg-white rounded-full"></div>
-                  <div className="absolute top-1 right-1/3 w-0.5 h-1 bg-white rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Saat</span>
-              </div>
-              <p className="text-gray-900 font-medium">{time}</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-              <div className="flex items-center space-x-2 mb-2">
-                {/* Modern konum ikonu */}
-                <div className="relative w-4 h-4">
-                  <div className="absolute inset-0 bg-red-500 rounded-full"></div>
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-white rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Stadyum</span>
-              </div>
-              <p className="text-gray-900 font-medium">{venue}</p>
-              </div>
-
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-              <div className="flex items-center space-x-2 mb-2">
-                {/* Modern kullanıcı ikonu */}
-                <div className="relative w-4 h-4">
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-purple-500 rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Hakem</span>
-              </div>
-              <p className="text-gray-900 font-medium">{referee}</p>
-            </div>
-          </div>
-
-          {/* Loading State */}
-          {isLoadingH2H && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-600 mt-2">Veriler yükleniyor...</p>
-              </div>
-          )}
-
-          {/* Head to Head */}
-          {!isLoadingH2H && headToHeadData.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                {/* Modern aktivite ikonu */}
-                <div className="relative w-5 h-5 mr-2">
-                  <div className="absolute inset-0 bg-blue-500 rounded-full"></div>
-                  <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
-                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
-                  <div className="absolute left-1 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-white rounded-full"></div>
-                  <div className="absolute right-1 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-white rounded-full"></div>
-                      </div>
-                Son Karşılaşmalar
-              </h3>
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-                <div className="space-y-2">
-                  {headToHeadData.slice(0, 5).map((h2h, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">{h2h.date}</span>
-                      <span className="text-gray-900 font-medium">{h2h.result}</span>
+          {/* Content */}
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+            {/* Match Info */}
+            <div className="p-6">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(match.status)}`}>
+                    {getStatusText(match.status, match.minute)}
+                  </span>
+                  {match.venue && (
+                    <div className="flex items-center space-x-1 text-sm text-gray-600">
+                      <MapPin className="w-4 h-4" />
+                      <span>{match.venue}</span>
                     </div>
-                  ))}
+                  )}
+                </div>
+
+                {/* Teams and Score */}
+                <div className="grid grid-cols-3 gap-4 items-center">
+                  {/* Home Team */}
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+                      {homeTeam.logo ? (
+                        <img 
+                          src={homeTeam.logo} 
+                          alt={homeTeam.name}
+                          className="w-12 h-12 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-gray-600">
+                          {homeTeam.name?.charAt(0) || 'H'}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900">{homeTeam.name}</h3>
+                    {homeTeam.country && (
+                      <p className="text-sm text-gray-600">{homeTeam.country}</p>
+                    )}
+                  </div>
+
+                  {/* Score */}
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-gray-900 mb-2">
+                      {homeScore} - {awayScore}
+                    </div>
+                    {match.minute && match.status === 'live' && (
+                      <div className="text-sm text-red-600 font-semibold">
+                        {match.minute}'
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Away Team */}
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+                      {awayTeam.logo ? (
+                        <img 
+                          src={awayTeam.logo} 
+                          alt={awayTeam.name}
+                          className="w-12 h-12 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-gray-600">
+                          {awayTeam.name?.charAt(0) || 'D'}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900">{awayTeam.name}</h3>
+                    {awayTeam.country && (
+                      <p className="text-sm text-gray-600">{awayTeam.country}</p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Team Stats */}
-          {(homeTeamStats || awayTeamStats) && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                {/* Modern trend ikonu */}
-                <div className="relative w-5 h-5 mr-2">
-                  <div className="absolute bottom-0 left-0 w-1 h-2 bg-green-500 rounded-sm"></div>
-                  <div className="absolute bottom-0 left-1 w-1 h-3 bg-green-500 rounded-sm"></div>
-                  <div className="absolute bottom-0 left-2 w-1 h-1 bg-green-500 rounded-sm"></div>
-                  <div className="absolute bottom-0 left-3 w-1 h-4 bg-green-500 rounded-sm"></div>
-                  <div className="absolute bottom-0 left-4 w-1 h-2 bg-green-500 rounded-sm"></div>
-                  </div>
-                Takım İstatistikleri
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {homeTeamStats && (
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-                    <h4 className="font-medium text-gray-900 mb-2">{homeTeam.name}</h4>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Form:</span>
-                        <span className="text-gray-900 font-medium">{homeTeamStats.form || 'N/A'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Gol Ortalaması:</span>
-                        <span className="text-gray-900 font-medium">{homeTeamStats.avgGoals || 'N/A'}</span>
-                    </div>
+              {/* Error Display */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                    <span className="text-red-800 font-medium">{error}</span>
                   </div>
                 </div>
               )}
-              
-                {awayTeamStats && (
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm">
-                    <h4 className="font-medium text-gray-900 mb-2">{awayTeam.name}</h4>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Form:</span>
-                        <span className="text-gray-900 font-medium">{awayTeamStats.form || 'N/A'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Gol Ortalaması:</span>
-                        <span className="text-gray-900 font-medium">{awayTeamStats.avgGoals || 'N/A'}</span>
-                      </div>
-                    </div>
-            </div>
-          )}
-              </div>
-            </div>
-          )}
 
-          {/* Simple Info Message if no data */}
-          {!isLoadingH2H && headToHeadData.length === 0 && !homeTeamStats && !awayTeamStats && (
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200/50 rounded-xl p-4 shadow-sm">
-              <div className="flex items-center space-x-2">
-                {/* Modern aktivite ikonu */}
-                <div className="relative w-5 h-5">
-                  <div className="absolute inset-0 bg-blue-500 rounded-full"></div>
-                  <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
-                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
-                  <div className="absolute left-1 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-white rounded-full"></div>
-                  <div className="absolute right-1 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-white rounded-full"></div>
+              {/* Head to Head */}
+              {match.status === 'scheduled' && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                    <Activity className="w-5 h-5 text-blue-600" />
+                    <span>Son Karşılaşmalar</span>
+                  </h3>
+                  
+                  {isLoadingH2H ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <p className="text-gray-600 mt-2">Veriler yükleniyor...</p>
+                    </div>
+                  ) : headToHeadData.length > 0 ? (
+                    <div className="space-y-3">
+                      {headToHeadData.slice(0, 5).map((h2h, index) => (
+                        <div key={index} className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <span className="text-sm text-gray-600">{h2h.date}</span>
+                              <span className="font-medium">{h2h.homeTeam}</span>
+                            </div>
+                            <span className="font-bold text-lg">{h2h.homeScore} - {h2h.awayScore}</span>
+                            <span className="font-medium">{h2h.awayTeam}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p>Karşılaşma geçmişi bulunamadı</p>
+                    </div>
+                  )}
                 </div>
-                <p className="text-blue-800 text-sm font-medium">
-                  Detaylı istatistikler ve head-to-head verileri yakında eklenecek.
-                </p>
-              </div>
+              )}
+
+              {/* Team Statistics */}
+              {(homeTeamStats || awayTeamStats) && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                    <TrendingUp className="w-5 h-5 text-green-600" />
+                    <span>Takım İstatistikleri</span>
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {homeTeamStats && (
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-blue-900 mb-3">{homeTeam.name} İstatistikleri</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Oynanan Maç:</span>
+                            <span className="font-medium">{homeTeamStats.matchesPlayed || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Galibiyet:</span>
+                            <span className="font-medium text-green-600">{homeTeamStats.wins || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Beraberlik:</span>
+                            <span className="font-medium text-yellow-600">{homeTeamStats.draws || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Mağlubiyet:</span>
+                            <span className="font-medium text-red-600">{homeTeamStats.losses || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {awayTeamStats && (
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-purple-900 mb-3">{awayTeam.name} İstatistikleri</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Oynanan Maç:</span>
+                            <span className="font-medium">{awayTeamStats.matchesPlayed || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Galibiyet:</span>
+                            <span className="font-medium text-green-600">{awayTeamStats.wins || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Beraberlik:</span>
+                            <span className="font-medium text-yellow-600">{awayTeamStats.draws || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Mağlubiyet:</span>
+                            <span className="font-medium text-red-600">{awayTeamStats.losses || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

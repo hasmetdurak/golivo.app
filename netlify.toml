@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  NETLIFY_BUILD_CACHE = "false"
 
 [[redirects]]
   from = "/yandex_3781a3df7bd9998e.html"

@@ -58,7 +58,7 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
   const getTimeDisplay = () => {
     try {
       if (isLive) {
-        return 'CANLI';
+        return minuteInfo || 'CANLI';
       }
       if (isFinished) {
         return 'MS';
@@ -84,8 +84,18 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
     try {
       console.log('Maç kartına tıklandı:', match.id || 'ID yok');
       
+      // onClick fonksiyonunun var olup olmadığını kontrol et
       if (onClick && typeof onClick === 'function') {
-        onClick();
+        // setTimeout ile asenkron çalıştır - daha güvenli
+        setTimeout(() => {
+          try {
+            onClick();
+          } catch (error) {
+            console.error('onClick fonksiyonu hatası:', error);
+            // Hata durumunda kullanıcıya bilgi ver
+            alert('Maç detayları açılırken bir hata oluştu. Lütfen tekrar deneyin.');
+          }
+        }, 100);
       }
     } catch (error) {
       console.error('Maç tıklama hatası:', error);
@@ -98,146 +108,148 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
     <div 
       className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-[1.02] ${
         isLive 
-          ? 'border-red-200 bg-gradient-to-r from-red-50/50 to-white' 
+          ? 'border-red-200 bg-gradient-to-r from-red-50 to-orange-50' 
           : isFinished 
-          ? 'border-gray-200 bg-gradient-to-r from-gray-50/30 to-white' 
-          : 'border-blue-200 bg-gradient-to-r from-blue-50/30 to-white'
+            ? 'border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50'
+            : 'border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50'
       }`}
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleClick(e as any);
         }
       }}
-      tabIndex={0}
-      role="button"
-      aria-label={`${homeTeam.name} vs ${awayTeam.name} maç detayları`}
     >
-      {/* Header - Lig ve Durum */}
-      <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-gray-50/50 to-white">
-        <div className="flex items-center justify-between">
+      {/* Canlı maç animasyonu */}
+      {isLive && (
+        <div className="absolute top-2 right-2">
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-semibold text-red-600">CANLI</span>
+          </div>
+        </div>
+      )}
+
+      <div className="p-4">
+        {/* Lig bilgisi */}
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1.5">
-              {/* Modern kupa ikonu */}
-              <div className="relative">
-                <div className="w-3 h-3 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-sm flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-white rounded-sm"></div>
-                </div>
-                <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-2 h-0.5 bg-yellow-400 rounded-sm"></div>
-              </div>
-              <span className="text-xs font-medium text-gray-600 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full border border-gray-200/50 shadow-sm">
-                {match.league || 'Bilinmeyen Lig'}
+            {match.league && (
+              <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+                {match.league}
               </span>
+            )}
+            {match.country && (
+              <span className="text-xs text-gray-500">
+                {match.country}
+              </span>
+            )}
+          </div>
+          <div className="text-xs font-semibold text-gray-700">
+            {getTimeDisplay()}
+          </div>
+        </div>
+
+        {/* Takım bilgileri */}
+        <div className="space-y-3">
+          {/* Ev sahibi takım */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 flex-1">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                {homeTeam.logo ? (
+                  <img 
+                    src={homeTeam.logo} 
+                    alt={homeTeam.name}
+                    className="w-6 h-6 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <span className="text-xs font-bold text-gray-600">
+                    {homeTeam.name?.charAt(0) || 'H'}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm text-gray-900 truncate">
+                  {homeTeam.name || 'Ev Sahibi'}
+                </div>
+                {homeTeam.country && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-gray-500">{homeFlag}</span>
+                    <span className="text-xs text-gray-500">{homeTeam.country}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-gray-900 ml-4">
+              {homeScore}
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${
+
+          {/* Deplasman takımı */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 flex-1">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                {awayTeam.logo ? (
+                  <img 
+                    src={awayTeam.logo} 
+                    alt={awayTeam.name}
+                    className="w-6 h-6 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <span className="text-xs font-bold text-gray-600">
+                    {awayTeam.name?.charAt(0) || 'D'}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm text-gray-900 truncate">
+                  {awayTeam.name || 'Deplasman'}
+                </div>
+                {awayTeam.country && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-gray-500">{awayFlag}</span>
+                    <span className="text-xs text-gray-500">{awayTeam.country}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-gray-900 ml-4">
+              {awayScore}
+            </div>
+          </div>
+        </div>
+
+        {/* Maç durumu ve ek bilgiler */}
+        <div className="mt-4 pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between text-xs text-gray-600">
+            <span className={`px-2 py-1 rounded-full font-medium ${
               isLive 
-                ? 'text-red-600 bg-red-50 border border-red-200/50' 
+                ? 'bg-red-100 text-red-700' 
                 : isFinished 
-                ? 'text-gray-600 bg-gray-50 border border-gray-200/50' 
-                : 'text-blue-600 bg-blue-50 border border-blue-200/50'
+                  ? 'bg-gray-100 text-gray-700'
+                  : 'bg-blue-100 text-blue-700'
             }`}>
-              {/* Modern durum ikonu */}
-              <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                isLive 
-                  ? 'bg-red-500 animate-pulse' 
-                  : isFinished 
-                  ? 'bg-gray-400' 
-                  : 'bg-blue-500'
-              }`}></div>
-              {getTimeDisplay()}
+              {isLive ? 'CANLI' : isFinished ? 'TAMAMLANDI' : 'BAŞLAYACAK'}
             </span>
-            {isLive && minuteInfo && (
-              <span className="text-xs font-bold text-red-600 bg-red-50 border border-red-200/50 px-2 py-1 rounded-full shadow-sm">
-                {minuteInfo}
+            {match.venue && (
+              <span className="truncate max-w-32">
+                📍 {match.venue}
               </span>
             )}
           </div>
         </div>
       </div>
-
-      {/* Teams and Score */}
-      <div className="p-4">
-        <div className="flex items-center justify-between">
-          {/* Home Team */}
-          <div className="flex items-center space-x-3 flex-1">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">{homeFlag}</span>
-              {homeTeam.logo && (
-                <img 
-                  src={homeTeam.logo} 
-                  alt={homeTeam.name}
-                  className="w-8 h-8 object-contain rounded-lg bg-gray-100 p-1"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 truncate">
-                {homeTeam.name}
-              </h3>
-            </div>
-          </div>
-
-          {/* Score */}
-          <div className="flex items-center space-x-3 px-4">
-            <div className="text-xl font-bold text-gray-900 min-w-[2rem] text-center">
-              {homeScore}
-            </div>
-            <div className="text-lg font-medium text-gray-400">:</div>
-            <div className="text-xl font-bold text-gray-900 min-w-[2rem] text-center">
-              {awayScore}
-            </div>
-          </div>
-          
-          {/* Dakika bilgisi skorun altında */}
-          {minuteInfo && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-8">
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                isLive 
-                  ? 'text-red-600 bg-red-100 border border-red-200' 
-                  : 'text-gray-600 bg-gray-100 border border-gray-200'
-              }`}>
-                {minuteInfo}
-              </span>
-            </div>
-          )}
-
-          {/* Away Team */}
-          <div className="flex items-center space-x-3 flex-1 justify-end">
-            <div className="min-w-0 flex-1 text-right">
-              <h3 className="text-sm font-semibold text-gray-900 truncate">
-                {awayTeam.name}
-              </h3>
-            </div>
-            <div className="flex items-center space-x-2">
-              {awayTeam.logo && (
-                <img 
-                  src={awayTeam.logo} 
-                  alt={awayTeam.name}
-                  className="w-8 h-8 object-contain rounded-lg bg-gray-100 p-1"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              )}
-              <span className="text-2xl">{awayFlag}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer - Additional Info */}
-      <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>{match.venue || 'Bilinmeyen Stadyum'}</span>
-          <span>{match.referee || 'Bilinmeyen Hakem'}</span>
-        </div>
-      </div>
     </div>
   );
 });
+
+MatchCard.displayName = 'MatchCard';
