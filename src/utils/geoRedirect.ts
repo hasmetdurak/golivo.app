@@ -264,7 +264,12 @@ export const shouldRedirect = (): boolean => {
   if (typeof window === 'undefined') return false;
   
   const hostname = window.location.hostname;
-  const isMainDomain = hostname === 'golivo.app' || hostname === 'www.golivo.app' || hostname === 'golivo.netlify.app';
+  const isMainDomain = hostname === 'golivo.app' || 
+                      hostname === 'www.golivo.app' || 
+                      hostname === 'golivo.netlify.app' ||
+                      hostname.includes('.netlify.app') ||
+                      hostname === 'localhost' ||
+                      hostname === '127.0.0.1';
   
   return isMainDomain;
 };

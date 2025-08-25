@@ -53,9 +53,6 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
   const getTimeDisplay = () => {
     try {
       if (isLive) {
-        if (minuteInfo) {
-          return minuteInfo;
-        }
         return 'CANLI';
       }
       if (isFinished) {
@@ -74,9 +71,11 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
     }
   };
 
-  // Tıklama olayı - hata yakalama ile
+  // Tıklama olayı - hata yakalama ile ve preventDefault
   const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    
     try {
       if (onClick && typeof onClick === 'function') {
         onClick();
@@ -96,6 +95,15 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
           : 'border-blue-200 bg-gradient-to-r from-blue-50/30 to-white'
       }`}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick(e as any);
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-label={`${homeTeam.name} vs ${awayTeam.name} maçı`}
     >
       {/* Status Header */}
       <div className={`px-3 py-1.5 border-b flex items-center justify-between ${
@@ -109,7 +117,7 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
           <div className="text-white text-sm font-semibold">
             {getTimeDisplay()}
           </div>
-          {isLive && minuteInfo && (
+          {isLive && (
             <div className="flex items-center space-x-1">
               <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
               <span className="text-xs font-bold text-white">CANLI</span>
@@ -157,9 +165,15 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
                 {awayScore}
               </div>
             </div>
-            {/* Dakika bilgisi skorun hemen altında */}
+            {/* Dakika bilgisi skorun hemen altında - daha belirgin */}
             {isLive && minuteInfo && (
-              <div className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+              <div className="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">
+                {minuteInfo}'
+              </div>
+            )}
+            {/* Bitiş durumu için de dakika göster */}
+            {isFinished && minuteInfo && (
+              <div className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                 {minuteInfo}'
               </div>
             )}

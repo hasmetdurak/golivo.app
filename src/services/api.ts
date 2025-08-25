@@ -401,21 +401,54 @@ interface Match {
 
 const transformApiMatch = (apiMatch: ApiMatch): Match => {
   try {
-    // Durum ve dakika belirleme - daha basit ve güvenli
+    // Durum ve dakika belirleme - daha kapsamlı
     let status: 'live' | 'finished' | 'scheduled' = 'scheduled';
     let minute: string | undefined = undefined;
     
-    // Canlı maç kontrolü
-    if (apiMatch.match_live === '1') {
+    console.log('🔍 Maç durumu analizi:', {
+      match_live: apiMatch.match_live,
+      match_status: apiMatch.match_status,
+      match_time: apiMatch.match_time
+    });
+    
+    // Canlı maç kontrolü - daha kapsamlı
+    if (apiMatch.match_live === '1' || 
+        (apiMatch.match_status && apiMatch.match_status.toLowerCase().includes('live')) ||
+        (apiMatch.match_status && apiMatch.match_status.includes("'"))) {
       status = 'live';
-    } else if (apiMatch.match_status === 'Finished') {
+      
+      // Dakika bilgisini çıkar
+      if (apiMatch.match_status && apiMatch.match_status.includes("'")) {
+        // "67'" formatından dakikayı çıkar
+        const minuteMatch = apiMatch.match_status.match(/(\d+)'/);
+        if (minuteMatch) {
+          minute = minuteMatch[1] + "'";
+        } else {
+          minute = apiMatch.match_status;
+        }
+      } else if (apiMatch.match_status && apiMatch.match_status.includes('min')) {
+        // "67 min" formatından dakikayı çıkar
+        const minuteMatch = apiMatch.match_status.match(/(\d+)\s*min/);
+        if (minuteMatch) {
+          minute = minuteMatch[1] + "'";
+        }
+      }
+    } else if (apiMatch.match_status && 
+               (apiMatch.match_status.toLowerCase().includes('finished') ||
+                apiMatch.match_status.toLowerCase().includes('ft') ||
+                apiMatch.match_status.toLowerCase().includes('ended'))) {
       status = 'finished';
+      
+      // Bitiş durumu için de dakika bilgisi olabilir
+      if (apiMatch.match_status.includes("'")) {
+        const minuteMatch = apiMatch.match_status.match(/(\d+)'/);
+        if (minuteMatch) {
+          minute = minuteMatch[1] + "'";
+        }
+      }
     }
     
-    // Dakika bilgisi - sadece canlı maçlarda
-    if (status === 'live' && apiMatch.match_status && apiMatch.match_status.includes("'")) {
-      minute = apiMatch.match_status;
-    }
+    console.log('✅ Dönüştürülen durum:', { status, minute });
 
     return {
       id: apiMatch.match_id || 'unknown',
@@ -532,152 +565,143 @@ const getDemoMatches = (): Match[] => {
     },
     {
       id: '2',
-      league: 'Spanish La Liga',
+      league: 'La Liga',
       country: 'SPAIN LA LIGA',
-      status: 'finished',
-      time: '18:00',
-      venue: 'Camp Nou',
-      referee: 'Carlos del Cerro',
-      round: '3',
+      status: 'live',
+      minute: "23'",
+      time: '16:30',
       homeTeam: {
-        name: 'Barcelona',
-        logo: 'https://via.placeholder.com/40x40/004D98/FFFFFF?text=BAR'
-      },
-      awayTeam: {
         name: 'Real Madrid',
         logo: 'https://via.placeholder.com/40x40/FFFFFF/000000?text=RM'
       },
-      homeScore: 3,
-      awayScore: 2,
-      halftimeScore: { home: 1, away: 1 },
-      events: [
-        {
-          type: 'Goal' as const,
-          minute: "12'",
-          player: 'Lewandowski',
-          team: 'home' as const,
-          icon: '⚽'
-        },
-        {
-          type: 'Goal' as const,
-          minute: "28'",
-          player: 'Benzema',
-          team: 'away' as const,
-          icon: '⚽'
-        },
-        {
-          type: 'Red Card' as const,
-          minute: "45'",
-          player: 'Casemiro',
-          team: 'away' as const,
-          icon: '🟥'
-        },
-        {
-          type: 'Goal' as const,
-          minute: "67'",
-          player: 'Pedri',
-          team: 'home' as const,
-          icon: '⚽'
-        },
-        {
-          type: 'Goal' as const,
-          minute: "78'",
-          player: 'Ansu Fati',
-          team: 'home' as const,
-          icon: '⚽'
-        },
-        {
-          type: 'Goal' as const,
-          minute: "89'",
-          player: 'Vinicius',
-          team: 'away' as const,
-          icon: '⚽'
-        }
-      ],
-      statistics: [
-        { type: 'Topa Sahip Olma', home: '58', away: '42', homePercent: 58, awayPercent: 42 },
-        { type: 'Şutlar', home: '15', away: '9', homePercent: 62.5, awayPercent: 37.5 },
-        { type: 'Kornerler', home: '7', away: '3', homePercent: 70, awayPercent: 30 }
-      ]
-    },
-    {
-      id: '3',
-      league: 'German Bundesliga',
-      country: 'GERMANY BUNDESLIGA',
-      status: 'scheduled',
-      time: '20:30',
-      venue: 'Allianz Arena',
-      round: '2',
-      homeTeam: {
-        name: 'Bayern Munich',
+      awayTeam: {
+        name: 'Barcelona',
         logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=FCB'
-      },
-      awayTeam: {
-        name: 'Borussia Dortmund',
-        logo: 'https://via.placeholder.com/40x40/FFFF00/000000?text=BVB'
-      },
-      homeScore: 0,
-      awayScore: 0,
-      events: []
-    },
-    {
-      id: '4',
-      league: 'Turkish Super League',
-      country: 'TURKEY SUPER LEAGUE',
-      status: 'live',
-      minute: "34'",
-      time: '14:00',
-      homeTeam: {
-        name: 'Galatasaray',
-        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=GS'
-      },
-      awayTeam: {
-        name: 'Fenerbahçe',
-        logo: 'https://via.placeholder.com/40x40/FFFF00/000000?text=FB'
       },
       homeScore: 1,
       awayScore: 0,
       events: [
         {
           type: 'Goal' as const,
-          minute: "22'",
-          player: 'Icardi',
+          minute: "18'",
+          player: 'Bellingham',
+          team: 'home' as const,
+          icon: '⚽'
+        }
+      ],
+      statistics: [
+        { type: 'Topa Sahip Olma', home: '45', away: '55', homePercent: 45, awayPercent: 55 },
+        { type: 'Şutlar', home: '6', away: '4', homePercent: 60, awayPercent: 40 }
+      ]
+    },
+    {
+      id: '3',
+      league: 'Bundesliga',
+      country: 'GERMANY BUNDESLIGA',
+      status: 'finished',
+      minute: "90'",
+      time: '14:00',
+      homeTeam: {
+        name: 'Bayern Munich',
+        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=BAY'
+      },
+      awayTeam: {
+        name: 'Borussia Dortmund',
+        logo: 'https://via.placeholder.com/40x40/FFFF00/000000?text=BVB'
+      },
+      homeScore: 3,
+      awayScore: 1,
+      events: [
+        {
+          type: 'Goal' as const,
+          minute: "12'",
+          player: 'Kane',
           team: 'home' as const,
           icon: '⚽'
         },
         {
-          type: 'Yellow Card' as const,
-          minute: "31'",
-          player: 'Fred',
+          type: 'Goal' as const,
+          minute: "34'",
+          player: 'Sane',
+          team: 'home' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "67'",
+          player: 'Reus',
           team: 'away' as const,
-          icon: '🟨'
+          icon: '⚽'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "89'",
+          player: 'Musiala',
+          team: 'home' as const,
+          icon: '⚽'
         }
       ],
       statistics: [
-        { type: 'Topa Sahip Olma', home: '52', away: '48', homePercent: 52, awayPercent: 48 },
-        { type: 'Şutlar', home: '8', away: '6', homePercent: 57, awayPercent: 43 },
-        { type: 'Kornerler', home: '4', away: '3', homePercent: 57, awayPercent: 43 }
+        { type: 'Topa Sahip Olma', home: '58', away: '42', homePercent: 58, awayPercent: 42 },
+        { type: 'Şutlar', home: '15', away: '8', homePercent: 65, awayPercent: 35 }
       ]
     },
     {
-      id: '5',
-      league: 'French Ligue 1',
-      country: 'FRANCE LIGUE 1',
+      id: '4',
+      league: 'Serie A',
+      country: 'ITALY SERIE A',
       status: 'scheduled',
-      time: '21:00',
-      venue: 'Parc des Princes',
-      round: '4',
+      time: '20:45',
       homeTeam: {
-        name: 'Paris Saint-Germain',
-        logo: 'https://via.placeholder.com/40x40/000000/FFFFFF?text=PSG'
+        name: 'Inter Milan',
+        logo: 'https://via.placeholder.com/40x40/0000FF/FFFFFF?text=INT'
       },
       awayTeam: {
-        name: 'Olympique Lyonnais',
-        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=OL'
+        name: 'AC Milan',
+        logo: 'https://via.placeholder.com/40x40/FF0000/FFFFFF?text=ACM'
       },
       homeScore: 0,
       awayScore: 0,
-      events: []
+      events: [],
+      statistics: []
+    },
+    {
+      id: '5',
+      league: 'Ligue 1',
+      country: 'FRANCE LIGUE 1',
+      status: 'live',
+      minute: "45'",
+      time: '17:00',
+      homeTeam: {
+        name: 'PSG',
+        logo: 'https://via.placeholder.com/40x40/0000FF/FFFFFF?text=PSG'
+      },
+      awayTeam: {
+        name: 'Marseille',
+        logo: 'https://via.placeholder.com/40x40/0000FF/FFFFFF?text=MAR'
+      },
+      homeScore: 2,
+      awayScore: 0,
+      events: [
+        {
+          type: 'Goal' as const,
+          minute: "23'",
+          player: 'Mbappe',
+          team: 'home' as const,
+          icon: '⚽'
+        },
+        {
+          type: 'Goal' as const,
+          minute: "41'",
+          player: 'Dembele',
+          team: 'home' as const,
+          icon: '⚽'
+        }
+      ],
+      statistics: [
+        { type: 'Topa Sahip Olma', home: '62', away: '38', homePercent: 62, awayPercent: 38 },
+        { type: 'Şutlar', home: '9', away: '3', homePercent: 75, awayPercent: 25 }
+      ]
     }
   ];
 };
