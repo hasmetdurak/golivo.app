@@ -47,11 +47,17 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
 
   // Handle language change by redirecting to the appropriate subdomain
   const handleLanguageChange = (langCode: string) => {
+    // Temporarily disabled to prevent redirects during testing
+    console.log('Language change requested to:', langCode);
+    return;
+    
+    /*
     const language = supportedLanguages.find(lang => lang.code === langCode);
     if (language) {
       const newUrl = `https://${language.subdomain}.golivo.app${window.location.pathname}${window.location.search}`;
       window.location.href = newUrl;
     }
+    */
   };
 
   return (

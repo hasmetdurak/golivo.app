@@ -4,6 +4,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { MatchDetailsModal } from './MatchDetailsModal';
 import { Calendar, Activity, Clock } from 'lucide-react';
 import type { Translations } from '../i18n/index';
+import { leagues } from '../data/leagues';
 
 interface MatchListProps {
   matches: any[];
@@ -56,8 +57,26 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     groupedMatches[league].push(match);
   });
 
-  // Ligleri sırala
-  const leagues = Object.keys(groupedMatches).sort();
+  // Ligleri öncelik sırasına göre sırala
+  const getLeaguePriority = (leagueName: string) => {
+    const league = leagues.find(l => l.name === leagueName);
+    return league ? (league.priority ? 0 : 1) : 1; // Öncelikli ligler önce gelir
+  };
+
+  const sortLeagues = (a: string, b: string) => {
+    const priorityA = getLeaguePriority(a);
+    const priorityB = getLeaguePriority(b);
+    
+    // Öncelikli ligler önce gelir
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+    
+    // Aynı öncelikte ise alfabetik sırala
+    return a.localeCompare(b);
+  };
+
+  const leagues = Object.keys(groupedMatches).sort(sortLeagues);
 
   const formatSelectedDate = () => {
     try {

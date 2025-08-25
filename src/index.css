@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import mobile enhancements */
-@import './styles/mobile-enhancements.css';
-
 /* Custom animations for background */
 @keyframes blob {
   0% {
@@ -67,3 +64,6 @@ html {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
+
+/* Import mobile enhancements - moved to the end to avoid CSS parsing issues */
+@import './styles/mobile-enhancements.css';

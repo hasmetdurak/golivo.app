@@ -25,13 +25,17 @@ function App() {
   useEffect(() => {
     console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
     // Initialize geo-redirect system - SSL certificates are now active!
-    initGeoRedirect();
-    
+    // Only run once on initial mount
+    // Temporarily disabled to prevent redirects during testing
+    // initGeoRedirect();
+  }, []); // Empty dependency array to run only once
+
+  useEffect(() => {
     // Fetch data based on current view
     if (currentView === 'scores') {
       fetchLiveMatches();
     }
-  }, [selectedDate, currentView, currentLang]);
+  }, [selectedDate, currentView]);
 
   const fetchLiveMatches = async () => {
     if (currentView !== 'scores') return; // Only fetch when in scores view

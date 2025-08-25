@@ -1,6 +1,61 @@
 User-agent: *
 Allow: /
-Sitemap: https://golivo.app/sitemap.xml
 
-# Affiliate pages
-Allow: /betting-sites/
+Sitemap: https://golivo.app/sitemap-index.xml
+
+# SEO Optimization Directives
+Host: golivo.app
+
+# Crawl-delay for respectful indexing
+Crawl-delay: 10
+
+# Specific directives for major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+# Disallow certain file types
+Disallow: /*.pdf$
+Disallow: /*.doc$
+Disallow: /*.xls$
+Disallow: /*.ppt$
+
+# Disallow certain directories
+Disallow: /admin/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /backup/
+
+# Allow search engines to crawl CSS and JS
+Allow: /*.css$
+Allow: /*.js$
+
+# Mobile directives
+User-agent: Googlebot-Mobile
+Allow: /
+
+# Image directives
+User-agent: Googlebot-Image
+Allow: /
+
+# News directives
+User-agent: Googlebot-News
+Allow: /
+
+# Video directives
+User-agent: Googlebot-Video
+Allow: /

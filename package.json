@@ -14,6 +14,8 @@
     "seo:ping": "node scripts/seo-system.cjs ping",
     "seo:full": "node scripts/seo-system.cjs full",
     "sitemap:generate": "node scripts/sitemap-generator.js",
+    "sitemap:update": "node scripts/update-sitemaps.js",
+    "sitemap:verify": "node scripts/verify-sitemaps.js",
     "seo:ping-old": "node scripts/seo-pinger.js"
   },
   "dependencies": {

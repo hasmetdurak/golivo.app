@@ -23,23 +23,34 @@ export const useTranslation = () => {
 
     // Add event listeners for navigation
     window.addEventListener('popstate', handleLocationChange);
-    const originalPushState = history.pushState;
-    const originalReplaceState = history.replaceState;
+    
+    // Use a less aggressive approach for detecting URL changes
+    // Instead of overriding pushState/replaceState, we'll use a MutationObserver
+    // to detect when the URL changes
+    let lastUrl = location.href;
+    const observer = new MutationObserver(() => {
+      const url = location.href;
+      if (url !== lastUrl) {
+        lastUrl = url;
+        handleLocationChange();
+      }
+    });
+    
+    observer.observe(document, { subtree: true, childList: true });
 
-    history.pushState = function() {
-      originalPushState.apply(history, arguments as any);
-      setTimeout(handleLocationChange, 0);
-    };
-
-    history.replaceState = function() {
-      originalReplaceState.apply(history, arguments as any);
-      setTimeout(handleLocationChange, 0);
-    };
+    // Check periodically for URL changes as a fallback
+    const interval = setInterval(() => {
+      const url = location.href;
+      if (url !== lastUrl) {
+        lastUrl = url;
+        handleLocationChange();
+      }
+    }, 1000);
 
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
-      history.pushState = originalPushState;
-      history.replaceState = originalReplaceState;
+      observer.disconnect();
+      clearInterval(interval);
     };
   }, []);
 

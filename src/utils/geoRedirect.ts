@@ -304,6 +304,8 @@ export const redirectToSubdomain = async (): Promise<void> => {
 
 // Initialize geo-redirect on app load
 export const initGeoRedirect = (): void => {
+  // Temporarily disabled to prevent redirects during testing
+  /*
   // Only run in browser and on main domain
   if (typeof window !== 'undefined' && shouldRedirect()) {
     // Add small delay to prevent too aggressive redirects
@@ -311,4 +313,5 @@ export const initGeoRedirect = (): void => {
       redirectToSubdomain();
     }, 100);
   }
+  */
 };
