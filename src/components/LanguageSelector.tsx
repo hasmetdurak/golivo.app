@@ -48,25 +48,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   const handleLanguageChange = (langCode: string) => {
     setIsOpen(false);
     
-    // Check if we're on main domain or subdomain
-    const hostname = window.location.hostname;
-    const isMainDomain = hostname === 'golivo.app' || hostname === 'www.golivo.app' || hostname === 'golivo.netlify.app' || hostname.includes('localhost');
+    // Save user's language preference to localStorage
+    saveUserLanguage(langCode);
     
-    if (isMainDomain) {
-      // On main domain - save to localStorage and reload
-      saveUserLanguage(langCode);
-      console.log('🌍 Language changed on main domain:', langCode);
-      // Reload page to apply new language
-      window.location.reload();
-    } else {
-      // On subdomain - redirect to appropriate subdomain
-      const language = supportedLanguages.find(lang => lang.code === langCode);
-      if (language) {
-        const newUrl = `https://${language.subdomain}.golivo.app${window.location.pathname}${window.location.search}`;
-        console.log('🌍 Redirecting to subdomain:', newUrl);
-        window.location.href = newUrl;
-      }
-    }
+    // Call the parent's onLanguageChange function
+    onLanguageChange(langCode);
+    
+    console.log('🌍 Language changed to:', langCode);
   };
 
   return (

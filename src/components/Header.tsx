@@ -69,7 +69,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
               {/* Language Selector */}
               <LanguageSelector 
                 currentLang={currentLang} 
-                onLanguageChange={() => {}} 
+                onLanguageChange={(langCode) => {
+                  // Force page reload to apply new language
+                  window.location.reload();
+                }} 
               />
               
               {/* Navigation Menu */}

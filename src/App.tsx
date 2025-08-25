@@ -26,13 +26,8 @@ function App() {
   useEffect(() => {
     console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
     
-    // Initialize geo-redirect system with error handling
-    try {
-      initGeoRedirect();
-    } catch (error) {
-      console.error('Geo redirect initialization failed:', error);
-      // Don't let geo redirect errors crash the app
-    }
+    // GeoIP disabled - using manual language selection
+    console.log('🌍 GeoIP redirect disabled - using manual language selection');
   }, []); // Empty dependency array to run only once
 
   useEffect(() => {

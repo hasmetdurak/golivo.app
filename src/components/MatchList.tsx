@@ -4,7 +4,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { MatchDetailsModal } from './MatchDetailsModal';
 import { Calendar, Activity, Clock } from 'lucide-react';
 import type { Translations } from '../i18n/index';
-import { leagues } from '../data/leagues';
+import { sortedLeagues, priorityLeagues } from '../data/leagues';
 
 interface MatchListProps {
   matches: any[];
@@ -67,14 +67,14 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
     return <LoadingSpinner />;
   }
 
-  // Ligleri öncelik sırasına göre sırala - hata önleyici versiyon
+  // Ligleri öncelik sırasına göre sırala - yeni sistem
   const getLeaguePriority = (leagueName: string) => {
     try {
-      const league = leagues.find(l => l.name === leagueName);
-      return league ? (league.priority ? 0 : 1) : 1; // Öncelikli ligler önce gelir
+      const league = sortedLeagues.find(l => l.name === leagueName);
+      return league ? league.priority : 999; // Bilinmeyen ligler en sona
     } catch (error) {
       console.error('Lig öncelik hatası:', error);
-      return 1; // Varsayılan olarak öncelikli değil
+      return 999; // Hata durumunda en sona
     }
   };
 
@@ -83,13 +83,8 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
       const priorityA = getLeaguePriority(a);
       const priorityB = getLeaguePriority(b);
       
-      // Öncelikli ligler önce gelir
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB;
-      }
-      
-      // Aynı öncelikte ise alfabetik sırala
-      return a.localeCompare(b);
+      // Öncelik sırasına göre sırala
+      return priorityA - priorityB;
     } catch (error) {
       console.error('Lig sıralama hatası:', error);
       return 0; // Hata durumunda sıralama yapma
@@ -97,12 +92,12 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
   };
 
   // Hata durumunda bile uygulamanın çalışmasını sağlayan lig listesi
-  let leagues: string[] = [];
+  let leagueNames: string[] = [];
   try {
-    leagues = Object.keys(groupedMatches).sort(sortLeagues);
+    leagueNames = Object.keys(groupedMatches).sort(sortLeagues);
   } catch (error) {
     console.error('Lig listesi oluşturma hatası:', error);
-    leagues = []; // Boş liste ile devam et
+    leagueNames = []; // Boş liste ile devam et
   }
 
   const formatSelectedDate = () => {
@@ -149,7 +144,7 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
           <div className="flex items-center space-x-4 text-gray-600">
             <div className="flex items-center space-x-1">
               <span className="text-lg">🏆</span>
-              <span className="text-sm font-medium">{leagues.length} {translations.leagues}</span>
+              <span className="text-sm font-medium">{leagueNames.length} {translations.leagues}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Activity className="h-4 w-4 text-green-500" />
@@ -160,26 +155,32 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
       </div>
 
       {/* Leagues */}
-      {leagues.length > 0 ? (
-        leagues.map((league) => {
+      {leagueNames.length > 0 ? (
+        leagueNames.map((league) => {
           try {
             const leagueMatches = groupedMatches[league] || [];
+            const leagueInfo = sortedLeagues.find(l => l.name === league);
             
             return (
               <div key={league} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 border border-gray-200">
-                <div className="bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200">
+                <div className="bg-gradient-to-r from-gray-50 to-white px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
                     <div className="flex items-center space-x-3">
-                      <div className="p-1.5 sm:p-2 bg-gray-600 rounded-lg flex items-center justify-center">
+                      <div className="p-1.5 sm:p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                         <span className="text-lg">🏆</span>
                       </div>
                       <div>
                         <h2 className="text-base sm:text-lg font-semibold text-gray-800">{league}</h2>
-                        <p className="text-gray-500 text-xs font-medium">Bugünkü Karşılaşmalar</p>
+                        {leagueInfo && (
+                          <p className="text-gray-500 text-xs font-medium">{leagueInfo.description}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-1 text-gray-600">
                       <span className="text-xs font-medium">{leagueMatches.length} {translations.matches}</span>
+                      {leagueInfo && (
+                        <span className="text-xs text-gray-400">• #{leagueInfo.priority}</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -199,7 +200,7 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
             );
           } catch (error) {
             console.error('Lig render hatası:', league, error);
-            return null; // Hatalı ligi atla
+            return null;
           }
         })
       ) : (

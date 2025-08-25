@@ -71,17 +71,21 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
     }
   };
 
-  // Tıklama olayı - hata yakalama ile ve preventDefault
+  // Tıklama olayı - güvenli şekilde aktif
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     try {
+      console.log('Maç kartına tıklandı:', match.id || 'ID yok');
+      
       if (onClick && typeof onClick === 'function') {
         onClick();
       }
     } catch (error) {
       console.error('Maç tıklama hatası:', error);
+      // Hata durumunda kullanıcıya bilgi ver
+      alert('Maç detayları yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
     }
   };
 

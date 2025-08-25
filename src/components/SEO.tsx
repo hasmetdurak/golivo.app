@@ -98,7 +98,10 @@ const SEO: React.FC<SEOProps> = ({ title, description, canonical, keywords, path
       ))}
 
       {/* Varsayılan (x-default) - İngilizceye işaret etmeli */}
-      <link rel="alternate" hrefLang="x-default" href={`https://golivo.app${path}`} />
+      <link rel="alternate" hrefLang="x-default" href={`${languages['en']}${path}`} />
+      
+      {/* Ana domain için de hreflang */}
+      <link rel="alternate" hrefLang="en" href={`https://golivo.app${path}`} />
 
       {/* Open Graph (sosyal medya önizlemeleri için) */}
       <meta property="og:title" content={finalTitle} />

@@ -1,4 +1,4 @@
-// Geo-location based automatic subdomain redirect system
+// Geo-location based automatic subdomain redirect system - DISABLED
 import { supportedLanguages } from '../i18n/index';
 
 // Language mapping by country codes (ISO 3166-1 alpha-2)
@@ -150,15 +150,6 @@ const countryToLanguage: Record<string, string> = {
   // Uzbek
   'UZ': 'uz',
   
-  // Tamil
-  // Uses India mapping
-  
-  // Telugu
-  // Uses India mapping
-  
-  // Malayalam
-  // Uses India mapping
-  
   // Khmer
   'KH': 'km',
   
@@ -171,23 +162,11 @@ const countryToLanguage: Record<string, string> = {
   // Niger için Hausa da mümkün ama French öncelikli
   'NE': 'ha',
   
-  // Yoruba
-  // Uses Nigeria mapping
-  
-  // Zulu
-  // Uses South Africa mapping
-  
   // Amharic
   'ET': 'am',
   
-  // Akan
-  // Uses Ghana mapping
-  
   // Quechua
   'PE': 'qu',
-  
-  // Aymara
-  // Uses Bolivia mapping
   
   // Guarani
   'PY': 'gn',
@@ -199,79 +178,21 @@ const countryToLanguage: Record<string, string> = {
   'MX': 'nah'
 };
 
-// Get user's country code via IP geolocation
+// Get user's country code via IP geolocation - DISABLED
 export const getUserCountry = async (): Promise<string | null> => {
-  try {
-    // Only run in production and if user hasn't manually selected a language
-    if (import.meta.env.DEV) {
-      console.log('🌍 Development mode - skipping geo redirect');
-      return null;
-    }
-
-    // Check if user has manually selected a language (stored in localStorage)
-    const manualLanguage = localStorage.getItem('golivo-language');
-    if (manualLanguage) {
-      console.log('🌍 User has manually selected language:', manualLanguage);
-      return null;
-    }
-
-    // Try multiple geolocation services for reliability
-    const services = [
-      'https://ipapi.co/country_code/',
-      'https://api.country.is/',
-      'https://ipinfo.io/country',
-      'https://api.ipgeolocation.io/ipgeo?apiKey=free'
-    ];
-    
-    for (const service of services) {
-      try {
-        const response = await fetch(service, { 
-          signal: AbortSignal.timeout(3000) // 3 second timeout
-        });
-        const data = await response.text();
-        const countryCode = data.trim().toUpperCase();
-        
-        if (countryCode && countryCode.length === 2) {
-          return countryCode;
-        }
-      } catch (error) {
-        console.warn(`Geolocation service failed: ${service}`, error);
-        continue;
-      }
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('All geolocation services failed:', error);
-    return null;
-  }
+  // GeoIP completely disabled
+  return null;
 };
 
-// Get language code from country
+// Get language code from country - DISABLED
 export const getLanguageFromCountry = (countryCode: string): string => {
-  const mappedLang = countryToLanguage[countryCode.toUpperCase()];
-  
-  // Handle special cases for subdomain mapping
-  if (mappedLang === 'in') return 'en-IN';
-  if (mappedLang === 'zh-CN') return 'zh-CN';
-  if (mappedLang === 'zh-TW') return 'zh-TW';
-  
-  return mappedLang || 'en'; // Default to English
+  return 'en'; // Always default to English
 };
 
-// Check if redirect is needed
+// Check if redirect is needed - DISABLED
 export const shouldRedirect = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  
-  const hostname = window.location.hostname;
-  const isMainDomain = hostname === 'golivo.app' || 
-                      hostname === 'www.golivo.app' || 
-                      hostname === 'golivo.netlify.app' ||
-                      hostname.includes('.netlify.app') ||
-                      hostname === 'localhost' ||
-                      hostname === '127.0.0.1';
-  
-  return isMainDomain;
+  // GeoIP redirect completely disabled
+  return false;
 };
 
 // Get current subdomain language
@@ -300,52 +221,16 @@ export const isGooglebot = (): boolean => {
   return userAgent.includes('googlebot');
 };
 
-// Perform redirect to appropriate subdomain
+// Perform redirect to appropriate subdomain - DISABLED
 export const redirectToSubdomain = async (): Promise<void> => {
-  if (!shouldRedirect()) return;
-  
-  // Googlebot SEO safety: Always redirect Googlebot to English version
-  if (isGooglebot()) {
-    const targetUrl = `https://en.golivo.app` + window.location.pathname + window.location.search;
-    console.log(`Redirecting Googlebot to English version: ${targetUrl}`);
-    window.location.href = targetUrl;
-    return;
-  }
-  
-  try {
-    const countryCode = await getUserCountry();
-    if (!countryCode) {
-      // Don't redirect if geolocation fails - stay on main domain
-      console.log('🌍 No country detected or development mode - staying on main domain');
-      return;
-    }
-    
-    const languageCode = getLanguageFromCountry(countryCode);
-    const language = supportedLanguages.find(lang => lang.code === languageCode);
-    
-    if (language) {
-      const targetUrl = `https://${language.subdomain}.golivo.app` + window.location.pathname + window.location.search;
-      console.log(`Redirecting user from ${countryCode} to ${targetUrl}`);
-      window.location.href = targetUrl;
-    } else {
-      // Don't redirect if language not found - stay on main domain
-      console.log('🌍 Language not found for country - staying on main domain');
-    }
-  } catch (error) {
-    console.error('Redirect failed:', error);
-    // Don't redirect on error - stay on main domain
-  }
+  // GeoIP redirect completely disabled
+  return;
 };
 
-// Initialize geo-redirect on app load
+// Initialize geo-redirect on app load - DISABLED
 export const initGeoRedirect = (): void => {
-  // Only run in browser and on main domain
-  if (typeof window !== 'undefined' && shouldRedirect()) {
-    // Add small delay to prevent too aggressive redirects
-    setTimeout(() => {
-      redirectToSubdomain();
-    }, 100);
-  }
+  // GeoIP redirect completely disabled
+  console.log('🌍 GeoIP redirect disabled - using manual language selection');
 };
 
 // Save user's manual language selection

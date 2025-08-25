@@ -1,17 +1,70 @@
 const BASE_URL = 'https://apiv3.apifootball.com';
 const API_KEY = '47746f324863a1c7321a4b137847eba9e647469c8eacced9ca6175bbbadf5c2d';
 
-// League ID mappings for major leagues
+// League ID mappings for major leagues - updated with priority order
 const LEAGUE_IDS = {
+  // 1. Premier League (İngiltere)
   'Premier League': '152',
-  'Champions League': '3',
+  'English Premier League': '152',
+  
+  // 2. La Liga (İspanya)
   'La Liga': '302',
-  'Serie A': '207',
+  'Spanish La Liga': '302',
+  
+  // 3. Bundesliga (Almanya)
   'Bundesliga': '175',
+  'German Bundesliga': '175',
+  
+  // 4. Serie A (İtalya)
+  'Serie A': '207',
+  'Italian Serie A': '207',
+  
+  // 5. Ligue 1 (Fransa)
   'Ligue 1': '168',
-  'Turkish Super League': '340',
-  'Russian Premier League': '344',
-  'English Premier League': '152'
+  'French Ligue 1': '168',
+  
+  // 6. Süper Lig (Türkiye)
+  'Süper Lig': '322',
+  'Turkish Super League': '322',
+  'Super Lig': '322',
+  
+  // 7. Eredivisie (Hollanda)
+  'Eredivisie': '137',
+  'Dutch Eredivisie': '137',
+  
+  // 8. Primeira Liga (Portekiz)
+  'Primeira Liga': '94',
+  'Portuguese Primeira Liga': '94',
+  
+  // 9. Major League Soccer (ABD)
+  'Major League Soccer': '253',
+  'MLS': '253',
+  
+  // 10. Brasileirão (Brezilya)
+  'Brasileirão': '71',
+  'Brazilian Brasileirão': '71',
+  
+  // 11. Argentine Primera División
+  'Argentine Primera División': '26',
+  'Argentine Primera Division': '26',
+  
+  // 12. Saudi Pro League
+  'Saudi Pro League': '350',
+  
+  // 13. Chinese Super League
+  'Chinese Super League': '169',
+  
+  // 14. Champions League (Avrupa)
+  'Champions League': '3',
+  'UEFA Champions League': '3',
+  
+  // 15. Europa League (Avrupa)
+  'Europa League': '4',
+  'UEFA Europa League': '4',
+  
+  // 16. Conference League (Avrupa)
+  'Conference League': '848',
+  'UEFA Conference League': '848'
 };
 
 // League ID to proper league name mapping

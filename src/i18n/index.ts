@@ -379,9 +379,16 @@ export const translations: Record<string, Translations> = {
   mk: { live: 'ПРЕНОС', finished: 'Завршен', scheduled: 'Насловен', matches: 'НАТПРЕВАРИ', leagues: 'Лиги', today: 'Денес', homeTeam: 'Домаќин', awayTeam: 'Гостин', halfTime: 'Половина време', matchEvents: 'Настани од натпреварот', matchDetails: 'Детали од натпреварот', statistics: 'Статистики од натпреварот', close: 'Затвори', noMatches: 'Не се пронајдени натпревари', checkLater: 'Проверете подоцна за ажурирања', liveMatch: 'ПРЕНОС', matchesCount: 'НАТПРЕВАРИ', appTitle: 'Пренос Резултати од Фудбал', todaysMatches: 'Денешни Натпревари' }
 };
 
-// Get current language from subdomain
+// Get current language from subdomain or localStorage
 export const getCurrentLanguage = (): string => {
   if (typeof window === 'undefined') return 'en';
+  
+  // First check localStorage for user's saved language preference
+  const savedLanguage = localStorage.getItem('golivo-language');
+  if (savedLanguage && supportedLanguages.find(lang => lang.code === savedLanguage)) {
+    console.log('🌍 Using saved language preference:', savedLanguage);
+    return savedLanguage;
+  }
   
   const hostname = window.location.hostname;
   console.log('🌍 Checking hostname:', hostname);
@@ -412,19 +419,14 @@ export const getCurrentLanguage = (): string => {
     return 'en';
   }
   
-  // Main domain - check for saved user preference
-  if (hostname === 'golivo.app' || hostname === 'www.golivo.app' || hostname === 'golivo.netlify.app') {
-    const savedLanguage = localStorage.getItem('golivo-language');
-    if (savedLanguage && supportedLanguages.find(lang => lang.code === savedLanguage)) {
-      console.log('🌍 Using saved user language preference:', savedLanguage);
-      return savedLanguage;
-    }
-    console.log('🌍 Main domain detected, defaulting to English');
-    return 'en'; // Default to English for maximum global reach
+  // Main domain - ALWAYS use English for global reach
+  if (hostname === 'golivo.app' || hostname === 'www.golivo.app' || hostname === 'golivo.netlify.app' || hostname.includes('.netlify.app')) {
+    console.log('🌍 Main domain detected, using English for global reach');
+    return 'en'; // Always English for maximum global reach
   }
   
   console.log('🌍 No subdomain language found, defaulting to English');
-  return 'en'; // Default to English for maximum global reach
+  return 'en'; // Always English for maximum global reach
 };
 
 // Get translations for current language
