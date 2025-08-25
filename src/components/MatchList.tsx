@@ -8,13 +8,21 @@ import { sortedLeagues, priorityLeagues } from '../data/leagues';
 
 interface MatchListProps {
   matches: any[];
-  loading: boolean;
-  selectedLeague: string;
-  selectedDate: string;
-  translations: Translations;
+  onMatchClick?: (match: any) => void;
+  selectedDate?: string;
+  loading?: boolean;
+  selectedLeague?: string;
+  translations?: any;
 }
 
-export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selectedLeague, selectedDate, translations }) => {
+export const MatchList: React.FC<MatchListProps> = ({ 
+  matches, 
+  onMatchClick, 
+  selectedDate = new Date().toISOString().split('T')[0], 
+  loading = false, 
+  selectedLeague = 'all', 
+  translations 
+}) => {
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -47,16 +55,21 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, loading, selected
   const handleMatchClick = useCallback((match: any) => {
     try {
       if (match && match.id) {
-        // Derin kopyalama yerine doğrudan atama
-        setSelectedMatch(match);
-        setIsModalOpen(true);
+        // Eğer dışarıdan onMatchClick prop'u verilmişse onu kullan
+        if (onMatchClick) {
+          onMatchClick(match);
+        } else {
+          // Yoksa local state'i kullan
+          setSelectedMatch(match);
+          setIsModalOpen(true);
+        }
       }
     } catch (error) {
       console.error('Maç tıklama hatası:', error);
       setIsModalOpen(false);
       setSelectedMatch(null);
     }
-  }, []);
+  }, [onMatchClick]);
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);

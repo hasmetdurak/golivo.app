@@ -4,203 +4,278 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { MatchList } from './components/MatchList';
+import { MatchDetailsModal } from './components/MatchDetailsModal';
 import { LeagueStandings } from './components/LeagueStandings';
 import { TeamDashboard } from './components/TeamDashboard';
-import { PlayerStatistics } from './components/PlayerStatistics';
-import { StatisticsDashboard } from './components/StatisticsDashboard';
-import { CountryDashboard } from './components/CountryDashboard';
 import { FootballApi } from './services/api';
+import { Match } from './types';
 import { useTranslation } from './i18n/useTranslation';
-import { initGeoRedirect } from './utils/geoRedirect';
 import SEO from './components/SEO';
+import './App.css';
 
 function App() {
-  const { t, currentLang } = useTranslation();
-  const [selectedLeague, setSelectedLeague] = useState('all');
-  const [liveMatches, setLiveMatches] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [currentView, setCurrentView] = useState('scores'); // New state for view management
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [liveMatchesCount, setLiveMatchesCount] = useState(0);
+  const [topLeagues, setTopLeagues] = useState<any[]>([]);
+  const [quickStats, setQuickStats] = useState({
+    totalMatches: 0,
+    liveMatches: 0,
+    finishedMatches: 0,
+    upcomingMatches: 0
+  });
+
+  const { t } = useTranslation();
+
+  const fetchLiveMatches = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log('🌍 GeoIP redirect is disabled, using manual language selection');
+      
+      const data = await FootballApi.getLiveMatches('all', selectedDate);
+      setMatches(data as Match[]);
+      
+      // İstatistikleri hesapla
+      const stats = {
+        totalMatches: data.length,
+        liveMatches: data.filter(m => m.status === 'live').length,
+        finishedMatches: data.filter(m => m.status === 'finished').length,
+        upcomingMatches: data.filter(m => m.status === 'scheduled').length
+      };
+      setQuickStats(stats);
+      setLiveMatchesCount(stats.liveMatches);
+      
+      // Top ligleri hesapla
+      const leagueStats = data.reduce((acc: any, match) => {
+        if (!acc[match.league]) {
+          acc[match.league] = {
+            name: match.league,
+            matchCount: 0,
+            liveCount: 0,
+            country: match.country || 'Unknown'
+          };
+        }
+        acc[match.league].matchCount++;
+        if (match.status === 'live') {
+          acc[match.league].liveCount++;
+        }
+        return acc;
+      }, {});
+      
+      const sortedLeagues = Object.values(leagueStats)
+        .sort((a: any, b: any) => b.liveCount - a.liveCount || b.matchCount - a.matchCount)
+        .slice(0, 5);
+      
+      setTopLeagues(sortedLeagues);
+      
+    } catch (err) {
+      console.error('Error fetching matches:', err);
+      setError('Maç verileri yüklenirken bir hata oluştu');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
-    
-    // GeoIP disabled - using manual language selection
-    console.log('🌍 GeoIP redirect disabled - using manual language selection');
-  }, []); // Empty dependency array to run only once
-
-  useEffect(() => {
-    // Fetch data based on current view
-    if (currentView === 'scores') {
+    if (currentView === 'dashboard' || currentView === 'scores') {
       fetchLiveMatches();
     }
   }, [selectedDate, currentView]);
 
-  const fetchLiveMatches = async () => {
-    if (currentView !== 'scores') return; // Only fetch when in scores view
-    
-    console.log('fetchLiveMatches called, setting loading=true');
-    setLoading(true);
-    setError(null); // Clear previous errors
-    
-    try {
-      console.log('Fetching all matches for date:', selectedDate);
-      const matches = await FootballApi.getLiveMatches('all', selectedDate);
-      console.log('Received matches:', matches.length, matches);
-      setLiveMatches(matches);
-    } catch (error) {
-      console.error('Error loading matches:', error);
-      setLiveMatches([]);
-      setError('Failed to load matches. Please try again later.');
-    } finally {
-      console.log('fetchLiveMatches completed, setting loading=false');
-      setLoading(false);
-    }
+  const handleMatchClick = (match: Match) => {
+    setSelectedMatch(match);
+    setIsModalOpen(true);
   };
 
-  const testApiCall = async () => {
-    console.log('🗋 Test API çağrısı başlatılıyor...');
-    try {
-      const response = await fetch(`https://apiv3.apifootball.com/?action=get_events&from=${selectedDate}&to=${selectedDate}&APIkey=47746f324863a1c7321a4b137847eba9e647469c8eacced9ca6175bbbadf5c2d`);
-      const data = await response.json();
-      console.log('🗋 Test API yanıtı:', data.length, 'maç bulundu');
-      console.log('🗋 İlk maç:', data[0]);
-    } catch (error) {
-      console.error('🗋 Test API hatası:', error);
-    }
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMatch(null);
   };
 
   // Render different views based on currentView state
   const renderMainContent = () => {
     switch (currentView) {
-      case 'news':
+      case 'dashboard':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              📰 {currentLang === 'tr' ? 'Futbol Haberleri' : 
-                   currentLang === 'de' ? 'Fußball-Nachrichten' :
-                   currentLang === 'es' ? 'Noticias de Fútbol' :
-                   currentLang === 'fr' ? 'Actualités Football' :
-                   currentLang === 'it' ? 'Notizie Calcio' :
-                   currentLang === 'pt' ? 'Notícias de Futebol' :
-                   currentLang === 'ru' ? 'Футбольные Новости' :
-                   currentLang === 'ar' ? 'أخبار كرة القدم' :
-                   'Football News'}
+          <>
+            {/* Modern Dashboard Header */}
+            <div className="mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                {/* Canlı Maçlar Kartı */}
+                <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-xl shadow-red-500/25">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-red-100 text-sm font-medium">Canlı Maçlar</p>
+                      <p className="text-3xl font-bold">{liveMatchesCount}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Toplam Maçlar Kartı */}
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl shadow-blue-500/25">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-100 text-sm font-medium">Toplam Maçlar</p>
+                      <p className="text-3xl font-bold">{quickStats.totalMatches}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <div className="w-6 h-6 bg-white rounded-lg"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bitmiş Maçlar Kartı */}
+                <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl shadow-green-500/25">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm font-medium">Bitmiş Maçlar</p>
+                      <p className="text-3xl font-bold">{quickStats.finishedMatches}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <div className="w-4 h-4 bg-white rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gelecek Maçlar Kartı */}
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl shadow-purple-500/25">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-sm font-medium">Gelecek Maçlar</p>
+                      <p className="text-3xl font-bold">{quickStats.upcomingMatches}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <div className="w-4 h-4 bg-white rounded-sm"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Ligler */}
+              {topLeagues.length > 0 && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg mr-3 flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-sm"></div>
+                    </div>
+                    En Aktif Ligler
             </h2>
-            <p className="text-gray-600">
-              {currentLang === 'tr' ? 'En son futbol haberleri yakında...' : 
-               currentLang === 'de' ? 'Neueste Fußball-Nachrichten kommen bald...' :
-               currentLang === 'es' ? 'Las últimas noticias de fútbol próximamente...' :
-               currentLang === 'fr' ? 'Dernières actualités football bientôt...' :
-               currentLang === 'it' ? 'Ultime notizie calcio in arrivo...' :
-               currentLang === 'pt' ? 'Últimas notícias de futebol em breve...' :
-               currentLang === 'ru' ? 'Последние футбольные новости скоро...' :
-               currentLang === 'ar' ? 'آخر أخبار كرة القدم قريباً...' :
-               'Latest football news coming soon...'}
-            </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {topLeagues.map((league: any, index) => (
+                      <div key={index} className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-200/50 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-900">{league.name}</span>
+                          <span className="text-xs text-gray-500">{league.country}</span>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-gray-600">{league.liveCount} canlı</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                            <span className="text-xs text-gray-600">{league.matchCount} maç</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <p className="text-red-800 font-medium">{error}</p>
+                </div>
           </div>
+            )}
+
+            {/* Loading State */}
+            {isLoading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-blue-200 rounded-full"></div>
+                  <div className="absolute top-0 left-0 w-12 h-12 border-4 border-blue-600 rounded-full animate-spin border-t-transparent"></div>
+          </div>
+          </div>
+            )}
+
+            {/* Match List */}
+            {!isLoading && (
+              <MatchList 
+                matches={matches} 
+                onMatchClick={handleMatchClick}
+                selectedDate={selectedDate}
+              />
+            )}
+          </>
         );
-      case 'analysis':
+      case 'scores':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              🎯 {currentLang === 'tr' ? 'Maç Analizi' : 
-                   currentLang === 'de' ? 'Spielanalyse' :
-                   currentLang === 'es' ? 'Análisis de Partidos' :
-                   currentLang === 'fr' ? 'Analyse de Match' :
-                   currentLang === 'it' ? 'Analisi Partite' :
-                   currentLang === 'pt' ? 'Análise de Jogos' :
-                   currentLang === 'ru' ? 'Анализ Матчей' :
-                   currentLang === 'ar' ? 'تحليل المباريات' :
-                   'Match Analysis'}
-            </h2>
-            <p className="text-gray-600">
-              {currentLang === 'tr' ? 'Profesyonel maç analizleri yakında...' : 
-               currentLang === 'de' ? 'Professionelle Spielanalysen kommen bald...' :
-               currentLang === 'es' ? 'Análisis profesional de partidos próximamente...' :
-               currentLang === 'fr' ? 'Analyses professionnelles de matchs bientôt...' :
-               currentLang === 'it' ? 'Analisi professionali delle partite in arrivo...' :
-               currentLang === 'pt' ? 'Análise profissional de jogos em breve...' :
-               currentLang === 'ru' ? 'Профессиональный анализ матчей скоро...' :
-               currentLang === 'ar' ? 'تحليل مهني للمباريات قريباً...' :
-               'Professional match analysis coming soon...'}
-            </p>
-          </div>
-        );
-      case 'contact':
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              💬 {currentLang === 'tr' ? 'İletişim' : 
-                   currentLang === 'de' ? 'Kontakt' :
-                   currentLang === 'es' ? 'Contacto' :
-                   currentLang === 'fr' ? 'Contact' :
-                   currentLang === 'it' ? 'Contatti' :
-                   currentLang === 'pt' ? 'Contato' :
-                   currentLang === 'ru' ? 'Контакты' :
-                   currentLang === 'ar' ? 'اتصل بنا' :
-                   'Contact Us'}
-            </h2>
-            <p className="text-gray-600">
-              {currentLang === 'tr' ? 'Bizimle iletişime geçin...' : 
-               currentLang === 'de' ? 'Nehmen Sie Kontakt mit uns auf...' :
-               currentLang === 'es' ? 'Ponte en contacto con nosotros...' :
-               currentLang === 'fr' ? 'Entrez en contact avec nous...' :
-               currentLang === 'it' ? 'Mettiti in contatto con noi...' :
-               currentLang === 'pt' ? 'Entre em contato conosco...' :
-               currentLang === 'ru' ? 'Свяжитесь с нами...' :
-               currentLang === 'ar' ? 'تواصل معنا...' :
-               'Get in touch with us...'}
-            </p>
-          </div>
-        );
-      case 'leagues':
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">🏆 Leagues</h2>
-            <p className="text-gray-600">This section will be completed soon...</p>
-          </div>
+          <MatchList 
+            matches={matches} 
+            onMatchClick={handleMatchClick}
+            selectedDate={selectedDate}
+          />
         );
       case 'standings':
         return <LeagueStandings />;
       case 'teams':
         return <TeamDashboard />;
       case 'players':
-        return <PlayerStatistics />;
-      case 'statistics':
-        return <StatisticsDashboard />;
-      case 'countries':
-        return <CountryDashboard />;
-      case 'scores':
+        return (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg mr-3 flex items-center justify-center">
+                <div className="w-4 h-4 bg-white rounded-full"></div>
+              </div>
+              Oyuncular
+            </h2>
+            <p className="text-gray-600">Oyuncu istatistikleri yakında eklenecek...</p>
+          </div>
+        );
+      case 'news':
+        return (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg mr-3 flex items-center justify-center">
+                <div className="w-4 h-4 bg-white rounded-sm"></div>
+              </div>
+              Futbol Haberleri
+            </h2>
+            <p className="text-gray-600">En son futbol haberleri yakında eklenecek...</p>
+          </div>
+        );
       default:
         return (
           <MatchList 
-            matches={liveMatches}
-            loading={loading}
-            selectedLeague={selectedLeague}
+            matches={matches} 
+            onMatchClick={handleMatchClick}
             selectedDate={selectedDate}
-            translations={t}
           />
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <SEO />
-      {/* Debug info - will remove later */}
-      {import.meta.env.DEV && (
-        <div className="bg-yellow-100 p-2 text-xs flex items-center space-x-4">
-          <span>Debug: Loading={loading ? 'true' : 'false'}, Matches={liveMatches.length}, Date={selectedDate}</span>
-          <button 
-            onClick={testApiCall}
-            className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
-          >
-            Test API
-          </button>
-        </div>
-      )}
       
       <Header 
         selectedDate={selectedDate}
@@ -209,38 +284,18 @@ function App() {
         onViewChange={setCurrentView}
       />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="space-y-4">
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-                <div className="ml-auto pl-3">
-                  <button
-                    onClick={() => setError(null)}
-                    className="text-red-400 hover:text-red-600"
-                  >
-                    <span className="sr-only">Dismiss</span>
-                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {renderMainContent()}
-        </div>
       </main>
+
+      {/* Match Details Modal */}
+      {selectedMatch && (
+        <MatchDetailsModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          match={selectedMatch}
+        />
+      )}
     </div>
   );
 }

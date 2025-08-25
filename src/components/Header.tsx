@@ -53,13 +53,27 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
-                  <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 via-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
+                  {/* Futbol topu simgesi */}
+                  <div className="relative w-5 h-5 sm:w-6 sm:h-6">
+                    <div className="absolute inset-0 bg-white rounded-full opacity-90"></div>
+                    {/* Top desenleri */}
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gray-800 rounded-full"></div>
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gray-800 rounded-full"></div>
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-gray-800 rounded-full"></div>
+                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-gray-800 rounded-full"></div>
+                    {/* Hız çizgileri */}
+                    <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
+                      <div className="w-0.5 h-1 bg-white rounded-full"></div>
+                      <div className="w-0.5 h-1 bg-white rounded-full"></div>
+                      <div className="w-0.5 h-1 bg-white rounded-full"></div>
+                    </div>
+                  </div>
                 </div>
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg"></div>
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">GoLivo</h1>
+                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent tracking-tight">Golivo</h1>
                 <p className="text-xs text-gray-500 hidden sm:block">Live Football Scores</p>
               </div>
             </div>
@@ -78,21 +92,79 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
               {/* Navigation Menu */}
               <nav className="flex items-center space-x-1">
                 <button 
-                  onClick={() => onViewChange?.('scores')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'scores' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  onClick={() => onViewChange?.('dashboard')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    currentView === 'dashboard' ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  <Trophy className="h-4 w-4 inline mr-1" />
+                  <div className="w-4 h-4 inline mr-1">
+                    <div className="w-full h-full bg-current rounded-sm"></div>
+                  </div>
+                  Dashboard
+                </button>
+                <button 
+                  onClick={() => onViewChange?.('scores')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    currentView === 'scores' ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="relative w-4 h-4 inline mr-1">
+                    <div className="absolute inset-0 bg-current rounded-full"></div>
+                    <div className="absolute top-0.5 left-0.5 w-1 h-1 bg-white rounded-full"></div>
+                    <div className="absolute bottom-0.5 left-0.5 w-1 h-1 bg-white rounded-full"></div>
+                    <div className="absolute left-0.5 top-0.5 w-1 h-1 bg-white rounded-full"></div>
+                    <div className="absolute right-0.5 top-0.5 w-1 h-1 bg-white rounded-full"></div>
+                  </div>
                   {t.matches}
                 </button>
                 <button 
-                  onClick={() => onViewChange?.('news')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'news' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  onClick={() => onViewChange?.('standings')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    currentView === 'standings' ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  <Newspaper className="h-4 w-4 inline mr-1" />
+                  <div className="w-4 h-4 inline mr-1">
+                    <div className="w-full h-1 bg-current rounded-sm mb-0.5"></div>
+                    <div className="w-3/4 h-1 bg-current rounded-sm mb-0.5"></div>
+                    <div className="w-1/2 h-1 bg-current rounded-sm"></div>
+                  </div>
+                  Sıralama
+                </button>
+                <button 
+                  onClick={() => onViewChange?.('teams')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    currentView === 'teams' ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="w-4 h-4 inline mr-1">
+                    <div className="w-2 h-2 bg-current rounded-full mb-0.5"></div>
+                    <div className="w-3 h-2 bg-current rounded-full"></div>
+                  </div>
+                  Takımlar
+                </button>
+                <button 
+                  onClick={() => onViewChange?.('players')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    currentView === 'players' ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="w-4 h-4 inline mr-1">
+                    <div className="w-2 h-2 bg-current rounded-full mb-0.5"></div>
+                    <div className="w-3 h-2 bg-current rounded-full"></div>
+                  </div>
+                  Oyuncular
+                </button>
+                <button 
+                  onClick={() => onViewChange?.('news')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    currentView === 'news' ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="w-4 h-4 inline mr-1">
+                    <div className="w-full h-1 bg-current rounded-sm mb-0.5"></div>
+                    <div className="w-3/4 h-1 bg-current rounded-sm mb-0.5"></div>
+                    <div className="w-1/2 h-1 bg-current rounded-sm"></div>
+                  </div>
                   {currentLang === 'tr' ? 'Haberler' : 
                    currentLang === 'de' ? 'Nachrichten' :
                    currentLang === 'es' ? 'Noticias' :
@@ -100,109 +172,8 @@ export const Header: React.FC<HeaderProps> = ({ selectedDate, onDateChange, curr
                    currentLang === 'it' ? 'Notizie' :
                    currentLang === 'pt' ? 'Notícias' :
                    currentLang === 'ru' ? 'Новости' :
-                   currentLang === 'ar' ? 'الأخبار' :
+                   currentLang === 'ar' ? 'أخبار' :
                    'News'}
-                </button>
-                
-                {/* Stats Dropdown */}
-                <div className="relative">
-                  <button 
-                    onClick={() => setIsStatsDropdownOpen(!isStatsDropdownOpen)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center ${
-                      ['standings', 'teams', 'players', 'statistics', 'leagues', 'countries'].includes(currentView || '') 
-                        ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <BarChart3 className="h-4 w-4 mr-1" />
-                    {currentLang === 'tr' ? 'İstatistikler' : 
-                     currentLang === 'de' ? 'Statistiken' :
-                     currentLang === 'es' ? 'Estadísticas' :
-                     currentLang === 'fr' ? 'Statistiques' :
-                     currentLang === 'it' ? 'Statistiche' :
-                     currentLang === 'pt' ? 'Estatísticas' :
-                     currentLang === 'ru' ? 'Статистика' :
-                     currentLang === 'ar' ? 'الإحصائيات' :
-                     'Stats'}
-                    <ChevronDown className="h-4 w-4 ml-1" />
-                  </button>
-                  
-                  {isStatsDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                      <div className="py-1">
-                        <button
-                          onClick={() => { onViewChange?.('standings'); setIsStatsDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          League Tables
-                        </button>
-                        <button
-                          onClick={() => { onViewChange?.('teams'); setIsStatsDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Teams
-                        </button>
-                        <button
-                          onClick={() => { onViewChange?.('players'); setIsStatsDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Players
-                        </button>
-                        <button
-                          onClick={() => { onViewChange?.('statistics'); setIsStatsDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Advanced Stats
-                        </button>
-                        <button
-                          onClick={() => { onViewChange?.('leagues'); setIsStatsDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Leagues
-                        </button>
-                        <button
-                          onClick={() => { onViewChange?.('countries'); setIsStatsDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Countries
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <button 
-                  onClick={() => onViewChange?.('analysis')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'analysis' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Target className="h-4 w-4 inline mr-1" />
-                  {currentLang === 'tr' ? 'Analiz' : 
-                   currentLang === 'de' ? 'Analyse' :
-                   currentLang === 'es' ? 'Análisis' :
-                   currentLang === 'fr' ? 'Analyse' :
-                   currentLang === 'it' ? 'Analisi' :
-                   currentLang === 'pt' ? 'Análise' :
-                   currentLang === 'ru' ? 'Анализ' :
-                   currentLang === 'ar' ? 'تحليل' :
-                   'Analysis'}
-                </button>
-                <button 
-                  onClick={() => onViewChange?.('contact')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    currentView === 'contact' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <MessageCircle className="h-4 w-4 inline mr-1" />
-                  {currentLang === 'tr' ? 'İletişim' : 
-                   currentLang === 'de' ? 'Kontakt' :
-                   currentLang === 'es' ? 'Contacto' :
-                   currentLang === 'fr' ? 'Contact' :
-                   currentLang === 'it' ? 'Contatti' :
-                   currentLang === 'pt' ? 'Contato' :
-                   currentLang === 'ru' ? 'Контакты' :
-                   currentLang === 'ar' ? 'اتصل بنا' :
-                   'Contact Us'}
                 </button>
               </nav>
               
