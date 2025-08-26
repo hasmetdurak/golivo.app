@@ -5,6 +5,7 @@
 [build.environment]
   NODE_VERSION = "18"
   NETLIFY_BUILD_CACHE = "false"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 [[redirects]]
   from = "/yandex_3781a3df7bd9998e.html"

@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "deployTrigger": "2024-08-23-force-sync",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,7 +15,7 @@
     "preview": "vite preview",
     "vercel-build": "npm run build",
     "seo:generate": "node scripts/seo-system.cjs generate",
-    "seo:ping": "node scripts/seo-system.cjs ping",
+    "seo:ping": "node scripts/seo-pinger.js",
     "seo:full": "node scripts/seo-system.cjs full",
     "sitemap:generate": "node scripts/sitemap-generator.js",
     "sitemap:update": "node scripts/update-sitemaps.js",
