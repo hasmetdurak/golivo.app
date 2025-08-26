@@ -1,181 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NewHeader } from './components/NewHeader';
 import { NewMatchList } from './components/NewMatchList';
 import { LeagueStandings } from './components/LeagueStandings';
 import { TeamDashboard } from './components/TeamDashboard';
+import { PlayerStatistics } from './components/PlayerStatistics';
+import { StatisticsDashboard } from './components/StatisticsDashboard';
+import { CountryDashboard } from './components/CountryDashboard';
 import { FootballApi } from './services/api';
-import { Match } from './types';
 import { useTranslation } from './i18n/useTranslation';
+import { initGeoRedirect } from './utils/geoRedirect';
 import SEO from './components/SEO';
 import { TestConnection } from './components/TestConnection';
 
 function App() {
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t, currentLang } = useTranslation();
+  const [selectedLeague, setSelectedLeague] = useState('all');
+  const [liveMatches, setLiveMatches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [isLoading, setIsLoading] = useState(true);
+  const [currentView, setCurrentView] = useState('scores'); // New state for view management
   const [error, setError] = useState<string | null>(null);
-  const [liveMatchesCount, setLiveMatchesCount] = useState(0);
-  const [topLeagues, setTopLeagues] = useState<any[]>([]);
-  const [quickStats, setQuickStats] = useState({
-    totalMatches: 0,
-    liveMatches: 0,
-    finishedMatches: 0,
-    upcomingMatches: 0
-  });
-
-  const { t } = useTranslation();
-
-  const fetchLiveMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      console.log('🌍 GeoIP redirect is disabled, using manual language selection');
-      
-      const data = await FootballApi.getLiveMatches('all', selectedDate);
-      
-      // API'den gelen veriyi Match tipine dönüştür
-      const normalizedMatches: Match[] = data.map((match: any) => ({
-        id: match.id || '',
-        league: match.league || 'Bilinmeyen Lig',
-        country: match.country || '',
-        status: match.status || 'scheduled',
-        time: match.time || '',
-        venue: match.venue || '',
-        homeTeam: {
-          name: match.homeTeam?.name || 'Ev Sahibi',
-          logo: match.homeTeam?.logo || '',
-          country: match.homeTeam?.country || ''
-        },
-        awayTeam: {
-          name: match.awayTeam?.name || 'Deplasman',
-          logo: match.awayTeam?.logo || '',
-          country: match.awayTeam?.country || ''
-        },
-        homeScore: match.homeScore || 0,
-        awayScore: match.awayScore || 0,
-        halftimeScore: {
-          home: 0,
-          away: 0
-        },
-        events: [],
-        statistics: [],
-        minute: match.minute,
-        referee: match.referee
-      }));
-      
-      setMatches(normalizedMatches);
-      
-      // İstatistikleri hesapla
-      const stats = {
-        totalMatches: normalizedMatches.length,
-        liveMatches: normalizedMatches.filter(m => m.status === 'live').length,
-        finishedMatches: normalizedMatches.filter(m => m.status === 'finished').length,
-        upcomingMatches: normalizedMatches.filter(m => m.status === 'scheduled').length
-      };
-      setQuickStats(stats);
-      setLiveMatchesCount(stats.liveMatches);
-      
-      // Top ligleri hesapla
-      const leagueStats = normalizedMatches.reduce((acc: any, match) => {
-        if (!acc[match.league]) {
-          acc[match.league] = {
-            name: match.league,
-            matchCount: 0,
-            liveCount: 0,
-            country: match.country || 'Unknown'
-          };
-        }
-        acc[match.league].matchCount++;
-        if (match.status === 'live') {
-          acc[match.league].liveCount++;
-        }
-        return acc;
-      }, {});
-      
-      const sortedLeagues = Object.values(leagueStats)
-        .sort((a: any, b: any) => b.liveCount - a.liveCount || b.matchCount - a.matchCount)
-        .slice(0, 5);
-      
-      setTopLeagues(sortedLeagues);
-      
-    } catch (err) {
-      console.error('Error fetching matches:', err);
-      setError('Maç verileri yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedDate]);
 
   useEffect(() => {
-    if (currentView === 'dashboard' || currentView === 'scores') {
+    console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
+    
+    // GeoIP disabled - using manual language selection
+    console.log('🌍 GeoIP redirect disabled - using manual language selection');
+  }, []); // Empty dependency array to run only once
+
+  useEffect(() => {
+    // Fetch data based on current view
+    if (currentView === 'scores') {
       fetchLiveMatches();
     }
-  }, [selectedDate, currentView, fetchLiveMatches]);
+  }, [selectedDate, currentView]);
 
-  // Otomatik yenileme - canlı maçlar için
-  useEffect(() => {
-    if (liveMatchesCount > 0) {
-      const interval = setInterval(() => {
-        fetchLiveMatches();
-      }, 30000); // 30 saniyede bir yenile
-
-      return () => clearInterval(interval);
-    }
-  }, [liveMatchesCount, fetchLiveMatches]);
-
-  const handleMatchClick = useCallback((match: Match) => {
+  const fetchLiveMatches = async () => {
+    if (currentView !== 'scores') return; // Only fetch when in scores view
+    
+    console.log('fetchLiveMatches called, setting loading=true');
+    setLoading(true);
+    setError(null); // Clear previous errors
+    
     try {
-      console.log('Maç seçildi:', match.id);
-      setSelectedMatch(match);
-      setIsModalOpen(true);
+      console.log('Fetching all matches for date:', selectedDate);
+      const matches = await FootballApi.getLiveMatches('all', selectedDate);
+      console.log('Received matches:', matches.length, matches);
+      setLiveMatches(matches);
     } catch (error) {
-      console.error('Maç tıklama hatası:', error);
-      alert('Maç detayları açılırken bir hata oluştu. Lütfen tekrar deneyin.');
+      console.error('Error loading matches:', error);
+      setLiveMatches([]);
+      setError('Failed to load matches. Please try again later.');
+    } finally {
+      console.log('fetchLiveMatches completed, setting loading=false');
+      setLoading(false);
     }
-  }, []);
+  };
 
-  const handleCloseModal = useCallback(() => {
+  const testApiCall = async () => {
+    console.log('🗋 Test API çağrısı başlatılıyor...');
     try {
-      setIsModalOpen(false);
-      // Kısa bir gecikme ile state'i temizle
-      setTimeout(() => {
-        setSelectedMatch(null);
-      }, 300);
+      const response = await fetch(`https://apiv3.apifootball.com/?action=get_events&from=${selectedDate}&to=${selectedDate}&APIkey=47746f324863a1c7321a4b137847eba9e647469c8eacced9ca6175bbbadf5c2d`);
+      const data = await response.json();
+      console.log('🗋 Test API yanıtı:', data.length, 'maç bulundu');
+      console.log('🗋 İlk maç:', data[0]);
     } catch (error) {
-      console.error('Modal kapatma hatası:', error);
-      // Hata durumunda zorla kapat
-      setIsModalOpen(false);
-      setSelectedMatch(null);
+      console.error('🗋 Test API hatası:', error);
     }
-  }, []);
+  };
 
-<<<<<<< HEAD
-  const handleDateChange = useCallback((date: string) => {
-    setSelectedDate(date);
-  }, []);
-
-  const handleViewChange = useCallback((view: string) => {
-    setCurrentView(view);
-  }, []);
-
-  // Hata durumunda yeniden deneme
-  const handleRetry = useCallback(() => {
-    setError(null);
-    fetchLiveMatches();
-  }, [fetchLiveMatches]);
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
-      <SEO 
-        title="GoLivo - Canlı Futbol Skorları ve İstatistikler"
-        description="En güncel canlı futbol skorları, maç istatistikleri, lig sıralamaları ve oyuncu performansları. Premier Lig, La Liga, Bundesliga ve daha fazlası."
-        keywords="canlı skor, futbol, maç sonuçları, lig sıralaması, istatistikler"
-      />
-=======
   // Render different views based on currentView state
   const renderMainContent = () => {
     switch (currentView) {
@@ -314,25 +207,13 @@ function App() {
           </button>
         </div>
       )}
->>>>>>> 9b5d802
       
       <NewHeader 
         selectedDate={selectedDate}
-        onDateChange={handleDateChange}
+        onDateChange={setSelectedDate}
         currentView={currentView}
-        onViewChange={handleViewChange}
+        onViewChange={setCurrentView}
       />
-<<<<<<< HEAD
-
-      <main className="container mx-auto px-4 py-6">
-        {/* Hata mesajı */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">!</span>
-=======
       
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-4">
@@ -344,161 +225,28 @@ function App() {
                   <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
->>>>>>> 9b5d802
                 </div>
-                <span className="text-red-800 font-medium">{error}</span>
-              </div>
-              <button
-                onClick={handleRetry}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Tekrar Dene
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Ana içerik */}
-        {currentView === 'dashboard' && (
-          <div className="space-y-6">
-            {/* Hızlı istatistikler */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl p-6 shadow-sm border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Toplam Maç</p>
-                    <p className="text-2xl font-bold text-gray-900">{quickStats.totalMatches}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-blue-600 text-xl">⚽</span>
-                  </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-800">{error}</p>
                 </div>
-              </div>
-              
-              <div className="bg-white rounded-xl p-6 shadow-sm border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Canlı Maç</p>
-                    <p className="text-2xl font-bold text-red-600">{quickStats.liveMatches}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl p-6 shadow-sm border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Tamamlanan</p>
-                    <p className="text-2xl font-bold text-gray-900">{quickStats.finishedMatches}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-600 text-xl">🏁</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl p-6 shadow-sm border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Başlayacak</p>
-                    <p className="text-2xl font-bold text-blue-600">{quickStats.upcomingMatches}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-blue-600 text-xl">⏰</span>
-                  </div>
+                <div className="ml-auto pl-3">
+                  <button
+                    onClick={() => setError(null)}
+                    className="text-red-400 hover:text-red-600"
+                  >
+                    <span className="sr-only">Dismiss</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
-
-            {/* Top ligler */}
-            {topLeagues.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Popüler Ligler</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {topLeagues.map((league, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{league.name}</p>
-                        <p className="text-sm text-gray-600">{league.country}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-blue-600">{league.matchCount}</p>
-                        <p className="text-xs text-gray-500">maç</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Maç listesi */}
-            <div className="bg-white rounded-xl shadow-sm border">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">Günün Maçları</h2>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => handleDateChange(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div className="p-6">
-                <MatchList
-                  matches={matches}
-                  onMatchClick={handleMatchClick}
-                  selectedDate={selectedDate}
-                  loading={isLoading}
-                  translations={t}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === 'scores' && (
-          <div className="bg-white rounded-xl shadow-sm border">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Canlı Skorlar</h2>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => handleDateChange(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="p-6">
-              <MatchList
-                matches={matches}
-                onMatchClick={handleMatchClick}
-                selectedDate={selectedDate}
-                loading={isLoading}
-                translations={t}
-              />
-            </div>
-          </div>
-        )}
-
-        {currentView === 'standings' && (
-          <LeagueStandings />
-        )}
-
-        {currentView === 'teams' && (
-          <TeamDashboard />
-        )}
+          )}
+          
+          {renderMainContent()}
+        </div>
       </main>
-
-      {/* Maç detay modalı */}
-      <MatchDetailsModal
-        match={selectedMatch}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </div>
   );
 }
