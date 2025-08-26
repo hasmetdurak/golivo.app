@@ -1,9 +1,6 @@
-// GoLivo Modern Football App - Comprehensive Statistical Dashboard
-// Major update: Complete API utilization with visual components
-// Features: Teams, Players, Leagues, Standings, Statistics
 import React, { useState, useEffect } from 'react';
-import { Header } from './components/Header';
-import { MatchList } from './components/MatchList';
+import { NewHeader } from './components/NewHeader';
+import { NewMatchList } from './components/NewMatchList';
 import { LeagueStandings } from './components/LeagueStandings';
 import { TeamDashboard } from './components/TeamDashboard';
 import { PlayerStatistics } from './components/PlayerStatistics';
@@ -13,6 +10,7 @@ import { FootballApi } from './services/api';
 import { useTranslation } from './i18n/useTranslation';
 import { initGeoRedirect } from './utils/geoRedirect';
 import SEO from './components/SEO';
+import { TestConnection } from './components/TestConnection';
 
 function App() {
   const { t, currentLang } = useTranslation();
@@ -76,8 +74,8 @@ function App() {
     switch (currentView) {
       case 'news':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="bg-card/60 backdrop-blur-sm border-border/50 rounded-xl shadow-sm p-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-4">
               📰 {currentLang === 'tr' ? 'Futbol Haberleri' : 
                    currentLang === 'de' ? 'Fußball-Nachrichten' :
                    currentLang === 'es' ? 'Noticias de Fútbol' :
@@ -88,7 +86,7 @@ function App() {
                    currentLang === 'ar' ? 'أخبار كرة القدم' :
                    'Football News'}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               {currentLang === 'tr' ? 'En son futbol haberleri yakında...' : 
                currentLang === 'de' ? 'Neueste Fußball-Nachrichten kommen bald...' :
                currentLang === 'es' ? 'Las últimas noticias de fútbol próximamente...' :
@@ -103,8 +101,8 @@ function App() {
         );
       case 'analysis':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="bg-card/60 backdrop-blur-sm border-border/50 rounded-xl shadow-sm p-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-4">
               🎯 {currentLang === 'tr' ? 'Maç Analizi' : 
                    currentLang === 'de' ? 'Spielanalyse' :
                    currentLang === 'es' ? 'Análisis de Partidos' :
@@ -115,7 +113,7 @@ function App() {
                    currentLang === 'ar' ? 'تحليل المباريات' :
                    'Match Analysis'}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               {currentLang === 'tr' ? 'Profesyonel maç analizleri yakında...' : 
                currentLang === 'de' ? 'Professionelle Spielanalysen kommen bald...' :
                currentLang === 'es' ? 'Análisis profesional de partidos próximamente...' :
@@ -130,8 +128,8 @@ function App() {
         );
       case 'contact':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="bg-card/60 backdrop-blur-sm border-border/50 rounded-xl shadow-sm p-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-4">
               💬 {currentLang === 'tr' ? 'İletişim' : 
                    currentLang === 'de' ? 'Kontakt' :
                    currentLang === 'es' ? 'Contacto' :
@@ -142,7 +140,7 @@ function App() {
                    currentLang === 'ar' ? 'اتصل بنا' :
                    'Contact Us'}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               {currentLang === 'tr' ? 'Bizimle iletişime geçin...' : 
                currentLang === 'de' ? 'Nehmen Sie Kontakt mit uns auf...' :
                currentLang === 'es' ? 'Ponte en contacto con nosotros...' :
@@ -157,9 +155,9 @@ function App() {
         );
       case 'leagues':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">🏆 Leagues</h2>
-            <p className="text-gray-600">This section will be completed soon...</p>
+          <div className="bg-card/60 backdrop-blur-sm border-border/50 rounded-xl shadow-sm p-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-4">🏆 Leagues</h2>
+            <p className="text-muted-foreground">This section will be completed soon...</p>
           </div>
         );
       case 'standings':
@@ -175,19 +173,27 @@ function App() {
       case 'scores':
       default:
         return (
-          <MatchList 
-            matches={liveMatches}
-            loading={loading}
-            selectedLeague={selectedLeague}
-            selectedDate={selectedDate}
-            translations={t}
-          />
+          <>
+            <NewMatchList 
+              matches={liveMatches}
+              loading={loading}
+              selectedLeague={selectedLeague}
+              selectedDate={selectedDate}
+              translations={t}
+            />
+            {/* Test Connection Component for debugging */}
+            {import.meta.env.DEV && (
+              <div className="mt-8">
+                <TestConnection />
+              </div>
+            )}
+          </>
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEO />
       {/* Debug info - will remove later */}
       {import.meta.env.DEV && (
@@ -202,14 +208,14 @@ function App() {
         </div>
       )}
       
-      <Header 
+      <NewHeader 
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
         currentView={currentView}
         onViewChange={setCurrentView}
       />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <main className="container mx-auto px-4 py-8">
         <div className="space-y-4">
           {/* Error Display */}
           {error && (

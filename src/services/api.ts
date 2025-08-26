@@ -770,67 +770,64 @@ const safeApiCall = async <T>(apiCall: () => Promise<T>, fallback: T): Promise<T
 };
 
 export const FootballApi = {
-  async getLiveMatches(selectedLeague: string = 'all', selectedDate?: string): Promise<Match[]> {
-    return safeApiCall(
-      async () => {
-        try {
-          // Use selected date or default to today
-          const targetDate = selectedDate || new Date().toISOString().split('T')[0];
-          
-          let url = `${BASE_URL}/?action=get_events&from=${targetDate}&to=${targetDate}&APIkey=${API_KEY}`;
-          
-          // Add specific league filter if not 'all'
-          if (selectedLeague !== 'all' && LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]) {
-            url += `&league_id=${LEAGUE_IDS[selectedLeague as keyof typeof LEAGUE_IDS]}`;
-          }
-          
-          console.log('🔥 API İsteği:', url);
-          console.log('📅 Seçilen tarih:', targetDate);
-          console.log('📊 Bugünün tarihi:', new Date().toISOString().split('T')[0]);
-          console.log('🎯 Tarih eşleşme:', targetDate === new Date().toISOString().split('T')[0] ? 'EVET' : 'HAYIR');
-          
-          const response = await fetch(url);
-          
-          if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-          }
-          
-          const data: ApiMatch[] = await response.json();
-          console.log('📊 API Yanıtı:', data.length, 'maç bulundu');
-          console.log('🎯 İlk 3 maç örneği:', data.slice(0, 3));
-          
-          if (!Array.isArray(data)) {
-            console.warn('⚠️ API array olmayan veri döndürdü:', data);
-            return getDemoMatches();
-          }
-          
-          const transformedMatches = data.map(transformApiMatch).filter(match => match !== null);
-          console.log('✅ Dönüştürülen maçlar:', transformedMatches.length);
-          
-          // Eğer API'den veri gelmediyse demo verileri döndür
-          if (transformedMatches.length === 0) {
-            console.log('🎭 API boş veri döndürdü, demo veriler yükleniyor...');
-            return getDemoMatches();
-          }
-          
-          return transformedMatches;
-          
-        } catch (error) {
-          console.error('❌ Maç çekme hatası:', error);
-          console.error('🔍 Hata detayı:', error instanceof Error ? error.message : 'Bilinmeyen hata');
-          
-          // İnternet bağlantısı kontrol et
-          if (!navigator.onLine) {
-            console.error('🌐 İnternet bağlantısı yok!');
-          }
-          
-          // Return demo data with Turkish messages
-          console.log('🎭 Demo veriler yükleniyor...');
-          return getDemoMatches();
-        }
-      },
-      getDemoMatches()
-    );
+  async getLiveMatches(league: string = 'all', date: string = new Date().toISOString().split('T')[0]): Promise<any[]> {
+    try {
+      console.log(`⚽ Fetching matches for ${league} on ${date}`);
+      
+      // Use 'all' to get matches from all leagues
+      const url = `${BASE_URL}/?action=get_events&from=${date}&to=${date}&APIkey=${API_KEY}`;
+      
+      console.log('🌍 API Request URL:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('📥 Raw API Response:', data.length, 'matches');
+      
+      // Handle case where API returns an error object instead of array
+      if (!Array.isArray(data)) {
+        console.error('❌ API did not return an array:', data);
+        return [];
+      }
+      
+      // Transform API data to our format
+      const transformedMatches = data.map((match: any) => ({
+        id: match.match_id,
+        league: match.league_name || 'Unknown League',
+        country: match.country_name,
+        status: this.getMatchStatus(match),
+        minute: match.match_live === '1' ? match.match_time : undefined,
+        time: match.match_time,
+        venue: match.match_venue,
+        referee: match.match_referee,
+        round: match.match_round,
+        homeTeam: {
+          name: match.match_hometeam_name,
+          logo: match.team_home_badge
+        },
+        awayTeam: {
+          name: match.match_awayteam_name,
+          logo: match.team_away_badge
+        },
+        homeScore: match.match_hometeam_score !== '' ? parseInt(match.match_hometeam_score) : undefined,
+        awayScore: match.match_awayteam_score !== '' ? parseInt(match.match_awayteam_score) : undefined,
+        isLive: match.match_live === '1',
+        goalscorers: match.goalscorer || [],
+        cards: match.cards || [],
+        statistics: match.statistics || []
+      }));
+      
+      console.log('✅ Transformed matches:', transformedMatches.length);
+      return transformedMatches;
+    } catch (error) {
+      console.error('❌ Error fetching live matches:', error);
+      // Return empty array instead of throwing to prevent app crashes
+      return [];
+    }
   },
 
   async getLiveMatchesOnly(): Promise<Match[]> {
