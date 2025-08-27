@@ -1,4 +1,1 @@
-# Netlify Deploy Trigger
-# Bu dosya Netlify'da yeni bir deploy tetiklemek için oluşturuldu
-# Tarih: $(date)
-# Build cache temizlendi ve App.css dosyası eklendi
+deploy:2025-08-27T17:05:03.9354199+03:00
