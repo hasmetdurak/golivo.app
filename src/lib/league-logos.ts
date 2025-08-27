@@ -1,17 +1,18 @@
 export const leagueLogos: Record<string, string> = {
   // English Leagues
-  "Premier League": "/leagues/premier-league.png",
+  "Premier League": "/leagues/premier-league-2024.svg",
   Championship: "/leagues/premier-league.png",
   "League One": "/leagues/premier-league.png",
 
   // Spanish Leagues
-  "La Liga": "/leagues/la-liga.png",
-  "Segunda División": "/leagues/la-liga.png",
-  LaLiga: "/leagues/la-liga.png",
+  "La Liga": "/leagues/laliga-2024.svg",
+  "Segunda División": "/leagues/laliga-2024.svg",
+  LaLiga: "/leagues/laliga-2024.svg",
+  LALIGA: "/leagues/laliga-2024.svg",
 
   // Italian Leagues
-  "Serie A": "/leagues/serie-a.png",
-  "Serie B": "/leagues/serie-a.png",
+  "Serie A": "/leagues/serie-a-2022.svg",
+  "Serie B": "/leagues/serie-a-2022.svg",
 
   // German Leagues
   Bundesliga: "/leagues/bundesliga.png",
@@ -20,6 +21,12 @@ export const leagueLogos: Record<string, string> = {
   // French Leagues
   "Ligue 1": "/leagues/ligue-1.png",
   "Ligue 2": "/leagues/ligue-1.png",
+
+  // Turkish Leagues
+  "Süper Lig": "/leagues/super-lig.svg",
+  "Super Lig": "/leagues/super-lig.svg",
+  "Trendyol Super Lig": "/leagues/super-lig.svg",
+  "Trendyol Süper Lig": "/leagues/super-lig.svg",
 
   // European Competitions
   "UEFA Champions League": "/leagues/champions-league.png",

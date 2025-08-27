@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LaLiga">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <path d="M160 120h120l-60 72h92l-120 144c-40-48-52-88-28-128l-4-4c-20-20-20-52 0-72z" fill="#ff3b2f"/>
+  <text x="256" y="470" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700" text-anchor="middle" fill="#ff3b2f">LALIGA</text>
+</svg>
+

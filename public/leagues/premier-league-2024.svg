@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Premier League">
+  <rect width="512" height="512" fill="#2a0040"/>
+  <g transform="translate(110,90)">
+    <path d="M180 40c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm-64 96c-35 0-64 29-64 64v48h256v-48c0-35-29-64-64-64h-16l-16 16-16-16h-64z" fill="#ffffff"/>
+  </g>
+  <text x="256" y="470" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700" text-anchor="middle" fill="#ffffff">Premier League</text>
+</svg>
+

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Serie A">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <path d="M256 64l128 112-96 160h-64l-96-160z" fill="#0a74ff"/>
+  <rect x="96" y="448" width="320" height="16" fill="#008e46"/>
+  <rect x="256" y="448" width="160" height="16" fill="#e0001b"/>
+  <text x="256" y="420" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700" text-anchor="middle" fill="#0a2a66">SERIE A</text>
+</svg>
+
