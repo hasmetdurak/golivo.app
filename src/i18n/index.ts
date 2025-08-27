@@ -478,7 +478,17 @@ export const getTranslations = (lang?: string): Translations => {
 // Generate subdomain URL for language
 export const getLanguageUrl = (langCode: string): string => {
   const language = supportedLanguages.find(lang => lang.code === langCode);
-  if (!language) return 'https://en.golivo.app';
-  
+  if (!language) return typeof window !== 'undefined' ? window.location.href : 'https://en.golivo.app';
+
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    // In development/local preview, stay on localhost and just set ?lang=
+    if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', langCode);
+      return url.toString();
+    }
+  }
+
   return `https://${language.subdomain}.golivo.app`;
 };
