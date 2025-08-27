@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trophy, Calendar, ChevronLeft, ChevronRight, Menu, X, BarChart3, MessageCircle, Newspaper, Target, ChevronDown, Globe, Search } from 'lucide-react';
-import { supportedLanguages } from '../i18n';
+import { supportedLanguages, getCurrentLanguage, getLanguageUrl } from '../i18n';
+import { LanguageSelector } from './LanguageSelector';
 
 interface NewHeaderProps {
   selectedDate: string;
@@ -12,7 +13,7 @@ interface NewHeaderProps {
 export function NewHeader({ selectedDate, onDateChange, currentView = 'scores', onViewChange }: NewHeaderProps) {
   const [isStatsDropdownOpen, setIsStatsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState("en");
+  const [currentLanguage, setCurrentLanguage] = useState(getCurrentLanguage());
   const [languageSearch, setLanguageSearch] = useState("");
 
   const formatDate = (dateStr: string) => {
@@ -65,8 +66,8 @@ export function NewHeader({ selectedDate, onDateChange, currentView = 'scores', 
 
   const handleLanguageChange = (lang: any) => {
     setCurrentLanguage(lang.code);
-    // In a real app, this would redirect to the subdomain
-    window.location.reload();
+    const targetUrl = getLanguageUrl(lang.code);
+    window.location.href = targetUrl;
   };
 
   const currentLang = languages.find((lang: any) => lang.code === currentLanguage) || languages[0];
@@ -95,18 +96,10 @@ export function NewHeader({ selectedDate, onDateChange, currentView = 'scores', 
           <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
             {/* Language Selector */}
             <div className="relative">
-              <button 
-                onClick={() => {
-                  // Simple language selector for now
-                  const newLang = currentLanguage === 'en' ? 'tr' : 'en';
-                  setCurrentLanguage(newLang);
-                  window.location.reload();
-                }}
-                className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1 transition-colors"
-              >
-                <Globe className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">{currentLanguage.toUpperCase()}</span>
-              </button>
+              <LanguageSelector
+                currentLang={currentLanguage}
+                onLanguageChange={(code: string) => handleLanguageChange({ code })}
+              />
             </div>
             
             {/* Navigation Menu */}
@@ -247,17 +240,12 @@ export function NewHeader({ selectedDate, onDateChange, currentView = 'scores', 
           {/* Mobile Navigation */}
           <div className="flex md:hidden items-center space-x-3">
             {/* Mobile Language Selector */}
-            <button 
-              onClick={() => {
-                const newLang = currentLanguage === 'en' ? 'tr' : 'en';
-                setCurrentLanguage(newLang);
-                window.location.reload();
-              }}
-              className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 rounded-full px-2 py-1 transition-colors"
-            >
-              <Globe className="h-4 w-4 text-gray-600" />
-              <span className="text-xs font-medium text-gray-700">{currentLanguage.toUpperCase()}</span>
-            </button>
+            <div className="min-w-[90px]">
+              <LanguageSelector
+                currentLang={currentLanguage}
+                onLanguageChange={(code: string) => handleLanguageChange({ code })}
+              />
+            </div>
             
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
