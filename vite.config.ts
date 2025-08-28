@@ -9,7 +9,24 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   build: {
-    // Force cache bust for Vercel/Netlify
-    assetsDir: `assets-${Date.now()}`
+    // Force cache bust for Netlify
+    assetsDir: `assets-${Date.now()}`,
+    // Improve loading
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['lucide-react', '@radix-ui/react-dialog']
+        }
+      }
+    },
+    // Ensure assets are properly inlined
+    assetsInlineLimit: 4096
+  },
+  // Improve dev server stability
+  server: {
+    port: 5173,
+    host: true,
+    strictPort: false
   }
 });

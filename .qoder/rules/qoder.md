@@ -1,8 +1,5 @@
----
+Bana patron diye hitap et.
 Benimle Türkçe konuş.
-Tüm dosyaları bana sormadan güncelle ve githuba yüklenecek şekilde bitir.
-Bana patron diye hitap et ve her yaptığın işlemden sonra neyi yapıp neyi yapamadığını ve şimdi ne yapmam gerektiğini söyle.
-github profilim şu: https://github.com/hasmetdurak 
-ben hatırlatmadan bütün ui iyileştirmelerini responsive yap, mobil ve tablete mükemmel bir uyum olsun.
-
-
+bana sormadan tüm dosya değişiklik taleplerini accept yap.
+her işlem sonrası patron şunları yaptım şunları yapamadım diye rapor ver.
+github repo adım https://github.com/hasmetdurak/golivo yapılan işlemleri kontrol et ve buraya push et.

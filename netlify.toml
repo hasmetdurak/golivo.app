@@ -7,12 +7,27 @@
   NETLIFY_BUILD_CACHE = "false"
   NPM_FLAGS = "--legacy-peer-deps"
 
+# Handle robots.txt and yandex verification file
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+  force = false
+
 [[redirects]]
   from = "/yandex_3781a3df7bd9998e.html"
   to = "/yandex_3781a3df7bd9998e.html"
   status = 200
-  force = true
+  force = false
 
+# Handle all sitemap files
+[[redirects]]
+  from = "/sitemap*.xml"
+  to = "/sitemap*.xml"
+  status = 200
+  force = false
+
+# SPA fallback - this must be last
 [[redirects]]
   from = "/*"
   to = "/index.html"

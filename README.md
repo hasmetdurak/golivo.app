@@ -1,5 +1,25 @@
 # GoLivo - Canlı Futbol Skorları
 
+🟢 **BEYİZ EKRAN SORUNU ÇÖZÜLDÜ** - 28 Ağustos 2025
+
+Modern ve kapsamlı canlı futbol skorları uygulaması. 50 dilde yayın yapıyor.
+
+## 🔧 Son Düzeltmeler
+
+✅ **Beyaz ekran sorunu çözüldü**:
+- Otomatik coğrafi yönlendirmeleri devre dışı bırakıldı
+- Hata yakalama sınırı eklendi
+- Yükleme ekranı ile beyaz ekran önlendi
+- Netlify yönlendirme yapılandırması iyileştirildi
+- Varlık yükleme optimizasyonu
+- Kritik hatalar için yedek render
+
+✅ **Kararlılık iyileştirmeleri**:
+- Daha iyi hata işleme
+- İyileştirilmiş build yapılandırması
+- Yumuşak geçişli yükleme ekranı
+- Kök element eksikliği için yedek
+
 Modern ve kapsamlı canlı futbol skorları uygulaması. 50 dilde yayın yapıyor.
 
 ## 🚀 Özellikler

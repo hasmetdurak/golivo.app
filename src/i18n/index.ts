@@ -459,14 +459,10 @@ export const getCurrentLanguage = (): string => {
     return 'en';
   }
   
-  // Main domain - ALWAYS use English for global reach
-  if (hostname === 'golivo.app' || hostname === 'www.golivo.app' || hostname === 'golivo.netlify.app' || hostname.includes('.netlify.app')) {
-    console.log('🌍 Main domain detected, using English for global reach');
-    return 'en'; // Always English for maximum global reach
-  }
-  
-  console.log('🌍 No subdomain language found, defaulting to English');
-  return 'en'; // Always English for maximum global reach
+  // For ALL domains (including main domain) - ALWAYS use English for stability
+  // This prevents redirect loops and white screen issues
+  console.log('🌍 Using English for maximum stability and global reach');
+  return 'en'; // Always English for maximum global reach and stability
 };
 
 // Get translations for current language

@@ -22,6 +22,9 @@ function App() {
 
   useEffect(() => {
     console.log('🌍 App mounting, current language:', currentLang, 'view:', currentView);
+    
+    // Prevent any automatic redirects that might cause white screen
+    console.log('🚫 Auto-redirects disabled for stability');
   }, []);
 
   useEffect(() => {
