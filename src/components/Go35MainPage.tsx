@@ -49,21 +49,25 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
         matches: [
           {
             id: '1',
-            homeTeam: 'Liverpool',
-            awayTeam: 'Newcastle United',
-            homeScore: 4,
-            awayScore: 2,
-            status: 'finished',
+            homeTeam: 'Manchester City',
+            awayTeam: 'Arsenal', 
+            homeScore: 2,
+            awayScore: 1,
+            isLive: true,
+            minute: 78,
+            status: 'live',
             homeLogo: '/api/placeholder/24/24',
             awayLogo: '/api/placeholder/24/24'
           },
           {
             id: '2',
-            homeTeam: 'West Ham United',
-            awayTeam: 'Brighton & Hove Albion',
-            homeScore: 0,
+            homeTeam: 'Liverpool',
+            awayTeam: 'Chelsea',
+            homeScore: 1,
             awayScore: 0,
-            status: 'finished',
+            isLive: true,
+            minute: 45,
+            status: 'live',
             homeLogo: '/api/placeholder/24/24',
             awayLogo: '/api/placeholder/24/24'
           },
@@ -106,11 +110,13 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
         matches: [
           {
             id: '6',
-            homeTeam: 'Getafe',
-            awayTeam: 'Rayo Vallecano',
-            homeScore: 0,
-            awayScore: 2,
-            status: 'finished',
+            homeTeam: 'Real Madrid',
+            awayTeam: 'Barcelona',
+            homeScore: 1,
+            awayScore: 1,
+            isLive: true,
+            minute: 67,
+            status: 'live',
             homeLogo: '/api/placeholder/24/24',
             awayLogo: '/api/placeholder/24/24'
           },
