@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Settings } from 'lucide-react';
 import { Go35Header } from './Go35Header';
+import { DomainTestComponent } from './DomainTestComponent';
 
 interface Match {
   id: string;
@@ -36,6 +37,7 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
   const [expandedLeagues, setExpandedLeagues] = useState<string[]>(['Premier League', 'La Liga', 'Serie A', 'Bundesliga']);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [leagues, setLeagues] = useState<League[]>([]);
+  const [showDomainTest, setShowDomainTest] = useState(false);
 
   useEffect(() => {
     // Mock data that matches go35 structure
@@ -246,12 +248,10 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               {currentView === 'news' && 'Football News'}
               {currentView === 'analysis' && 'Match Analysis'}
-              {currentView === 'contact' && 'Contact Us'}
             </h2>
             <p className="text-gray-600">
               {currentView === 'news' && 'Latest football news coming soon...'}
               {currentView === 'analysis' && 'Professional match analysis coming soon...'}
-              {currentView === 'contact' && 'Get in touch with us...'}
             </p>
           </div>
         </main>
