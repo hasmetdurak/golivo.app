@@ -313,16 +313,28 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
                         <span className="font-medium text-gray-900">{match.homeTeam}</span>
                       </div>
 
-                      {/* Score */}
-                      <div className="flex items-center space-x-4 px-4">
+                      {/* Score and Minute Display */}
+                      <div className="flex flex-col items-center space-y-1 px-4">
                         <div className="flex items-center space-x-2">
                           <span className="text-lg font-bold text-gray-900">{match.homeScore}</span>
                           <span className="text-gray-500">-</span>
                           <span className="text-lg font-bold text-gray-900">{match.awayScore}</span>
                         </div>
-                        <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
-                          FT
-                        </span>
+                        
+                        {/* Live Indicator and Minute */}
+                        {match.isLive && match.minute ? (
+                          <div className="flex items-center space-x-1">
+                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+                            <span className="text-red-500 font-black text-sm animate-pulse">
+                              {match.minute}'
+                            </span>
+                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                            {match.status === 'live' ? 'LIVE' : 'FT'}
+                          </span>
+                        )}
                       </div>
 
                       {/* Away Team */}

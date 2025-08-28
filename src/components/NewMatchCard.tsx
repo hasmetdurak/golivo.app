@@ -122,20 +122,34 @@ export function NewMatchCard({
                     <span className="stats-font text-xs md:text-sm tracking-wide">{time}</span>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-2 md:space-x-3">
-                    <span
-                      className={`score-font text-lg md:text-2xl tracking-tight text-foreground group-hover:text-primary transition-all duration-300 ${goalCelebration ? "animate-bounce text-yellow-500 scale-125" : ""}`}
-                    >
-                      {homeScore ?? 0}
-                    </span>
-                    <span className="text-muted-foreground font-bold text-sm md:text-base group-hover:text-primary transition-colors">
-                      -
-                    </span>
-                    <span
-                      className={`score-font text-lg md:text-2xl tracking-tight text-foreground group-hover:text-primary transition-all duration-300 ${goalCelebration ? "animate-bounce text-yellow-500 scale-125" : ""}`}
-                    >
-                      {awayScore ?? 0}
-                    </span>
+                  <div className="flex flex-col items-center">
+                    {/* Score Display */}
+                    <div className="flex items-center space-x-2 md:space-x-3">
+                      <span
+                        className={`score-font text-lg md:text-2xl tracking-tight text-foreground group-hover:text-primary transition-all duration-300 ${goalCelebration ? "animate-bounce text-yellow-500 scale-125" : ""}`}
+                      >
+                        {homeScore ?? 0}
+                      </span>
+                      <span className="text-muted-foreground font-bold text-sm md:text-base group-hover:text-primary transition-colors">
+                        -
+                      </span>
+                      <span
+                        className={`score-font text-lg md:text-2xl tracking-tight text-foreground group-hover:text-primary transition-all duration-300 ${goalCelebration ? "animate-bounce text-yellow-500 scale-125" : ""}`}
+                      >
+                        {awayScore ?? 0}
+                      </span>
+                    </div>
+                    
+                    {/* Red Minute Display Below Score for Live Matches */}
+                    {isLive && minute && (
+                      <div className="mt-1 flex items-center justify-center gap-1 md:gap-2">
+                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-red-500 rounded-full animate-ping shadow-lg shadow-red-500/50" />
+                        <span className="text-red-500 font-black text-sm md:text-base animate-pulse tracking-wider drop-shadow-sm">
+                          {minute}'
+                        </span>
+                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-red-500 rounded-full animate-ping shadow-lg shadow-red-500/50" />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -143,13 +157,6 @@ export function NewMatchCard({
                   <div className="text-xs text-muted-foreground mt-0.5 md:mt-1 flex items-center justify-center gap-1 md:gap-2 stats-font group-hover:text-primary/70 transition-colors">
                     <span>FT</span>
                     {minute && <span className="text-primary/70">({minute}')</span>}
-                  </div>
-                )}
-
-                {isLive && minute && (
-                  <div className="text-xs text-muted-foreground mt-0.5 md:mt-1 flex items-center justify-center gap-1 stats-font">
-                    <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-red-500 rounded-full animate-ping shadow-lg shadow-red-500/50" />
-                    <span className="text-red-500 font-bold animate-pulse">{minute}'</span>
                   </div>
                 )}
               </div>
