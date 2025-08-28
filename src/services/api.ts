@@ -130,11 +130,11 @@ export const FootballApi = {
         referee: match.match_referee,
         round: match.match_round,
         homeTeam: {
-          name: match.match_hometeam_name || match.homeTeam?.name || 'Home Team',
+          name: String(match.match_hometeam_name || match.homeTeam?.name || 'Home Team'),
           logo: match.team_home_badge || match.homeTeam?.logo || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=H'
         },
         awayTeam: {
-          name: match.match_awayteam_name || match.awayTeam?.name || 'Away Team',
+          name: String(match.match_awayteam_name || match.awayTeam?.name || 'Away Team'),
           logo: match.team_away_badge || match.awayTeam?.logo || 'https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=A'
         },
         homeScore: match.match_hometeam_score !== '' ? parseInt(match.match_hometeam_score) : (match.homeScore || 0),

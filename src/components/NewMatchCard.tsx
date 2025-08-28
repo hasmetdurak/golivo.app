@@ -95,12 +95,12 @@ export function NewMatchCard({
                   />
                 ) : (
                   <span className="text-xs font-bold text-primary group-hover:text-white transition-colors">
-                    {homeTeam.slice(0, 2).toUpperCase()}
+                    {(homeTeam || 'TM').slice(0, 2).toUpperCase()}
                   </span>
                 )}
               </div>
               <span className="team-name-font text-xs md:text-sm group-hover:text-primary group-hover:font-semibold transition-all duration-300 truncate tracking-wide">
-                {homeTeam}
+                {homeTeam || 'Unknown Team'}
               </span>
             </div>
 
@@ -158,7 +158,7 @@ export function NewMatchCard({
             {/* Away Team */}
             <div className="flex items-center space-x-2 md:space-x-3 flex-1 justify-end min-w-0">
               <span className="team-name-font text-xs md:text-sm group-hover:text-primary group-hover:font-semibold transition-all duration-300 truncate tracking-wide">
-                {awayTeam}
+                {awayTeam || 'Unknown Team'}
               </span>
               <div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-primary/25 to-purple-600/25 flex items-center justify-center overflow-hidden group-hover:scale-125 group-hover:-rotate-12 transition-all duration-500 flex-shrink-0 shadow-lg group-hover:shadow-xl group-hover:shadow-primary/30">
                 {awayLogo ? (
@@ -169,7 +169,7 @@ export function NewMatchCard({
                   />
                 ) : (
                   <span className="text-xs font-bold text-primary group-hover:text-white transition-colors">
-                    {awayTeam.slice(0, 2).toUpperCase()}
+                    {(awayTeam || 'TM').slice(0, 2).toUpperCase()}
                   </span>
                 )}
               </div>

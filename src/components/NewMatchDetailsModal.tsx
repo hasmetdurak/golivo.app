@@ -64,7 +64,7 @@ export function NewMatchDetailsModal({ isOpen, onClose, match }: NewMatchDetails
                       className="w-4 h-4 md:w-6 md:h-6 object-contain"
                     />
                   ) : (
-                    <span className="text-xs font-bold">{match.homeTeam.slice(0, 2)}</span>
+                    <span className="text-xs font-bold">{(match.homeTeam || 'TM').slice(0, 2)}</span>
                   )}
                 </div>
                 <span className="font-bold text-sm md:text-lg truncate">{match.homeTeam}</span>
@@ -84,7 +84,7 @@ export function NewMatchDetailsModal({ isOpen, onClose, match }: NewMatchDetails
                       className="w-4 h-4 md:w-6 md:h-6 object-contain"
                     />
                   ) : (
-                    <span className="text-xs font-bold">{match.awayTeam.slice(0, 2)}</span>
+                    <span className="text-xs font-bold">{(match.awayTeam || 'TM').slice(0, 2)}</span>
                   )}
                 </div>
               </div>

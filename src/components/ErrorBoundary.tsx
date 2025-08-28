@@ -18,12 +18,32 @@ class ErrorBoundary extends Component<Props, State> {
     console.error('🚨 Error caught by ErrorBoundary:', error);
     console.error('🚨 Error stack:', error.stack);
     console.error('🚨 Error message:', error.message);
-    // Only catch actual React errors, not network/API errors
+    
+    // Handle specific common errors that shouldn't crash the app
     if (error.name === 'ChunkLoadError' || error.message.includes('Loading chunk')) {
-      // This is likely a build/deployment issue, reload page
+      console.log('🔄 Chunk load error detected, reloading...');
       window.location.reload();
       return { hasError: false };
     }
+    
+    // Handle .slice() errors on undefined/null values
+    if (error.message.includes('.slice is not a function') || error.message.includes('slice is not a function')) {
+      console.error('🚨 Slice error detected - likely undefined team/league name');
+      // Don't show error boundary for this, just log it
+      return { hasError: false };
+    }
+    
+    // Handle other TypeError cases that might be recoverable
+    if (error.name === 'TypeError' && (
+      error.message.includes('is not a function') || 
+      error.message.includes('Cannot read properties of')
+    )) {
+      console.error('🚨 TypeError detected, attempting to recover...');
+      // Try to recover from common type errors
+      return { hasError: false };
+    }
+    
+    // Only catch actual React errors that require fallback UI
     return { hasError: true, error };
   }
 

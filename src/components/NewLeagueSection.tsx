@@ -44,7 +44,7 @@ export function NewLeagueSection({ league, matches, onMatchClick }: NewLeagueSec
                   className="w-full h-full object-cover rounded-full"
                 />
               ) : (
-                <span className="text-white text-xs font-bold">{league.slice(0, 2).toUpperCase()}</span>
+                <span className="text-white text-xs font-bold">{(league || 'LG').slice(0, 2).toUpperCase()}</span>
               )}
             </div>
             <h3 className="text-base md:text-lg font-semibold truncate">{league}</h3>

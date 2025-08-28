@@ -184,7 +184,13 @@ function App() {
         return (
           <>
             <NewMatchList 
-              matches={liveMatches}
+              matches={liveMatches.map(match => ({
+                ...match,
+                homeTeam: match.homeTeam?.name || match.homeTeam || 'Unknown Team',
+                awayTeam: match.awayTeam?.name || match.awayTeam || 'Unknown Team',
+                homeLogo: match.homeTeam?.logo || match.homeLogo,
+                awayLogo: match.awayTeam?.logo || match.awayLogo
+              }))}
               loading={loading}
               selectedLeague={selectedLeague}
               selectedDate={selectedDate}
