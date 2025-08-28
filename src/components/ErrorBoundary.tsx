@@ -16,6 +16,14 @@ class ErrorBoundary extends Component<Props, State> {
 
   public static getDerivedStateFromError(error: Error): State {
     console.error('🚨 Error caught by ErrorBoundary:', error);
+    console.error('🚨 Error stack:', error.stack);
+    console.error('🚨 Error message:', error.message);
+    // Only catch actual React errors, not network/API errors
+    if (error.name === 'ChunkLoadError' || error.message.includes('Loading chunk')) {
+      // This is likely a build/deployment issue, reload page
+      window.location.reload();
+      return { hasError: false };
+    }
     return { hasError: true, error };
   }
 
@@ -41,11 +49,17 @@ class ErrorBoundary extends Component<Props, State> {
         >
           <h1 style={{ color: '#dc3545', marginBottom: '20px' }}>⚽ GoLivo - Live Football Scores</h1>
           <h2 style={{ color: '#6c757d', marginBottom: '20px', fontWeight: 'normal' }}>
-            We're experiencing technical difficulties
+            Teknik sorun tespit edildi - Technical issue detected
           </h2>
           <p style={{ color: '#6c757d', marginBottom: '30px', maxWidth: '500px' }}>
-            Our team is working to fix this issue. Please try refreshing the page or come back in a few minutes.
+            Patron, lütfen sayfayı yenileyin veya F12'ye basıp Console'da hatayı kontrol edin.
+            <br/>Please refresh the page or check browser console (F12) for error details.
           </p>
+          {this.state.error && (
+            <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '6px', maxWidth: '600px' }}>
+              <strong>Hata: {this.state.error.message}</strong>
+            </div>
+          )}
           <button
             onClick={() => window.location.reload()}
             style={{
@@ -59,7 +73,7 @@ class ErrorBoundary extends Component<Props, State> {
               fontWeight: 'bold'
             }}
           >
-            🔄 Refresh Page
+            🔄 Sayfayı Yenile / Refresh Page
           </button>
           {import.meta.env.DEV && this.state.error && (
             <details style={{ marginTop: '30px', textAlign: 'left', maxWidth: '600px' }}>

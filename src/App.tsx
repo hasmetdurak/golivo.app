@@ -25,6 +25,30 @@ function App() {
     
     // Prevent any automatic redirects that might cause white screen
     console.log('🚫 Auto-redirects disabled for stability');
+    
+    // Add global error handler
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('🚨 Unhandled promise rejection:', event.reason);
+      // Don't let network errors crash the app
+      event.preventDefault();
+    };
+    
+    const handleError = (event: ErrorEvent) => {
+      console.error('🚨 Global error:', event.error);
+      // Handle chunk loading errors
+      if (event.error?.name === 'ChunkLoadError' || event.message?.includes('Loading chunk')) {
+        console.log('🔄 Chunk load error detected, reloading...');
+        window.location.reload();
+      }
+    };
+    
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError);
+    
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleError);
+    };
   }, []);
 
   useEffect(() => {
