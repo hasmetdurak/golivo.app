@@ -190,31 +190,40 @@ export const FootballApi = {
   },
   
   transformMatches(matches: any[]): any[] {
-    return matches.map((match: any) => ({
-      id: match.match_id || 'unknown',
-      league: match.league_name || 'Unknown League',
-      country: match.country_name || 'Unknown',
-      status: match.match_live === '1' ? 'live' : 'finished',
-      minute: match.match_live === '1' ? match.match_time || '0' : '90',
-      time: match.match_time || '00:00',
-      venue: match.match_stadium,
-      referee: match.match_referee,
-      round: match.match_round,
-      homeTeam: {
-        name: String(match.match_hometeam_name || 'Home Team'),
-        logo: match.team_home_badge?.replace(/`/g, '') || '/placeholder-logo.svg'
-      },
-      awayTeam: {
-        name: String(match.match_awayteam_name || 'Away Team'),
-        logo: match.team_away_badge?.replace(/`/g, '') || '/placeholder-logo.svg'
-      },
-      homeScore: match.match_hometeam_score !== '' ? parseInt(match.match_hometeam_score) : 0,
-      awayScore: match.match_awayteam_score !== '' ? parseInt(match.match_awayteam_score) : 0,
-      isLive: match.match_live === '1',
-      goalscorers: match.goalscorer || [],
-      cards: match.cards || [],
-      substitutions: match.substitutions || {}
-    }));
+    return matches.map((match: any) => {
+      const isLive = match.match_live === '1';
+      const isFinished = match.match_status === 'Finished';
+      const matchTime = match.match_time || '0';
+      
+      return {
+        id: match.match_id || 'unknown',
+        league: match.league_name || 'Unknown League',
+        country: match.country_name || 'Unknown',
+        // STATUS - DÜZELTME
+        status: isLive ? 'live' : (isFinished ? 'finished' : 'upcoming'),
+        // MINUTE - DÜZELTME
+        minute: isLive ? matchTime : (isFinished ? '90' : '0'),
+        // TIME - DÜZELTME
+        time: isLive ? `${matchTime}'` : (isFinished ? 'FT' : match.match_time || '00:00'),
+        venue: match.match_stadium,
+        referee: match.match_referee,
+        round: match.match_round,
+        homeTeam: {
+          name: String(match.match_hometeam_name || 'Home Team'),
+          logo: match.team_home_badge?.replace(/`/g, '') || '/placeholder-logo.svg'
+        },
+        awayTeam: {
+          name: String(match.match_awayteam_name || 'Away Team'),
+          logo: match.team_away_badge?.replace(/`/g, '') || '/placeholder-logo.svg'
+        },
+        homeScore: match.match_hometeam_score !== '' ? parseInt(match.match_hometeam_score) : 0,
+        awayScore: match.match_awayteam_score !== '' ? parseInt(match.match_awayteam_score) : 0,
+        isLive: isLive,
+        goalscorers: match.goalscorer || [],
+        cards: match.cards || [],
+        substitutions: match.substitutions || {}
+      };
+    });
   },
   
   getFallbackMatches(): any[] {
@@ -224,8 +233,8 @@ export const FootballApi = {
         league: 'Premier League',
         country: 'England',
         status: 'live',
-        minute: '67',
-        time: '67\'',
+        minute: '67', // DAKIKA - STRING OLARAK
+        time: '67\'', // GÖRÜNÜM
         venue: 'Anfield',
         referee: 'Michael Oliver',
         round: 'Round 15',
@@ -256,8 +265,8 @@ export const FootballApi = {
         league: 'Premier League',
         country: 'England',
         status: 'live',
-        minute: '45',
-        time: '45\'',
+        minute: '45', // DAKIKA
+        time: '45\'', // GÖRÜNÜM
         venue: 'Etihad Stadium',
         referee: 'Anthony Taylor',
         round: 'Round 15',
@@ -286,7 +295,7 @@ export const FootballApi = {
         country: 'England',
         status: 'upcoming',
         minute: '0',
-        time: '19:45',
+        time: '19:45', // SAAT - BAŞLAMADI
         venue: 'Tottenham Hotspur Stadium',
         referee: 'TBD',
         round: 'Round 15',
@@ -302,6 +311,35 @@ export const FootballApi = {
         awayScore: 0,
         isLive: false,
         goalscorers: [],
+        cards: [],
+        substitutions: {}
+      },
+      {
+        id: 'fallback-4',
+        league: 'Premier League',
+        country: 'England',
+        status: 'finished',
+        minute: '90',
+        time: 'FT', // FULL TIME - BİTTİ
+        venue: 'Old Trafford',
+        referee: 'Mike Dean',
+        round: 'Round 15',
+        homeTeam: {
+          name: 'Manchester United',
+          logo: '/placeholder-logo.svg'
+        },
+        awayTeam: {
+          name: 'Brighton',
+          logo: '/placeholder-logo.svg'
+        },
+        homeScore: 2,
+        awayScore: 1,
+        isLive: false,
+        goalscorers: [
+          { time: '15', home_scorer: 'Rashford' },
+          { time: '34', away_scorer: 'Mitoma' },
+          { time: '78', home_scorer: 'Bruno Fernandes' }
+        ],
         cards: [],
         substitutions: {}
       }

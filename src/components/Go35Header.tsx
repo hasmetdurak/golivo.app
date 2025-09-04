@@ -120,7 +120,7 @@ export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', 
       'ay': '🇧🇴', 'arn': '🇨🇱', 'nah': '🇲🇽', 'km': '🇰🇭', 'my': '🇲🇲', 'et': '🇪🇪',
       'lv': '🇱🇻', 'lt': '🇱🇹', 'sq': '🇦🇱', 'mk': '🇲🇰', 'in': '🇮🇳'
     };
-    return flagMap[currentLang] || '🇺🇸';
+    return flagMap[currentLang] || '🇺���8';
   };
 
   const handleLanguageChange = (languageCode: string, subdomain: string) => {
@@ -209,15 +209,15 @@ export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', 
               <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
                 <div className="p-3">
                   <div className="text-xs font-semibold text-gray-500 px-3 py-2 mb-2 bg-gray-50 rounded-lg">
-                    🌍 Choose Language ({getPriorityOrderedLanguages().length} languages available)
+                    Choose Language ({getPriorityOrderedLanguages().length} languages available)
                   </div>
                   
                   {/* Official/Default Language */}
                   <div className="mb-3">
-                    <div className="text-xs font-medium text-blue-600 px-2 py-1 mb-1">🏆 Official Language</div>
+                    <div className="text-xs font-medium text-blue-600 px-2 py-1 mb-1">Official Language</div>
                     {getPriorityOrderedLanguages().slice(0, 1).map((language) => {
                       const flagMap: { [key: string]: string } = {
-                        'en': '🇺🇸', 'es': '🇪🇸', 'pt': '🇵🇹', 'fr': '🇫🇷', 'ru': '🇷🇺', 'ar': '🇸🇦',
+                        'en': '🇺���8', 'es': '🇪🇸', 'pt': '🇵🇹', 'fr': '🇫🇷', 'ru': '🇷🇺', 'ar': '🇸🇦',
                         'zh-CN': '🇨🇳', 'zh-TW': '🇹🇼', 'de': '🇩🇪', 'it': '🇮🇹', 'ja': '🇯🇵', 'ko': '🇰🇷',
                         'hi': '🇮🇳', 'tr': '🇹🇷', 'pl': '🇵🇱', 'nl': '🇳🇱', 'sv': '🇸🇪', 'no': '🇳🇴',
                         'fi': '🇫🇮', 'da': '🇩🇰', 'cs': '🇨🇿', 'sk': '🇸🇰', 'hu': '🇭🇺', 'el': '🇬🇷',
@@ -253,11 +253,11 @@ export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', 
 
                   {/* Major Languages */}
                   <div className="mb-3">
-                    <div className="text-xs font-medium text-purple-600 px-2 py-1 mb-1">🌟 Major Languages</div>
+                    <div className="text-xs font-medium text-purple-600 px-2 py-1 mb-1">Major Languages</div>
                     <div className="grid grid-cols-1 gap-1">
                       {getPriorityOrderedLanguages().slice(1, 13).map((language) => {
                         const flagMap: { [key: string]: string } = {
-                          'en': '🇺🇸', 'es': '🇪🇸', 'pt': '🇵🇹', 'fr': '🇫🇷', 'ru': '🇷🇺', 'ar': '🇸🇦',
+                          'en': '🇺���8', 'es': '🇪🇸', 'pt': '🇵🇹', 'fr': '🇫🇷', 'ru': '🇷🇺', 'ar': '🇸🇦',
                           'zh-CN': '🇨🇳', 'zh-TW': '🇹🇼', 'de': '🇩🇪', 'it': '🇮🇹', 'ja': '🇯🇵', 'ko': '🇰🇷',
                           'hi': '🇮🇳', 'tr': '🇹🇷', 'pl': '🇵🇱', 'nl': '🇳🇱', 'sv': '🇸🇪', 'no': '🇳🇴',
                           'fi': '🇫🇮', 'da': '🇩🇰', 'cs': '🇨🇿', 'sk': '🇸🇰', 'hu': '🇭🇺', 'el': '🇬🇷',
@@ -294,11 +294,11 @@ export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', 
 
                   {/* All Other Languages */}
                   <div>
-                    <div className="text-xs font-medium text-gray-600 px-2 py-1 mb-1">🌍 All Languages</div>
+                    <div className="text-xs font-medium text-gray-600 px-2 py-1 mb-1">All Languages</div>
                     <div className="grid grid-cols-2 gap-1">
                       {getPriorityOrderedLanguages().slice(13).map((language) => {
                         const flagMap: { [key: string]: string } = {
-                          'en': '🇺🇸', 'es': '🇪🇸', 'pt': '🇵🇹', 'fr': '🇫🇷', 'ru': '🇷🇺', 'ar': '🇸🇦',
+                          'en': '🇺���8', 'es': '🇪🇸', 'pt': '🇵🇹', 'fr': '🇫🇷', 'ru': '🇷🇺', 'ar': '🇸🇦',
                           'zh-CN': '🇨🇳', 'zh-TW': '🇹🇼', 'de': '🇩🇪', 'it': '🇮🇹', 'ja': '🇯🇵', 'ko': '🇰🇷',
                           'hi': '🇮🇳', 'tr': '🇹🇷', 'pl': '🇵🇱', 'nl': '🇳🇱', 'sv': '🇸🇪', 'no': '🇳🇴',
                           'fi': '🇫🇮', 'da': '🇩🇰', 'cs': '🇨🇿', 'sk': '🇸🇰', 'hu': '🇭🇺', 'el': '🇬🇷',
