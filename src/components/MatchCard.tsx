@@ -58,10 +58,18 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
   const getTimeDisplay = () => {
     try {
       if (isLive) {
-        return minuteInfo || 'CANLI';
+        // Dakika bilgisini daha iyi göster
+        if (minuteInfo && minuteInfo !== '0' && minuteInfo !== 'null') {
+          // Dakika sayısını temizle ve formatla
+          const cleanMinute = minuteInfo.replace(/[^0-9]/g, '');
+          if (cleanMinute && parseInt(cleanMinute) > 0) {
+            return `${cleanMinute}'`;
+          }
+        }
+        return 'LIVE';
       }
       if (isFinished) {
-        return 'MS';
+        return 'FT';
       }
       
       // Zaman bilgisi kontrolü

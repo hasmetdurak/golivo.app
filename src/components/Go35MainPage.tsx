@@ -366,9 +366,9 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
                             homeScore: match.homeScore,
                             awayScore: match.awayScore,
                             isLive: match.isLive,
-                            minute: match.minute?.toString(),
+                            minute: match.isLive ? (match.minute || '0') : '0', // DÜZELTME
                             status: match.status,
-                            time: match.time,
+                            time: match.isLive ? `${match.minute || '0'}'` : match.time, // DÜZELTME
                             league: league.name
                           }}
                           onClick={() => handleMatchClick({
@@ -378,9 +378,9 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
                             homeScore: match.homeScore,
                             awayScore: match.awayScore,
                             isLive: match.isLive,
-                            minute: match.minute?.toString(),
+                            minute: match.isLive ? (match.minute || '0') : '0', // DÜZELTME
                             status: match.status,
-                            time: match.time,
+                            time: match.isLive ? `${match.minute || '0'}'` : match.time, // DÜZELTME
                             league: league.name
                           })}
                         />
