@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Go35Header } from './Go35Header';
+import { MatchCard } from './MatchCard';
+import { MatchDetailsModal } from './MatchDetailsModal';
 import { FootballApi } from '../services/api';
 
 interface Match {
@@ -39,18 +41,20 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [modalViewMode, setModalViewMode] = useState<'mini' | 'full'>('mini');
-  const [clickCount, setClickCount] = useState(0);
 
   // Match click handler with double-click detection
   const handleMatchClick = (match: any) => {
+    console.log('🎯 Match clicked:', match);
     if (selectedMatch?.id === match.id) {
       // Same match clicked - toggle view mode
       const newMode = modalViewMode === 'mini' ? 'full' : 'mini';
       setModalViewMode(newMode);
+      console.log('🔄 Toggling view mode to:', newMode);
     } else {
       // New match clicked - open in mini mode
       setSelectedMatch(match);
       setModalViewMode('mini');
+      console.log('🆕 Opening new match in mini mode');
     }
   };
 
@@ -58,11 +62,13 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
   const handleCloseModal = () => {
     setSelectedMatch(null);
     setModalViewMode('mini');
+    console.log('❌ Modal closed');
   };
 
   // View mode change handler
   const handleViewModeChange = (mode: 'mini' | 'full') => {
     setModalViewMode(mode);
+    console.log('🔄 View mode changed to:', mode);
   };
 
   useEffect(() => {
@@ -75,6 +81,9 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
         // Maçları kategorilere ayır
         const liveMatches = allMatches.filter(match => match.isLive);
         const todayMatches = allMatches.filter(match => !match.isLive);
+        
+        console.log('🔴 Live matches:', liveMatches.length);
+        console.log('📅 Today matches:', todayMatches.length);
         
         // Liglere göre grupla
         const groupedByLeague: League[] = [];
@@ -177,11 +186,59 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
         setLeagues(leaguesArray);
         
         console.log('✅ All matches loaded:', leaguesArray.length, 'leagues');
-        console.log('🔴 Live matches:', liveMatches.length);
-        console.log('📅 Today matches:', todayMatches.length);
       } catch (error) {
         console.error('❌ API Error:', error);
-        // Fallback data...
+        
+        // Fallback canlı maç verileri
+        const mockLiveLeagues: League[] = [
+          {
+            id: 'premier-league',
+            name: 'Premier League',
+            logo: '/leagues/premier-league-2024.svg',
+            matches: [
+              {
+                id: 'live-1',
+                homeTeam: 'Liverpool',
+                awayTeam: 'Arsenal',
+                homeScore: 1,
+                awayScore: 2,
+                isLive: true,
+                minute: 67,
+                status: 'live',
+                time: '67\'',
+                homeLogo: '/placeholder-logo.svg',
+                awayLogo: '/placeholder-logo.svg'
+              },
+              {
+                id: 'live-2',
+                homeTeam: 'Manchester City',
+                awayTeam: 'Chelsea',
+                homeScore: 0,
+                awayScore: 1,
+                isLive: true,
+                minute: 45,
+                status: 'live',
+                time: '45\'',
+                homeLogo: '/placeholder-logo.svg',
+                awayLogo: '/placeholder-logo.svg'
+              },
+              {
+                id: 'upcoming-1',
+                homeTeam: 'Tottenham',
+                awayTeam: 'Manchester United',
+                homeScore: 0,
+                awayScore: 0,
+                isLive: false,
+                minute: 0,
+                status: 'upcoming',
+                time: '19:45',
+                homeLogo: '/placeholder-logo.svg',
+                awayLogo: '/placeholder-logo.svg'
+              }
+            ]
+          }
+        ];
+        setLeagues(mockLiveLeagues);
       } finally {
         setLoading(false);
       }
@@ -214,11 +271,11 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
         <Go35Header currentView={currentView} onViewChange={onViewChange} />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600">Loading live matches...</p>
           </div>
         </div>
@@ -226,35 +283,38 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
     );
   }
 
-  const totalLiveMatches = leagues.reduce((acc, league) => acc + league.matches.length, 0);
+  const totalMatches = leagues.reduce((acc, league) => acc + league.matches.length, 0);
+  const totalLiveMatches = leagues.reduce((acc, league) => 
+    acc + league.matches.filter(match => match.isLive).length, 0
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       <Go35Header currentView={currentView} onViewChange={onViewChange} />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Simple Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        {/* Enhanced Title */}
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
             Live Football Scores
           </h1>
           <p className="text-gray-600">
-            {totalLiveMatches} live matches • Updated every 10 seconds
+            🔴 {totalLiveMatches} live matches • 📅 {totalMatches - totalLiveMatches} today's matches • Updated every 30 seconds
           </p>
         </div>
 
-        {totalLiveMatches === 0 ? (
+        {totalMatches === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">⚽</div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Live Matches</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Matches Today</h2>
             <p className="text-gray-600">Check back later for live football action!</p>
           </div>
         ) : (
           <div className="space-y-6">
             {leagues.map((league) => (
-              <div key={league.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div key={league.id} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                 <div 
-                  className="flex items-center justify-between p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 cursor-pointer hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
                   onClick={() => {
                     setExpandedLeagues(prev => 
                       prev.includes(league.name) 
@@ -267,20 +327,25 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
                     <img 
                       src={league.logo} 
                       alt={league.name} 
-                      className="w-6 h-6 rounded-full"
+                      className="w-8 h-8 rounded-full shadow-sm"
                       onError={(e) => {
                         e.currentTarget.src = '/placeholder-logo.svg';
                       }}
                     />
                     <div>
-                      <h2 className="font-semibold text-gray-900">{league.name}</h2>
-                      <p className="text-sm text-gray-500">{league.matches.length} live matches</p>
+                      <h2 className="font-bold text-gray-900 text-lg">{league.name}</h2>
+                      <p className="text-sm text-gray-600">
+                        🔴 {league.matches.filter(m => m.isLive).length} live • 
+                        📅 {league.matches.filter(m => !m.isLive).length} today
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
-                      LIVE
-                    </span>
+                  <div className="flex items-center space-x-3">
+                    {league.matches.some(m => m.isLive) && (
+                      <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-lg">
+                        LIVE
+                      </span>
+                    )}
                     {expandedLeagues.includes(league.name) ? 
                       <ChevronUp className="w-5 h-5 text-gray-400" /> : 
                       <ChevronDown className="w-5 h-5 text-gray-400" />
@@ -289,59 +354,36 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
                 </div>
 
                 {expandedLeagues.includes(league.name) && (
-                  <div className="p-4">
-                    <div className="space-y-3">
+                  <div className="p-4 bg-gray-50">
+                    <div className="grid gap-3">
                       {league.matches.map((match) => (
-                        <div key={match.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-                          <div className="flex items-center justify-between">
-                            {/* Teams and Score */}
-                            <div className="flex items-center space-x-6 flex-1">
-                              {/* Home Team */}
-                              <div className="flex items-center space-x-2 flex-1">
-                                <img 
-                                  src={match.homeLogo || '/placeholder-logo.svg'} 
-                                  alt={match.homeTeam} 
-                                  className="w-5 h-5 rounded-full"
-                                  onError={(e) => {
-                                    e.currentTarget.src = '/placeholder-logo.svg';
-                                  }}
-                                />
-                                <span className="font-medium text-gray-900 text-right">{match.homeTeam}</span>
-                              </div>
-                              
-                              {/* Score */}
-                              <div className="text-center min-w-[80px]">
-                                <div className="text-xl font-bold text-gray-900 mb-1">
-                                  {match.homeScore ?? 0} - {match.awayScore ?? 0}
-                                </div>
-                                {/* Flashing Red Minute */}
-                                <div className="text-xs font-bold text-red-500 animate-pulse">
-                                  {match.minute}'
-                                </div>
-                              </div>
-                              
-                              {/* Away Team */}
-                              <div className="flex items-center space-x-2 flex-1">
-                                <span className="font-medium text-gray-900">{match.awayTeam}</span>
-                                <img 
-                                  src={match.awayLogo || '/placeholder-logo.svg'} 
-                                  alt={match.awayTeam} 
-                                  className="w-5 h-5 rounded-full"
-                                  onError={(e) => {
-                                    e.currentTarget.src = '/placeholder-logo.svg';
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            
-                            {/* Live Indicator */}
-                            <div className="ml-4">
-                              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
-                                LIVE
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        <MatchCard
+                          key={match.id}
+                          match={{
+                            id: match.id,
+                            homeTeam: { name: match.homeTeam, logo: match.homeLogo },
+                            awayTeam: { name: match.awayTeam, logo: match.awayLogo },
+                            homeScore: match.homeScore,
+                            awayScore: match.awayScore,
+                            isLive: match.isLive,
+                            minute: match.minute?.toString(),
+                            status: match.status,
+                            time: match.time,
+                            league: league.name
+                          }}
+                          onClick={() => handleMatchClick({
+                            id: match.id,
+                            homeTeam: { name: match.homeTeam, logo: match.homeLogo },
+                            awayTeam: { name: match.awayTeam, logo: match.awayLogo },
+                            homeScore: match.homeScore,
+                            awayScore: match.awayScore,
+                            isLive: match.isLive,
+                            minute: match.minute?.toString(),
+                            status: match.status,
+                            time: match.time,
+                            league: league.name
+                          })}
+                        />
                       ))}
                     </div>
                   </div>
