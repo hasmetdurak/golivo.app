@@ -146,7 +146,6 @@ export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', 
 ### 🚀 **Sitenizi Aynı Şekilde Düzenliyorum:**
 
 **1. Header Navigation Güncelleme:**
-```typescript
 import React from 'react';
 import { BarChart3, Newspaper, Phone } from 'lucide-react';
 
@@ -155,7 +154,10 @@ interface Go35HeaderProps {
   onViewChange?: (view: string) => void;
 }
 
-export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', onViewChange }) => {
+export const Go35Header: React.FC<Go35HeaderProps> = ({ 
+  currentView = 'scores', 
+  onViewChange 
+}) => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
       <div className="container mx-auto px-4">

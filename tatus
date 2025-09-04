@@ -1,5 +1,0 @@
-[33m71a2361[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m 🌍 GeoIP kapatıldı, basit dil seçim sistemi eklendi - Varsayılan İngilizce, localStorage ile tercih kaydetme, SEO hreflang
-[33md351a3f[m 🌍 GeoIP kapatıldı, basit dil seçim sistemi eklendi - Varsayılan İngilizce, localStorage ile tercih kaydetme, SEO hreflang
-[33m2f50b6d[m Update MatchCard component, API service, and geoRedirect utility. Fix issues and improve minute display
-[33md8b3b65[m 🔧 Fix white screen issue and optimize geo IP system
-[33m422054d[m fix: Correct Yandex verification file to plain text - Replaced HTML content with plain text verification code as required by Yandex
