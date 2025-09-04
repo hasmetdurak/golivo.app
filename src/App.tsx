@@ -3,7 +3,7 @@ import { Go35MainPage } from './components/Go35MainPage';
 import { AnalysisPage } from './components/AnalysisPage';
 import { NewsPage } from './components/NewsPage';
 import { ContactPage } from './components/ContactPage';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   const [currentView, setCurrentView] = useState<string>('scores');
