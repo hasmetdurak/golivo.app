@@ -34,10 +34,53 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
   const isFinished = status === 'finished';
   const isScheduled = status === 'scheduled';
   
-  // Dakika bilgisini güvenli şekilde al
+  // Dakika bilgisini güvenli şekilde al - DÜZELTME
   const minuteInfo = match.minute && typeof match.minute === 'string' 
     ? match.minute 
-    : null;
+    : (match.minute && typeof match.minute === 'number' ? match.minute.toString() : null);
+
+  // Maç zamanı gösterimi - DÜZELTME
+  const getTimeDisplay = () => {
+    try {
+      if (isLive) {
+        // Dakika bilgisini daha iyi göster
+        if (minuteInfo && minuteInfo !== '0' && minuteInfo !== 'null' && minuteInfo !== '') {
+          // Dakika sayısını temizle ve formatla
+          const cleanMinute = minuteInfo.toString().replace(/[^0-9]/g, '');
+          if (cleanMinute && parseInt(cleanMinute) >= 0) {
+            return `${cleanMinute}'`;
+          }
+        }
+        // Fallback için LIVE göster
+        return 'LIVE';
+      }
+      if (isFinished) {
+        return 'FT';
+      }
+      
+      // Zaman bilgisi kontrolü
+      if (match.time && typeof match.time === 'string') {
+        return match.time;
+      }
+      
+      return '00:00';
+    } catch (error) {
+      console.error('Zaman gösterimi hatası:', error);
+      return 'LIVE';
+    }
+  };
+
+  // Debug için console log ekle
+  if (isLive) {
+    console.log('🔴 Live Match Debug:', {
+      matchId: match.id,
+      minuteInfo: minuteInfo,
+      minute: match.minute,
+      status: status,
+      isLive: isLive,
+      timeDisplay: getTimeDisplay()
+    });
+  }
   
   // Skor bilgilerini güvenli şekilde al - sayıya çevirme hatası önleyici
   const homeScore = match.homeScore !== undefined 
