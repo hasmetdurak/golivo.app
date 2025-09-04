@@ -18,6 +18,126 @@ const LEAGUE_IDS = {
   'Super Lig': '322'
 };
 
+// Country flag mapping function
+export const getCountryFlag = (countryName: string): string => {
+  const flagMap: { [key: string]: string } = {
+    'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'Spain': '🇪🇸',
+    'Germany': '🇩🇪',
+    'Italy': '🇮🇹',
+    'France': '🇫🇷',
+    'Turkey': '🇹🇷',
+    'Portugal': '🇵🇹',
+    'Netherlands': '🇳🇱',
+    'Belgium': '🇧🇪',
+    'Brazil': '🇧🇷',
+    'Argentina': '🇦🇷',
+    'Mexico': '🇲🇽',
+    'United States': '🇺🇸',
+    'Canada': '🇨🇦',
+    'Russia': '🇷🇺',
+    'Poland': '🇵🇱',
+    'Czech Republic': '🇨🇿',
+    'Austria': '🇦🇹',
+    'Switzerland': '🇨🇭',
+    'Sweden': '🇸🇪',
+    'Norway': '🇳🇴',
+    'Denmark': '🇩🇰',
+    'Finland': '🇫🇮',
+    'Greece': '🇬🇷',
+    'Croatia': '🇭🇷',
+    'Serbia': '🇷🇸',
+    'Ukraine': '🇺🇦',
+    'Romania': '🇷🇴',
+    'Bulgaria': '🇧🇬',
+    'Hungary': '🇭🇺',
+    'Slovakia': '🇸🇰',
+    'Slovenia': '🇸🇮',
+    'Bosnia and Herzegovina': '🇧🇦',
+    'Montenegro': '🇲🇪',
+    'North Macedonia': '🇲🇰',
+    'Albania': '🇦🇱',
+    'Moldova': '🇲🇩',
+    'Lithuania': '🇱🇹',
+    'Latvia': '🇱🇻',
+    'Estonia': '🇪🇪',
+    'Belarus': '🇧🇾',
+    'Georgia': '🇬🇪',
+    'Armenia': '🇦🇲',
+    'Azerbaijan': '🇦🇿',
+    'Kazakhstan': '🇰🇿',
+    'Uzbekistan': '🇺🇿',
+    'Japan': '🇯🇵',
+    'South Korea': '🇰🇷',
+    'China': '🇨🇳',
+    'Australia': '🇦🇺',
+    'New Zealand': '🇳🇿',
+    'India': '🇮🇳',
+    'Thailand': '🇹🇭',
+    'Vietnam': '🇻🇳',
+    'Indonesia': '🇮🇩',
+    'Malaysia': '🇲🇾',
+    'Singapore': '🇸🇬',
+    'Philippines': '🇵🇭',
+    'South Africa': '🇿🇦',
+    'Nigeria': '🇳🇬',
+    'Ghana': '🇬🇭',
+    'Kenya': '🇰🇪',
+    'Morocco': '🇲🇦',
+    'Egypt': '🇪🇬',
+    'Tunisia': '🇹🇳',
+    'Algeria': '🇩🇿',
+    'Senegal': '🇸🇳',
+    'Cameroon': '🇨🇲',
+    'Ivory Coast': '🇨🇮',
+    'Mali': '🇲🇱',
+    'Burkina Faso': '🇧🇫',
+    'Guinea': '🇬🇳',
+    'Benin': '🇧🇯',
+    'Togo': '🇹🇬',
+    'Niger': '🇳🇪',
+    'Chad': '🇹🇩',
+    'Central African Republic': '🇨🇫',
+    'Democratic Republic of the Congo': '🇨🇩',
+    'Republic of the Congo': '🇨🇬',
+    'Gabon': '🇬🇦',
+    'Equatorial Guinea': '🇬🇶',
+    'São Tomé and Príncipe': '🇸🇹',
+    'Cape Verde': '🇨🇻',
+    'Gambia': '🇬🇲',
+    'Guinea-Bissau': '🇬🇼',
+    'Liberia': '🇱🇷',
+    'Sierra Leone': '🇸🇱',
+    'Mauritania': '🇲🇷',
+    'Western Sahara': '🇪🇭',
+    'Libya': '🇱🇾',
+    'Sudan': '🇸🇩',
+    'South Sudan': '🇸🇸',
+    'Ethiopia': '🇪🇹',
+    'Eritrea': '🇪🇷',
+    'Djibouti': '🇩🇯',
+    'Somalia': '🇸🇴',
+    'Uganda': '🇺🇬',
+    'Rwanda': '🇷🇼',
+    'Burundi': '🇧🇮',
+    'Tanzania': '🇹🇿',
+    'Malawi': '🇲🇼',
+    'Zambia': '🇿🇲',
+    'Zimbabwe': '🇿🇼',
+    'Botswana': '🇧🇼',
+    'Namibia': '🇳🇦',
+    'Lesotho': '🇱🇸',
+    'Eswatini': '🇸🇿',
+    'Madagascar': '🇲🇬',
+    'Mauritius': '🇲🇺',
+    'Seychelles': '🇸🇨',
+    'Comoros': '🇰🇲'
+  };
+  
+  // Return flag or default world emoji
+  return flagMap[countryName] || '🌍';
+};
+
 export const FootballApi = {
   async getLiveMatches(league: string = 'all', date: string = new Date().toISOString().split('T')[0]): Promise<any[]> {
     try {
@@ -98,68 +218,94 @@ export const FootballApi = {
   },
   
   getFallbackMatches(): any[] {
-    // Dinamik fallback - her seferinde farklı skorlar
-    const teams = [
-      { name: 'Manchester City', logo: '/placeholder-logo.svg' },
-      { name: 'Liverpool', logo: '/placeholder-logo.svg' },
-      { name: 'Arsenal', logo: '/placeholder-logo.svg' },
-      { name: 'Chelsea', logo: '/placeholder-logo.svg' },
-      { name: 'Real Madrid', logo: '/placeholder-logo.svg' },
-      { name: 'Barcelona', logo: '/placeholder-logo.svg' },
-      { name: 'Bayern Munich', logo: '/placeholder-logo.svg' },
-      { name: 'PSG', logo: '/placeholder-logo.svg' }
-    ];
-    
-    const leagues = ['Premier League', 'La Liga', 'Bundesliga', 'Ligue 1'];
-    
-    return Array.from({ length: 4 }, (_, i) => {
-      const homeTeam = teams[Math.floor(Math.random() * teams.length)];
-      const awayTeam = teams[Math.floor(Math.random() * teams.length)];
-      const homeScore = Math.floor(Math.random() * 4);
-      const awayScore = Math.floor(Math.random() * 4);
-      const minute = Math.floor(Math.random() * 90) + 1;
-      
-      return {
-        id: `fallback-${i}`,
-        league: leagues[i % leagues.length],
-        country: 'Europe',
+    return [
+      {
+        id: 'fallback-1',
+        league: 'Premier League',
+        country: 'England',
         status: 'live',
-        minute: minute.toString(),
-        time: '15:00',
-        homeTeam,
-        awayTeam,
-        homeScore,
-        awayScore,
-        isLive: true
-      };
-    });
-  },
-
-  getMatchStatus(match: any): string {
-    if (match.match_live === '1' || match.status === 'live') {
-      return 'live';
-    } else if (match.match_status && match.match_status.toLowerCase().includes('finished')) {
-      return 'finished';
-    } else {
-      return 'upcoming';
-    }
-  },
-
-  async getLeagueStandings(leagueId: string): Promise<any[]> {
-    try {
-      const url = `${BASE_URL}/?action=get_standings&league_id=${leagueId}&APIkey=${API_KEY}`;
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Standings API request failed with status ${response.status}`);
+        minute: '67',
+        time: '67\'',
+        venue: 'Anfield',
+        referee: 'Michael Oliver',
+        round: 'Round 15',
+        homeTeam: {
+          name: 'Liverpool',
+          logo: '/placeholder-logo.svg'
+        },
+        awayTeam: {
+          name: 'Arsenal',
+          logo: '/placeholder-logo.svg'
+        },
+        homeScore: 1,
+        awayScore: 2,
+        isLive: true,
+        goalscorers: [
+          { time: '23', home_scorer: 'Salah' },
+          { time: '45', away_scorer: 'Saka' },
+          { time: '67', away_scorer: 'Martinelli' }
+        ],
+        cards: [
+          { time: '34', card: 'yellow_card', home_fault: 'Henderson' },
+          { time: '56', card: 'yellow_card', away_fault: 'Partey' }
+        ],
+        substitutions: {}
+      },
+      {
+        id: 'fallback-2',
+        league: 'Premier League',
+        country: 'England',
+        status: 'live',
+        minute: '45',
+        time: '45\'',
+        venue: 'Etihad Stadium',
+        referee: 'Anthony Taylor',
+        round: 'Round 15',
+        homeTeam: {
+          name: 'Manchester City',
+          logo: '/placeholder-logo.svg'
+        },
+        awayTeam: {
+          name: 'Chelsea',
+          logo: '/placeholder-logo.svg'
+        },
+        homeScore: 0,
+        awayScore: 1,
+        isLive: true,
+        goalscorers: [
+          { time: '23', away_scorer: 'Sterling' }
+        ],
+        cards: [
+          { time: '12', card: 'yellow_card', home_fault: 'Rodri' }
+        ],
+        substitutions: {}
+      },
+      {
+        id: 'fallback-3',
+        league: 'Premier League',
+        country: 'England',
+        status: 'upcoming',
+        minute: '0',
+        time: '19:45',
+        venue: 'Tottenham Hotspur Stadium',
+        referee: 'TBD',
+        round: 'Round 15',
+        homeTeam: {
+          name: 'Tottenham',
+          logo: '/placeholder-logo.svg'
+        },
+        awayTeam: {
+          name: 'Manchester United',
+          logo: '/placeholder-logo.svg'
+        },
+        homeScore: 0,
+        awayScore: 0,
+        isLive: false,
+        goalscorers: [],
+        cards: [],
+        substitutions: {}
       }
-      
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
-    } catch (error) {
-      console.error('Error fetching league standings:', error);
-      return [];
-    }
+    ];
   },
 
   async getAvailableLeagues(): Promise<any[]> {
