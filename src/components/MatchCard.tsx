@@ -7,6 +7,9 @@ interface MatchCardProps {
 }
 
 export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick }) => {
+  // HOOK RULES FIX - Always call hooks at the top level
+  // Never call hooks inside loops, conditions, or nested functions
+  
   // Güvenli veri erişimi - daha sağlam hata önleyici
   if (!match || typeof match !== 'object') {
     return (
@@ -34,12 +37,12 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
   const isFinished = status === 'finished';
   const isScheduled = status === 'scheduled';
   
-  // Dakika bilgisini güvenli şekilde al - DÜZELTME
+  // Dakika bilgisini güvenli şekilde al
   const minuteInfo = match.minute && typeof match.minute === 'string' 
     ? match.minute 
     : (match.minute && typeof match.minute === 'number' ? match.minute.toString() : null);
 
-  // Skor bilgilerini güvenli şekilde al - sayıya çevirme hatası önleyici
+  // Skor bilgilerini güvenli şekilde al
   const homeScore = match.homeScore !== undefined 
     ? (typeof match.homeScore === 'number' ? match.homeScore : 
        (typeof match.homeScore === 'string' ? parseInt(match.homeScore) || 0 : 0))
@@ -54,26 +57,22 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
   const homeFlag = getCountryFlag(homeTeam.country || '');
   const awayFlag = getCountryFlag(awayTeam.country || '');
 
-  // Maç zamanı gösterimi - TEK FONKSIYON (DUPLICATE KALDIRILDI)
+  // Maç zamanı gösterimi - FIXED FUNCTION
   const getTimeDisplay = () => {
     try {
       if (isLive) {
-        // Dakika bilgisini daha iyi göster
         if (minuteInfo && minuteInfo !== '0' && minuteInfo !== 'null' && minuteInfo !== '') {
-          // Dakika sayısını temizle ve formatla
           const cleanMinute = minuteInfo.toString().replace(/[^0-9]/g, '');
           if (cleanMinute && parseInt(cleanMinute) >= 0) {
             return `${cleanMinute}'`;
           }
         }
-        // Fallback için LIVE göster
         return 'LIVE';
       }
       if (isFinished) {
         return 'FT';
       }
       
-      // Zaman bilgisi kontrolü
       if (match.time && typeof match.time === 'string') {
         return match.time;
       }
@@ -85,43 +84,50 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
     }
   };
 
-  // Debug için console log ekle
-  if (isLive) {
-    console.log('🔴 Live Match Debug:', {
-      matchId: match.id,
-      minuteInfo: minuteInfo,
-      minute: match.minute,
-      status: status,
-      isLive: isLive,
-      timeDisplay: getTimeDisplay()
-    });
-  }
+  // Debug log - SAFE
+  React.useEffect(() => {
+    if (isLive) {
+      console.log('🔴 Live Match Debug:', {
+        matchId: match.id,
+        minuteInfo: minuteInfo,
+        minute: match.minute,
+        status: status,
+        isLive: isLive,
+        timeDisplay: getTimeDisplay()
+      });
+    }
+  }, [match.id, minuteInfo, match.minute, status, isLive]);
 
-  // Tıklama olayı - güvenli şekilde aktif
-  const handleClick = (e: React.MouseEvent) => {
+  // Tıklama olayı - SAFE HANDLER
+  const handleClick = React.useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     try {
       console.log('Match card clicked:', match.id || 'No ID');
       
-      // onClick fonksiyonunun var olup olmadığını kontrol et
       if (onClick && typeof onClick === 'function') {
-        // setTimeout ile asenkron çalıştır - daha güvenli
+        // Safe async call
         setTimeout(() => {
           try {
             onClick();
           } catch (error) {
             console.error('onClick function error:', error);
-            alert('An error occurred while opening match details. Please try again.');
           }
         }, 100);
       }
     } catch (error) {
       console.error('Match click error:', error);
-      alert('An error occurred while loading match details. Please try again.');
     }
-  };
+  }, [onClick, match.id]);
+
+  // Keyboard handler - SAFE
+  const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick(e as any);
+    }
+  }, [handleClick]);
 
   return (
     <div 
@@ -135,12 +141,7 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
       onClick={handleClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick(e as any);
-        }
-      }}
+      onKeyDown={handleKeyDown}
     >
       <div className="p-4">
         <div className="flex items-center justify-between">
@@ -168,7 +169,7 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
               <span className="text-2xl font-bold text-gray-900">{awayScore}</span>
             </div>
             
-            {/* Time/Status Display - ENHANCED */}
+            {/* Time/Status Display */}
             <div className="text-center">
               <div className={`text-sm font-bold px-2 py-1 rounded ${
                 isLive 

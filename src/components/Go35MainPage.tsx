@@ -366,9 +366,15 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
                             homeScore: match.homeScore,
                             awayScore: match.awayScore,
                             isLive: match.isLive,
-                            minute: match.isLive ? (match.minute || '0') : '0', // DÜZELTME
+                            // DAKIKA VERİSİ - BASIT VE NET
+                            minute: match.isLive ? (match.minute?.toString() || '0') : null,
                             status: match.status,
-                            time: match.isLive ? `${match.minute || '0'}'` : match.time, // DÜZELTME
+                            // ZAMAN VERİSİ - DURUM BAZLI
+                            time: match.isLive 
+                              ? (match.minute ? `${match.minute}'` : 'LIVE')
+                              : match.status === 'finished' 
+                                ? 'FT'
+                                : match.time || '00:00',
                             league: league.name
                           }}
                           onClick={() => handleMatchClick({
@@ -378,9 +384,13 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
                             homeScore: match.homeScore,
                             awayScore: match.awayScore,
                             isLive: match.isLive,
-                            minute: match.isLive ? (match.minute || '0') : '0', // DÜZELTME
+                            minute: match.isLive ? (match.minute?.toString() || '0') : null,
                             status: match.status,
-                            time: match.isLive ? `${match.minute || '0'}'` : match.time, // DÜZELTME
+                            time: match.isLive 
+                              ? (match.minute ? `${match.minute}'` : 'LIVE')
+                              : match.status === 'finished' 
+                                ? 'FT'
+                                : match.time || '00:00',
                             league: league.name
                           })}
                         />
