@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { getCountryFlag } from '../services/api';
 
 interface MatchCardProps {
@@ -7,10 +7,33 @@ interface MatchCardProps {
 }
 
 export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick }) => {
-  // HOOK RULES FIX - Always call hooks at the top level
-  // Never call hooks inside loops, conditions, or nested functions
+  // HOOK RULES FIX - ALL HOOKS AT TOP LEVEL
   
-  // Güvenli veri erişimi - daha sağlam hata önleyici
+  // Tıklama handler - useCallback ile optimize
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (onClick && typeof onClick === 'function') {
+      setTimeout(() => {
+        try {
+          onClick();
+        } catch (error) {
+          console.error('onClick error:', error);
+        }
+      }, 100);
+    }
+  }, [onClick]);
+
+  // Keyboard handler - useCallback ile optimize
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick(e as any);
+    }
+  }, [handleClick]);
+
+  // EARLY RETURN AFTER ALL HOOKS
   if (!match || typeof match !== 'object') {
     return (
       <div className="bg-white rounded-xl shadow-sm border p-4 text-center text-gray-500">
@@ -57,77 +80,28 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
   const homeFlag = getCountryFlag(homeTeam.country || '');
   const awayFlag = getCountryFlag(awayTeam.country || '');
 
-  // Maç zamanı gösterimi - FIXED FUNCTION
+  // BASIT DAKIKA GÖSTERIMI
   const getTimeDisplay = () => {
-    try {
-      if (isLive) {
-        if (minuteInfo && minuteInfo !== '0' && minuteInfo !== 'null' && minuteInfo !== '') {
-          const cleanMinute = minuteInfo.toString().replace(/[^0-9]/g, '');
-          if (cleanMinute && parseInt(cleanMinute) >= 0) {
-            return `${cleanMinute}'`;
-          }
+    if (isLive) {
+      if (minuteInfo && minuteInfo !== '0' && minuteInfo !== 'null' && minuteInfo !== '') {
+        const minute = parseInt(minuteInfo.toString().replace(/[^0-9]/g, ''));
+        if (minute >= 0) {
+          return `${minute}'`;
         }
-        return 'LIVE';
       }
-      if (isFinished) {
-        return 'FT';
-      }
-      
-      if (match.time && typeof match.time === 'string') {
-        return match.time;
-      }
-      
-      return '00:00';
-    } catch (error) {
-      console.error('Time display error:', error);
       return 'LIVE';
     }
-  };
-
-  // Debug log - SAFE
-  React.useEffect(() => {
-    if (isLive) {
-      console.log('🔴 Live Match Debug:', {
-        matchId: match.id,
-        minuteInfo: minuteInfo,
-        minute: match.minute,
-        status: status,
-        isLive: isLive,
-        timeDisplay: getTimeDisplay()
-      });
-    }
-  }, [match.id, minuteInfo, match.minute, status, isLive]);
-
-  // Tıklama olayı - SAFE HANDLER
-  const handleClick = React.useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     
-    try {
-      console.log('Match card clicked:', match.id || 'No ID');
-      
-      if (onClick && typeof onClick === 'function') {
-        // Safe async call
-        setTimeout(() => {
-          try {
-            onClick();
-          } catch (error) {
-            console.error('onClick function error:', error);
-          }
-        }, 100);
-      }
-    } catch (error) {
-      console.error('Match click error:', error);
+    if (isFinished) {
+      return 'FT';
     }
-  }, [onClick, match.id]);
-
-  // Keyboard handler - SAFE
-  const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleClick(e as any);
+    
+    if (match.time && typeof match.time === 'string') {
+      return match.time;
     }
-  }, [handleClick]);
+    
+    return '00:00';
+  };
 
   return (
     <div 
@@ -169,19 +143,19 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
               <span className="text-2xl font-bold text-gray-900">{awayScore}</span>
             </div>
             
-            {/* Time/Status Display */}
+            {/* Time/Status Display - BASIT VE NET */}
             <div className="text-center">
-              <div className={`text-sm font-bold px-2 py-1 rounded ${
+              <div className={`text-lg font-bold px-3 py-2 rounded-lg ${
                 isLive 
-                  ? 'text-red-600 bg-red-100 animate-pulse' 
+                  ? 'text-white bg-red-500 animate-pulse shadow-lg' 
                   : isFinished 
-                    ? 'text-gray-600 bg-gray-100'
-                    : 'text-blue-600 bg-blue-100'
+                    ? 'text-white bg-gray-500'
+                    : 'text-white bg-blue-500'
               }`}>
                 {getTimeDisplay()}
               </div>
               {isLive && (
-                <div className="text-xs text-red-500 font-medium mt-1 animate-pulse">
+                <div className="text-xs text-red-600 font-bold mt-1 animate-pulse">
                   LIVE
                 </div>
               )}
