@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from '../i18n/useTranslation';
 import { supportedLanguages } from '../i18n';
+import { BarChart3, TrendingUp } from 'lucide-react';
 
 interface Go35HeaderProps {
   currentView?: string;
@@ -123,6 +124,101 @@ export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', 
               </div>
             )}
           </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+
+## 🎯 Patron, Mükemmel! Go35.vercel.app Sitesini Referans Alıyorum!
+
+### 🔍 **Referans Site Analizi:**
+
+**Go35.vercel.app'den gördüğüm özellikler:** <mcreference link="https://go35.vercel.app/" index="0">0</mcreference>
+- 🟣 **GoLivo** branding
+- ⚽ **Scores** bölümü
+- 📰 **News** bölümü  
+- 📊 **Analysis** bölümü
+- 📞 **Contact Us** bölümü
+- 🎨 Modern, temiz tasarım
+
+### 🚀 **Sitenizi Aynı Şekilde Düzenliyorum:**
+
+**1. Header Navigation Güncelleme:**
+```typescript
+import React from 'react';
+import { BarChart3, Newspaper, Phone } from 'lucide-react';
+
+interface Go35HeaderProps {
+  currentView?: string;
+  onViewChange?: (view: string) => void;
+}
+
+export const Go35Header: React.FC<Go35HeaderProps> = ({ currentView = 'scores', onViewChange }) => {
+  return (
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* GoLivo Logo */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+              <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">GoLivo</h1>
+              <p className="text-xs text-gray-500">Live Football Scores</p>
+            </div>
+          </div>
+
+          {/* Navigation Menu */}
+          <nav className="flex items-center space-x-1">
+            <button
+              onClick={() => onViewChange?.('scores')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                currentView === 'scores'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+              }`}
+            >
+              Scores
+            </button>
+            <button
+              onClick={() => onViewChange?.('news')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                currentView === 'news'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+              }`}
+            >
+              <Newspaper className="w-4 h-4" />
+              <span>News</span>
+            </button>
+            <button
+              onClick={() => onViewChange?.('analysis')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                currentView === 'analysis'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Analysis</span>
+            </button>
+            <button
+              onClick={() => onViewChange?.('contact')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                currentView === 'contact'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+              }`}
+            >
+              <Phone className="w-4 h-4" />
+              <span>Contact Us</span>
+            </button>
+          </nav>
         </div>
       </div>
     </header>

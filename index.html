@@ -2,78 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Değiştir: -->
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    
-    <!-- Şununla: -->
-    <link rel="icon" type="image/svg+xml" href="/placeholder-logo.svg" />
-    <link rel="apple-touch-icon" href="/placeholder-logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/golivo-favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Golivo - Live Football Scores</title>
-    <style>
-      .loading-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      }
-      .loading-logo {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: white;
-        margin-bottom: 1rem;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      }
-      .loading-text {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-      }
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top: 3px solid white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      .fade-out {
-        opacity: 0;
-        transition: opacity 0.5s ease-out;
-      }
-    </style>
+    <title>Golivo - Live Football Scores & Analysis</title>
+    <meta name="description" content="Get real-time football scores, match analysis, and live updates from all major leagues. Professional football data platform." />
+    <meta name="keywords" content="football, soccer, live scores, match analysis, premier league, la liga, serie a, bundesliga" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Golivo - Live Football Scores" />
+    <meta property="og:description" content="Professional football data platform with real-time scores and analysis" />
+    <meta property="og:image" content="/golivo-og-image.png" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Golivo - Live Football Scores" />
+    <meta name="twitter:description" content="Professional football data platform" />
+    <meta name="twitter:image" content="/golivo-twitter-image.png" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#7c3aed" />
   </head>
   <body>
-    <div id="loading" class="loading-screen">
-      <div class="loading-logo">⚽ GoLivo</div>
-      <div class="loading-text">Live Football Scores</div>
-      <div class="loading-spinner"></div>
-    </div>
     <div id="root"></div>
-    <script>
-      // Hide loading screen once React app loads
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const loading = document.getElementById('loading');
-          if (loading) {
-            loading.classList.add('fade-out');
-            setTimeout(() => loading.remove(), 500);
-          }
-        }, 100);
-      });
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Settings } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Go35Header } from './Go35Header';
-import { DomainTestComponent } from './DomainTestComponent';
+import { FootballApi } from '../services/api';
 
 interface Match {
   id: string;
@@ -35,335 +35,263 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
   onViewChange 
 }) => {
   const [expandedLeagues, setExpandedLeagues] = useState<string[]>(['Premier League', 'La Liga', 'Serie A', 'Bundesliga']);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
   const [leagues, setLeagues] = useState<League[]>([]);
-  const [showDomainTest, setShowDomainTest] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mock data that matches go35 structure
-    const mockLeagues: League[] = [
-      {
-        id: '152',
-        name: 'Premier League',
-        logo: '/api/placeholder/32/32',
-        matches: [
-          {
-            id: '1',
-            homeTeam: 'Manchester City',
-            awayTeam: 'Arsenal', 
-            homeScore: 2,
-            awayScore: 1,
-            isLive: true,
-            minute: 78,
-            status: 'live',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '2',
-            homeTeam: 'Liverpool',
-            awayTeam: 'Chelsea',
-            homeScore: 1,
-            awayScore: 0,
-            isLive: true,
-            minute: 45,
-            status: 'live',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '3',
-            homeTeam: 'Burnley',
-            awayTeam: 'Luton Town',
-            homeScore: 1,
-            awayScore: 1,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '4',
-            homeTeam: 'Chelsea',
-            awayTeam: 'Fulham',
-            homeScore: 1,
-            awayScore: 0,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '5',
-            homeTeam: 'Newcastle United',
-            awayTeam: 'Manchester City',
-            homeScore: 2,
-            awayScore: 3,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
+    const fetchLiveMatches = async () => {
+      try {
+        setLoading(true);
+        console.log('🔄 Fetching live matches...');
+        const realMatches = await FootballApi.getLiveMatches();
+        
+        // Only show live matches
+        const liveMatches = realMatches.filter(match => match.isLive);
+        
+        const groupedByLeague: League[] = [];
+        const leagueMap = new Map();
+        
+        liveMatches.forEach(match => {
+          const leagueName = match.league;
+          if (!leagueMap.has(leagueName)) {
+            leagueMap.set(leagueName, {
+              id: leagueName.toLowerCase().replace(/\s+/g, '-'),
+              name: leagueName,
+              logo: '/placeholder-logo.svg',
+              matches: []
+            });
           }
-        ]
-      },
-      {
-        id: '302',
-        name: 'La Liga',
-        logo: '/api/placeholder/32/32',
-        matches: [
+          leagueMap.get(leagueName).matches.push({
+            id: match.id,
+            homeTeam: match.homeTeam.name,
+            awayTeam: match.awayTeam.name,
+            homeScore: match.homeScore,
+            awayScore: match.awayScore,
+            isLive: match.isLive,
+            minute: match.minute,
+            status: match.status,
+            time: match.time,
+            homeLogo: match.homeTeam.logo,
+            awayLogo: match.awayTeam.logo,
+            leagueId: match.league
+          });
+        });
+        
+        const leaguesArray = Array.from(leagueMap.values());
+        setLeagues(leaguesArray);
+        
+        console.log('✅ Live matches loaded:', leaguesArray.length, 'leagues');
+      } catch (error) {
+        console.error('❌ API Error, using fallback live data:', error);
+        
+        // Fallback live matches only
+        const mockLiveLeagues: League[] = [
           {
-            id: '6',
-            homeTeam: 'Real Madrid',
-            awayTeam: 'Barcelona',
-            homeScore: 1,
-            awayScore: 1,
-            isLive: true,
-            minute: 67,
-            status: 'live',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
+            id: '152',
+            name: 'Premier League',
+            logo: '/placeholder-logo.svg',
+            matches: [
+              {
+                id: '1',
+                homeTeam: 'Manchester City',
+                awayTeam: 'Liverpool',
+                homeScore: 2,
+                awayScore: 1,
+                isLive: true,
+                minute: 67,
+                status: 'live',
+                homeLogo: '/placeholder-logo.svg',
+                awayLogo: '/placeholder-logo.svg',
+                leagueId: '152'
+              },
+              {
+                id: '4',
+                homeTeam: 'Arsenal',
+                awayTeam: 'Tottenham',
+                homeScore: 1,
+                awayScore: 1,
+                isLive: true,
+                minute: 23,
+                status: 'live',
+                homeLogo: '/placeholder-logo.svg',
+                awayLogo: '/placeholder-logo.svg',
+                leagueId: '152'
+              }
+            ]
           },
           {
-            id: '7',
-            homeTeam: 'Valencia',
-            awayTeam: 'Villarreal',
-            homeScore: 3,
-            awayScore: 1,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '8',
-            homeTeam: 'Real Sociedad',
-            awayTeam: 'Alaves',
-            homeScore: 1,
-            awayScore: 1,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '9',
-            homeTeam: 'Girona',
-            awayTeam: 'Atletico Madrid',
-            homeScore: 4,
-            awayScore: 3,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '10',
-            homeTeam: 'Celta Vigo',
-            awayTeam: 'Real Betis',
-            homeScore: 2,
-            awayScore: 1,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
+            id: '302',
+            name: 'La Liga',
+            logo: '/placeholder-logo.svg',
+            matches: [
+              {
+                id: '3',
+                homeTeam: 'Real Madrid',
+                awayTeam: 'Barcelona',
+                homeScore: 0,
+                awayScore: 0,
+                isLive: true,
+                minute: 12,
+                status: 'live',
+                homeLogo: '/placeholder-logo.svg',
+                awayLogo: '/placeholder-logo.svg',
+                leagueId: '302'
+              }
+            ]
           }
-        ]
-      },
-      {
-        id: '207',
-        name: 'Serie A',
-        logo: '/api/placeholder/32/32',
-        matches: [
-          {
-            id: '11',
-            homeTeam: 'Bologna',
-            awayTeam: 'Genoa',
-            homeScore: 1,
-            awayScore: 1,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '12',
-            homeTeam: 'Frosinone',
-            awayTeam: 'Monza',
-            homeScore: 2,
-            awayScore: 3,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          }
-        ]
-      },
-      {
-        id: '175',
-        name: 'Bundesliga',
-        logo: '/api/placeholder/32/32',
-        matches: [
-          {
-            id: '13',
-            homeTeam: 'Bayern Munich',
-            awayTeam: 'Hoffenheim',
-            homeScore: 3,
-            awayScore: 0,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          },
-          {
-            id: '14',
-            homeTeam: 'RB Leipzig',
-            awayTeam: 'Eintracht Frankfurt',
-            homeScore: 0,
-            awayScore: 1,
-            status: 'finished',
-            homeLogo: '/api/placeholder/24/24',
-            awayLogo: '/api/placeholder/24/24'
-          }
-        ]
+        ];
+        
+        setLeagues(mockLiveLeagues);
+      } finally {
+        setLoading(false);
       }
-    ];
-
-    setLeagues(mockLeagues);
+    };
     
-    // Auto-refresh every 10 seconds
-    const interval = setInterval(() => {
-      setLastUpdate(new Date());
-    }, 10000);
-
+    fetchLiveMatches();
+    
+    // Update every 10 seconds for live scores
+    const interval = setInterval(fetchLiveMatches, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  const toggleLeague = (leagueName: string) => {
-    setExpandedLeagues(prev => 
-      prev.includes(leagueName) 
-        ? prev.filter(name => name !== leagueName)
-        : [...prev, leagueName]
-    );
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-  };
-
-  if (currentView !== 'scores') {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Go35Header currentView={currentView} onViewChange={onViewChange} />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              {currentView === 'news' && 'Football News'}
-              {currentView === 'analysis' && 'Match Analysis'}
-            </h2>
-            <p className="text-gray-600">
-              {currentView === 'news' && 'Latest football news coming soon...'}
-              {currentView === 'analysis' && 'Professional match analysis coming soon...'}
-            </p>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading live matches...</p>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
+
+  const totalLiveMatches = leagues.reduce((acc, league) => acc + league.matches.length, 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Go35Header currentView={currentView} onViewChange={onViewChange} />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Live Scores</h1>
-          <p className="text-gray-600">Stay updated with the latest football scores and live matches</p>
+      <main className="container mx-auto px-4 py-8">
+        {/* Simple Title */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Live Football Scores
+          </h1>
+          <p className="text-gray-600">
+            {totalLiveMatches} live matches • Updated every 10 seconds
+          </p>
         </div>
 
-        {/* League Sections */}
-        <div className="space-y-6">
-          {leagues.map((league) => (
-            <div key={league.id} className="bg-white rounded-lg shadow">
-              {/* League Header */}
-              <button
-                onClick={() => toggleLeague(league.name)}
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <img 
-                    src={league.logo} 
-                    alt={league.name}
-                    className="w-8 h-8 object-contain"
-                  />
-                  <h3 className="text-lg font-semibold text-gray-900">{league.name}</h3>
-                  <span className="text-sm text-gray-500">({league.matches.length})</span>
-                </div>
-                {expandedLeagues.includes(league.name) ? (
-                  <ChevronUp className="w-5 h-5 text-gray-400" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-400" />
-                )}
-              </button>
-
-              {/* Matches */}
-              {expandedLeagues.includes(league.name) && (
-                <div className="px-6 pb-6 space-y-3">
-                  {league.matches.map((match) => (
-                    <div 
-                      key={match.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                    >
-                      {/* Home Team */}
-                      <div className="flex items-center space-x-3 flex-1">
-                        <img 
-                          src={match.homeLogo} 
-                          alt={match.homeTeam}
-                          className="w-6 h-6 object-contain"
-                        />
-                        <span className="font-medium text-gray-900">{match.homeTeam}</span>
-                      </div>
-
-                      {/* Score and Minute Display */}
-                      <div className="flex flex-col items-center space-y-1 px-4">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-gray-900">{match.homeScore}</span>
-                          <span className="text-gray-500">-</span>
-                          <span className="text-lg font-bold text-gray-900">{match.awayScore}</span>
-                        </div>
-                        
-                        {/* Live Indicator and Minute */}
-                        {match.isLive && match.minute ? (
-                          <div className="flex items-center space-x-1">
-                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
-                            <span className="text-red-500 font-black text-sm animate-pulse">
-                              {match.minute}'
-                            </span>
-                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
-                            {match.status === 'live' ? 'LIVE' : 'FT'}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Away Team */}
-                      <div className="flex items-center space-x-3 flex-1 justify-end">
-                        <span className="font-medium text-gray-900">{match.awayTeam}</span>
-                        <img 
-                          src={match.awayLogo} 
-                          alt={match.awayTeam}
-                          className="w-6 h-6 object-contain"
-                        />
-                      </div>
+        {totalLiveMatches === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">⚽</div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Live Matches</h2>
+            <p className="text-gray-600">Check back later for live football action!</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {leagues.map((league) => (
+              <div key={league.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div 
+                  className="flex items-center justify-between p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => {
+                    setExpandedLeagues(prev => 
+                      prev.includes(league.name) 
+                        ? prev.filter(name => name !== league.name)
+                        : [...prev, league.name]
+                    );
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <img 
+                      src={league.logo} 
+                      alt={league.name} 
+                      className="w-6 h-6 rounded-full"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder-logo.svg';
+                      }}
+                    />
+                    <div>
+                      <h2 className="font-semibold text-gray-900">{league.name}</h2>
+                      <p className="text-sm text-gray-500">{league.matches.length} live matches</p>
                     </div>
-                  ))}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                      LIVE
+                    </span>
+                    {expandedLeagues.includes(league.name) ? 
+                      <ChevronUp className="w-5 h-5 text-gray-400" /> : 
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    }
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
 
-        {/* Footer Info */}
-        <div className="text-center mt-8 text-sm text-gray-500">
-          Last updated: {formatTime(lastUpdate)} • Auto-refresh every 10 seconds
-        </div>
+                {expandedLeagues.includes(league.name) && (
+                  <div className="p-4">
+                    <div className="space-y-3">
+                      {league.matches.map((match) => (
+                        <div key={match.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                          <div className="flex items-center justify-between">
+                            {/* Teams and Score */}
+                            <div className="flex items-center space-x-6 flex-1">
+                              {/* Home Team */}
+                              <div className="flex items-center space-x-2 flex-1">
+                                <img 
+                                  src={match.homeLogo || '/placeholder-logo.svg'} 
+                                  alt={match.homeTeam} 
+                                  className="w-5 h-5 rounded-full"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/placeholder-logo.svg';
+                                  }}
+                                />
+                                <span className="font-medium text-gray-900 text-right">{match.homeTeam}</span>
+                              </div>
+                              
+                              {/* Score */}
+                              <div className="text-center min-w-[80px]">
+                                <div className="text-xl font-bold text-gray-900 mb-1">
+                                  {match.homeScore ?? 0} - {match.awayScore ?? 0}
+                                </div>
+                                {/* Flashing Red Minute */}
+                                <div className="text-xs font-bold text-red-500 animate-pulse">
+                                  {match.minute}'
+                                </div>
+                              </div>
+                              
+                              {/* Away Team */}
+                              <div className="flex items-center space-x-2 flex-1">
+                                <span className="font-medium text-gray-900">{match.awayTeam}</span>
+                                <img 
+                                  src={match.awayLogo || '/placeholder-logo.svg'} 
+                                  alt={match.awayTeam} 
+                                  className="w-5 h-5 rounded-full"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/placeholder-logo.svg';
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            
+                            {/* Live Indicator */}
+                            <div className="ml-4">
+                              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                                LIVE
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
