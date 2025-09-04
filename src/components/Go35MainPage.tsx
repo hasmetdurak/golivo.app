@@ -37,27 +37,57 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
   const [expandedLeagues, setExpandedLeagues] = useState<string[]>(['Premier League', 'La Liga', 'Serie A', 'Bundesliga']);
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMatch, setSelectedMatch] = useState<any>(null);
+  const [modalViewMode, setModalViewMode] = useState<'mini' | 'full'>('mini');
+  const [clickCount, setClickCount] = useState(0);
+
+  // Match click handler with double-click detection
+  const handleMatchClick = (match: any) => {
+    if (selectedMatch?.id === match.id) {
+      // Same match clicked - toggle view mode
+      const newMode = modalViewMode === 'mini' ? 'full' : 'mini';
+      setModalViewMode(newMode);
+    } else {
+      // New match clicked - open in mini mode
+      setSelectedMatch(match);
+      setModalViewMode('mini');
+    }
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setSelectedMatch(null);
+    setModalViewMode('mini');
+  };
+
+  // View mode change handler
+  const handleViewModeChange = (mode: 'mini' | 'full') => {
+    setModalViewMode(mode);
+  };
 
   useEffect(() => {
-    const fetchLiveMatches = async () => {
+    const fetchAllMatches = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Fetching live matches...');
-        const realMatches = await FootballApi.getLiveMatches();
+        console.log('🔄 Fetching all matches (live + today)...');
+        const allMatches = await FootballApi.getLiveMatches();
         
-        // Only show live matches
-        const liveMatches = realMatches.filter(match => match.isLive);
+        // Maçları kategorilere ayır
+        const liveMatches = allMatches.filter(match => match.isLive);
+        const todayMatches = allMatches.filter(match => !match.isLive);
         
+        // Liglere göre grupla
         const groupedByLeague: League[] = [];
         const leagueMap = new Map();
         
+        // Önce canlı maçları ekle
         liveMatches.forEach(match => {
           const leagueName = match.league;
           if (!leagueMap.has(leagueName)) {
             leagueMap.set(leagueName, {
               id: leagueName.toLowerCase().replace(/\s+/g, '-'),
               name: leagueName,
-              logo: '/placeholder-logo.svg',
+              logo: getLeagueLogo(leagueName),
               matches: []
             });
           }
@@ -77,83 +107,111 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
           });
         });
         
+        // Sonra günün diğer maçlarını ekle
+        todayMatches.forEach(match => {
+          const leagueName = match.league;
+          if (!leagueMap.has(leagueName)) {
+            leagueMap.set(leagueName, {
+              id: leagueName.toLowerCase().replace(/\s+/g, '-'),
+              name: leagueName,
+              logo: getLeagueLogo(leagueName),
+              matches: []
+            });
+          }
+          leagueMap.get(leagueName).matches.push({
+            id: match.id,
+            homeTeam: match.homeTeam.name,
+            awayTeam: match.awayTeam.name,
+            homeScore: match.homeScore,
+            awayScore: match.awayScore,
+            isLive: match.isLive,
+            minute: match.minute,
+            status: match.status,
+            time: match.time,
+            homeLogo: match.homeTeam.logo,
+            awayLogo: match.awayTeam.logo,
+            leagueId: match.league
+          });
+        });
+        
+        // Her lig içinde maçları sırala: önce canlı, sonra zaman sırasına göre
+        leagueMap.forEach(league => {
+          league.matches.sort((a, b) => {
+            // Önce canlı maçlar
+            if (a.isLive && !b.isLive) return -1;
+            if (!a.isLive && b.isLive) return 1;
+            
+            // Canlı maçlar kendi içinde dakikaya göre
+            if (a.isLive && b.isLive) {
+              const aMinute = parseInt(a.minute || '0');
+              const bMinute = parseInt(b.minute || '0');
+              return bMinute - aMinute; // Büyük dakika önce
+            }
+            
+            // Diğer maçlar zaman sırasına göre
+            if (a.time && b.time) {
+              return a.time.localeCompare(b.time);
+            }
+            
+            return 0;
+          });
+        });
+        
         const leaguesArray = Array.from(leagueMap.values());
+        
+        // Ligleri öncelik sırasına göre sırala
+        const priorityLeagues = ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Ligue 1', 'Süper Lig'];
+        leaguesArray.sort((a, b) => {
+          const aIndex = priorityLeagues.indexOf(a.name);
+          const bIndex = priorityLeagues.indexOf(b.name);
+          
+          if (aIndex !== -1 && bIndex !== -1) {
+            return aIndex - bIndex;
+          }
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+          
+          return a.name.localeCompare(b.name);
+        });
+        
         setLeagues(leaguesArray);
         
-        console.log('✅ Live matches loaded:', leaguesArray.length, 'leagues');
+        console.log('✅ All matches loaded:', leaguesArray.length, 'leagues');
+        console.log('🔴 Live matches:', liveMatches.length);
+        console.log('📅 Today matches:', todayMatches.length);
       } catch (error) {
-        console.error('❌ API Error, using fallback live data:', error);
-        
-        // Fallback live matches only
-        const mockLiveLeagues: League[] = [
-          {
-            id: '152',
-            name: 'Premier League',
-            logo: '/placeholder-logo.svg',
-            matches: [
-              {
-                id: '1',
-                homeTeam: 'Manchester City',
-                awayTeam: 'Liverpool',
-                homeScore: 2,
-                awayScore: 1,
-                isLive: true,
-                minute: 67,
-                status: 'live',
-                homeLogo: '/placeholder-logo.svg',
-                awayLogo: '/placeholder-logo.svg',
-                leagueId: '152'
-              },
-              {
-                id: '4',
-                homeTeam: 'Arsenal',
-                awayTeam: 'Tottenham',
-                homeScore: 1,
-                awayScore: 1,
-                isLive: true,
-                minute: 23,
-                status: 'live',
-                homeLogo: '/placeholder-logo.svg',
-                awayLogo: '/placeholder-logo.svg',
-                leagueId: '152'
-              }
-            ]
-          },
-          {
-            id: '302',
-            name: 'La Liga',
-            logo: '/placeholder-logo.svg',
-            matches: [
-              {
-                id: '3',
-                homeTeam: 'Real Madrid',
-                awayTeam: 'Barcelona',
-                homeScore: 0,
-                awayScore: 0,
-                isLive: true,
-                minute: 12,
-                status: 'live',
-                homeLogo: '/placeholder-logo.svg',
-                awayLogo: '/placeholder-logo.svg',
-                leagueId: '302'
-              }
-            ]
-          }
-        ];
-        
-        setLeagues(mockLiveLeagues);
+        console.error('❌ API Error:', error);
+        // Fallback data...
       } finally {
         setLoading(false);
       }
     };
+
+    fetchAllMatches();
     
-    fetchLiveMatches();
-    
-    // Update every 10 seconds for live scores
-    const interval = setInterval(fetchLiveMatches, 10000);
+    // Her 30 saniyede bir güncelle
+    const interval = setInterval(fetchAllMatches, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  // Liga logosu getir
+  const getLeagueLogo = (leagueName: string): string => {
+    const logoMap: { [key: string]: string } = {
+      'Premier League': '/leagues/premier-league-2024.svg',
+      'English Premier League': '/leagues/premier-league-2024.svg',
+      'La Liga': '/leagues/laliga-2024.svg',
+      'Spanish La Liga': '/leagues/laliga-2024.svg',
+      'Serie A': '/leagues/serie-a-2022.svg',
+      'Italian Serie A': '/leagues/serie-a-2022.svg',
+      'Bundesliga': '/placeholder-logo.svg',
+      'German Bundesliga': '/placeholder-logo.svg',
+      'Süper Lig': '/leagues/super-lig.svg',
+      'Turkish Super League': '/leagues/super-lig.svg',
+      'Super Lig': '/leagues/super-lig.svg'
+    };
+    return logoMap[leagueName] || '/placeholder-logo.svg';
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -171,7 +229,7 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
   const totalLiveMatches = leagues.reduce((acc, league) => acc + league.matches.length, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       <Go35Header currentView={currentView} onViewChange={onViewChange} />
       
       <main className="container mx-auto px-4 py-8">
@@ -293,6 +351,15 @@ export const Go35MainPage: React.FC<Go35MainPageProps> = ({
           </div>
         )}
       </main>
+      
+      {/* Match Details Modal */}
+      <MatchDetailsModal
+        match={selectedMatch}
+        isOpen={!!selectedMatch}
+        onClose={handleCloseModal}
+        viewMode={modalViewMode}
+        onViewModeChange={handleViewModeChange}
+      />
     </div>
   );
 };
