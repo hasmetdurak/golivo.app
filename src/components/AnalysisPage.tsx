@@ -3,6 +3,7 @@ import { Target, TrendingUp, Users, Award } from 'lucide-react';
 import { Go35Header } from './Go35Header';
 import { StatsCard } from './StatsCard';
 import { AnalysisChart } from './AnalysisChart';
+import { ComprehensiveStatsDashboard } from './ComprehensiveStatsDashboard';
 import { FootballApi } from '../services/api';
 
 interface AnalysisPageProps {
@@ -35,24 +36,43 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({
     totalGoals: 0,
     liveMatches: 0,
     totalMatches: 0,
-    activeLeagues: 0
+    activeLeagues: 0,
+    countries: 0,
+    withOdds: 0,
+    tier1Matches: 0,
+    avgGoalsPerMatch: 0,
+    coverage: 0
   });
+  const [comprehensiveData, setComprehensiveData] = useState<any>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const matches = await FootballApi.getLiveMatches();
+        // Get comprehensive data for analysis
+        const comprehensiveResult = await FootballApi.getComprehensiveAllData();
+        setComprehensiveData(comprehensiveResult);
+        
+        const matches = comprehensiveResult.matches || [];
         const liveMatches = matches.filter(m => m.isLive).length;
         const totalGoals = matches.reduce((acc, match) => 
           acc + (match.homeScore || 0) + (match.awayScore || 0), 0
         );
         const leagues = new Set(matches.map(m => m.league)).size;
+        const countries = new Set(matches.map(m => m.country)).size;
+        const withOdds = matches.filter(m => m.odds?.home).length;
+        const tier1Matches = matches.filter(m => m.competition?.tier === 1).length;
+        const avgGoalsPerMatch = matches.length > 0 ? (totalGoals / matches.length).toFixed(1) : '0.0';
         
         setStats({
           totalGoals,
           liveMatches,
           totalMatches: matches.length,
-          activeLeagues: leagues
+          activeLeagues: leagues,
+          countries,
+          withOdds,
+          tier1Matches,
+          avgGoalsPerMatch: parseFloat(avgGoalsPerMatch),
+          coverage: Math.round((withOdds / matches.length) * 100)
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -60,13 +80,22 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({
           totalGoals: 127,
           liveMatches: 8,
           totalMatches: 45,
-          activeLeagues: 6
+          activeLeagues: 6,
+          countries: 15,
+          withOdds: 38,
+          tier1Matches: 22,
+          avgGoalsPerMatch: 2.8,
+          coverage: 84
         });
+        
+        // Set fallback comprehensive data
+        setComprehensiveData(FootballApi.getFallbackComprehensiveData());
       }
     };
     
     fetchStats();
-    const interval = setInterval(fetchStats, 30000);
+    // Refresh data every 3 minutes for analysis page
+    const interval = setInterval(fetchStats, 180000);
     return () => clearInterval(interval);
   }, []);
 
@@ -112,6 +141,17 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({
             description="Competitions" 
           />
         </div>
+
+        {/* Comprehensive Football Analytics */}
+        {comprehensiveData && (
+          <div className="mb-8">
+            <ComprehensiveStatsDashboard 
+              analytics={comprehensiveData.analytics}
+              totalDataPoints={comprehensiveData.totalDataPoints}
+              extractedAt={comprehensiveData.extractedAt}
+            />
+          </div>
+        )}
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

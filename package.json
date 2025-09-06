@@ -30,13 +30,18 @@
     "@types/react-helmet-async": "^1.0.1",
     "chart.js": "^4.5.0",
     "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "framer-motion": "^11.3.19",
     "lucide-react": "^0.344.0",
     "negotiator": "^0.6.3",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
     "react-helmet-async": "^2.0.5",
-    "tailwind-merge": "^3.3.1"
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.15.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

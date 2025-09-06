@@ -99,11 +99,11 @@ export const TeamDashboard: React.FC = () => {
         {filteredTeams.map((team) => (
           <div key={team.team_key} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50 hover:shadow-2xl transition-all duration-300">
             <div className="text-center">
-              <img
-                src={team.team_badge || 'https://via.placeholder.com/80x80/3B82F6/FFFFFF?text=T'}
-                alt={team.team_name}
-                className="w-20 h-20 mx-auto mb-4 rounded-full shadow-lg"
-              />
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span className="text-2xl font-bold text-white">
+                  {team.team_name?.charAt(0) || 'T'}
+                </span>
+              </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">{team.team_name}</h3>
               <p className="text-sm text-gray-600 mb-4">{team.team_country}</p>
               

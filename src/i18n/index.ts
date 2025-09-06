@@ -10,13 +10,13 @@ export interface Language {
 }
 
 export const supportedLanguages: Language[] = [
-  { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', subdomain: 'tr' },
   { code: 'en', name: 'English', nativeName: 'English', subdomain: 'en' },
-  { code: 'de', name: 'German', nativeName: 'Deutsch', subdomain: 'de' },
   { code: 'es', name: 'Spanish', nativeName: 'Español', subdomain: 'es' },
   { code: 'pt', name: 'Portuguese', nativeName: 'Português', subdomain: 'pt' },
   { code: 'fr', name: 'French', nativeName: 'Français', subdomain: 'fr' },
+  { code: 'de', name: 'German', nativeName: 'Deutsch', subdomain: 'de' },
   { code: 'it', name: 'Italian', nativeName: 'Italiano', subdomain: 'it' },
+  { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', subdomain: 'tr' },
   { code: 'ja', name: 'Japanese', nativeName: '日本語', subdomain: 'ja' },
   { code: 'ko', name: 'Korean', nativeName: '한국어', subdomain: 'ko' },
   { code: 'zh-CN', name: 'Chinese (Simplified)', nativeName: '简体中文', subdomain: 'cn' },

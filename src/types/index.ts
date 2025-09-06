@@ -1,49 +1,105 @@
+// Core data models for Live Football Score Website
+// Based on design requirements for purple-themed football platform
+
 export interface Match {
   id: string;
-  league: string;
-  country: string;
-  status: 'live' | 'finished' | 'scheduled';
-  time: string;
-  venue: string;
-  homeTeam: {
-    name: string;
-    logo: string;
-    formation?: string;
-    country?: string;
-  };
-  awayTeam: {
-    name: string;
-    logo: string;
-    formation?: string;
-    country?: string;
-  };
+  homeTeam: Team;
+  awayTeam: Team;
   homeScore: number;
   awayScore: number;
-  halftimeScore: {
-    home: number;
-    away: number;
-  };
+  status: 'scheduled' | 'live' | 'halftime' | 'finished';
+  minute?: number;
+  league: League;
+  date: Date;
   events: MatchEvent[];
-  statistics: MatchStatistic[];
-  minute?: string;
+  statistics: MatchStatistics;
+  venue?: string;
   referee?: string;
+  time?: string;
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  logo: string;
+  country: string;
+}
+
+export interface League {
+  id: string;
+  name: string;
+  country: string;
+  logo: string;
+  priority: number; // For popular leagues ordering
 }
 
 export interface MatchEvent {
-  type: string;
-  minute: string;
+  id: string;
+  type: 'goal' | 'yellow_card' | 'red_card' | 'substitution';
+  minute: number;
   player: string;
   team: 'home' | 'away';
-  icon: string;
+  description: string;
 }
 
-export interface MatchStatistic {
-  type: string;
-  home: string;
-  away: string;
-  homePercent: number;
-  awayPercent: number;
+export interface MatchStatistics {
+  possession: { home: number; away: number };
+  shots: { home: number; away: number };
+  shotsOnTarget: { home: number; away: number };
+  corners: { home: number; away: number };
+  fouls: { home: number; away: number };
+  yellowCards: { home: number; away: number };
+  redCards: { home: number; away: number };
 }
+
+// Business Logic Types
+export interface MatchService {
+  getLiveMatches(): Promise<Match[]>;
+  getMatchesByDate(date: Date): Promise<Match[]>;
+  getMatchDetails(matchId: string): Promise<Match>;
+}
+
+// UI Component Props
+export interface MatchCardProps {
+  match: Match;
+  isLive: boolean;
+  onClick: () => void;
+}
+
+export interface LeagueFrameProps {
+  league: League;
+  matches: Match[];
+  expanded: boolean;
+  onToggle: () => void;
+}
+
+export interface HeaderProps {
+  currentDate: Date;
+  onDateChange: (date: Date) => void;
+  activeSection: 'scores' | 'news' | 'analyses' | 'contact';
+}
+
+// Affiliate Integration Types
+export interface AffiliateLink {
+  id: string;
+  title: string;
+  url: string;
+  imageUrl: string;
+  description: string;
+  priority: number;
+}
+
+export interface AffiliateBanner {
+  id: string;
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  backgroundColor: string;
+  textColor: string;
+  affiliateLinks: AffiliateLink[];
+}
+
+// Legacy types for backward compatibility
 
 export interface TeamStanding {
   team_id: string;

@@ -1,0 +1,1216 @@
+// LiveScore API Configuration
+const LIVESCORE_API_URL = 'https://livescore-api.com/api-client/matches/live.json';
+const LIVESCORE_API_KEY = 'SMevPY633lCgLc1u';
+const LIVESCORE_API_SECRET = 'Vaf4qt9QehMahbH9XVFNULQY7teSFfmB';
+
+// Fallback API for additional data if needed
+const BASE_URL = 'https://apiv3.apifootball.com';
+const API_KEY = '47746f324863a1c7321a4b137847eba9e647469c8eacced9ca6175bbbadf5c2d';
+
+// League ID mappings for major leagues
+const LEAGUE_IDS = {
+  'Premier League': '152',
+  'English Premier League': '152',
+  'La Liga': '302',
+  'Spanish La Liga': '302',
+  'Bundesliga': '175',
+  'German Bundesliga': '175',
+  'Serie A': '207',
+  'Italian Serie A': '207',
+  'Ligue 1': '168',
+  'French Ligue 1': '168',
+  'Süper Lig': '322',
+  'Turkish Super League': '322',
+  'Super Lig': '322'
+};
+
+// TheSportsDB API configuration
+const THESPORTSDB_BASE_URL = 'https://www.thesportsdb.com/api/v1/json/3';
+
+// Team name to TheSportsDB ID mapping cache
+const TEAM_ID_CACHE = new Map();
+const LEAGUE_ID_CACHE = new Map();
+
+// Country flag mapping function
+export const getCountryFlag = (countryName: string): string => {
+  const flagMap: { [key: string]: string } = {
+    'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'Spain': '🇪🇸',
+    'Germany': '🇩🇪',
+    'Italy': '🇮🇹',
+    'France': '🇫🇷',
+    'Turkey': '🇹🇷',
+    'Portugal': '🇵🇹',
+    'Netherlands': '🇳🇱',
+    'Belgium': '🇧🇪',
+    'Brazil': '🇧🇷',
+    'Argentina': '🇦🇷',
+    'Mexico': '🇲🇽',
+    'United States': '🇺🇸',
+    'Canada': '🇨🇦',
+    'Russia': '🇷🇺',
+    'Poland': '🇵🇱',
+    'Czech Republic': '🇨🇿',
+    'Austria': '🇦🇹',
+    'Switzerland': '🇨🇭',
+    'Sweden': '🇸🇪',
+    'Norway': '🇳🇴',
+    'Denmark': '🇩🇰',
+    'Finland': '🇫🇮',
+    'Greece': '🇬🇷',
+    'Croatia': '🇭🇷',
+    'Serbia': '🇷🇸',
+    'Ukraine': '🇺🇦',
+    'Romania': '🇷🇴',
+    'Bulgaria': '🇧🇬',
+    'Hungary': '🇭🇺',
+    'Slovakia': '🇸🇰',
+    'Slovenia': '🇸🇮',
+    'Bosnia and Herzegovina': '🇧🇦',
+    'Montenegro': '🇲🇪',
+    'North Macedonia': '🇲🇰',
+    'Albania': '🇦🇱',
+    'Moldova': '🇲🇩',
+    'Lithuania': '🇱🇹',
+    'Latvia': '🇱🇻',
+    'Estonia': '🇪🇪',
+    'Belarus': '🇧🇾',
+    'Georgia': '🇬🇪',
+    'Armenia': '🇦🇲',
+    'Azerbaijan': '🇦🇿',
+    'Kazakhstan': '🇰🇿',
+    'Uzbekistan': '🇺🇿',
+    'Japan': '🇯🇵',
+    'South Korea': '🇰🇷',
+    'China': '🇨🇳',
+    'Australia': '🇦🇺',
+    'New Zealand': '🇳🇿',
+    'India': '🇮🇳',
+    'Thailand': '🇹🇭',
+    'Vietnam': '🇻🇳',
+    'Indonesia': '🇮🇩',
+    'Malaysia': '🇲🇾',
+    'Singapore': '🇸🇬',
+    'Philippines': '🇵🇭',
+    'South Africa': '🇿🇦',
+    'Nigeria': '🇳🇬',
+    'Ghana': '🇬🇭',
+    'Kenya': '🇰🇪',
+    'Morocco': '🇲🇦',
+    'Egypt': '🇪🇬',
+    'Tunisia': '🇹🇳',
+    'Algeria': '🇩🇿',
+    'Senegal': '🇸🇳',
+    'Cameroon': '🇨🇲',
+    'Ivory Coast': '🇨🇮',
+    'Mali': '🇲🇱',
+    'Burkina Faso': '🇧🇫',
+    'Guinea': '🇬🇳',
+    'Benin': '🇧🇯',
+    'Togo': '🇹🇬',
+    'Niger': '🇳🇪',
+    'Chad': '🇹🇩',
+    'Central African Republic': '🇨🇫',
+    'Democratic Republic of the Congo': '🇨🇩',
+    'Republic of the Congo': '🇨🇬',
+    'Gabon': '🇬🇦',
+    'Equatorial Guinea': '🇬🇶',
+    'São Tomé and Príncipe': '🇸🇹',
+    'Cape Verde': '🇨🇻',
+    'Gambia': '🇬🇲',
+    'Guinea-Bissau': '🇬🇼',
+    'Liberia': '🇱🇷',
+    'Sierra Leone': '🇸🇱',
+    'Mauritania': '🇲🇷',
+    'Western Sahara': '🇪🇭',
+    'Libya': '🇱🇾',
+    'Sudan': '🇸🇩',
+    'South Sudan': '🇸🇸',
+    'Ethiopia': '🇪🇹',
+    'Eritrea': '🇪🇷',
+    'Djibouti': '🇩🇯',
+    'Somalia': '🇸🇴',
+    'Uganda': '🇺🇬',
+    'Rwanda': '🇷🇼',
+    'Burundi': '🇧🇮',
+    'Tanzania': '🇹🇿',
+    'Malawi': '🇲🇼',
+    'Zambia': '🇿🇲',
+    'Zimbabwe': '🇿🇼',
+    'Botswana': '🇧🇼',
+    'Namibia': '🇳🇦',
+    'Lesotho': '🇱🇸',
+    'Eswatini': '🇸🇿',
+    'Madagascar': '🇲🇬',
+    'Mauritius': '🇲🇺',
+    'Seychelles': '🇸🇨',
+    'Comoros': '🇰🇲'
+  };
+  
+  // Return flag or default world emoji
+  return flagMap[countryName] || '🌍';
+};
+
+export const FootballApi = {
+  // Cache for storing enriched data
+  matchCache: new Map(),
+  teamCache: new Map(),
+  comprehensiveDataCache: null as any,
+  lastComprehensiveDataFetch: 0,
+  isComprehensiveDataFetching: false,
+  
+  // TheSportsDB API methods for logos
+  async getTeamLogoFromSportsDB(teamName: string): Promise<string> {
+    try {
+      // Check cache first
+      const cacheKey = `team_logo_${teamName.toLowerCase()}`;
+      if (this.teamCache.has(cacheKey)) {
+        return this.teamCache.get(cacheKey);
+      }
+      
+      // Search for team by name
+      const searchUrl = `${THESPORTSDB_BASE_URL}/searchteams.php?t=${encodeURIComponent(teamName)}`;
+      const response = await fetch(searchUrl);
+      
+      if (!response.ok) {
+        throw new Error(`TheSportsDB search failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.teams && data.teams.length > 0) {
+        const team = data.teams[0];
+        const logoUrl = team.strTeamBadge || team.strTeamLogo || '/placeholder-logo.svg';
+        
+        // Cache the result for 1 hour
+        this.teamCache.set(cacheKey, logoUrl);
+        setTimeout(() => this.teamCache.delete(cacheKey), 3600000);
+        
+        console.log(`🎯 Found logo for ${teamName}:`, logoUrl);
+        return logoUrl;
+      }
+      
+      return '/placeholder-logo.svg';
+    } catch (error) {
+      console.warn(`Failed to fetch logo for ${teamName}:`, error);
+      return '/placeholder-logo.svg';
+    }
+  },
+  
+  async getLeagueLogoFromSportsDB(leagueName: string): Promise<string> {
+    try {
+      // Check cache first
+      const cacheKey = `league_logo_${leagueName.toLowerCase()}`;
+      if (this.teamCache.has(cacheKey)) {
+        return this.teamCache.get(cacheKey);
+      }
+      
+      // Map league names to TheSportsDB search terms
+      const leagueMapping: { [key: string]: string } = {
+        'Premier League': 'English Premier League',
+        'England Premier League': 'English Premier League',
+        'La Liga': 'Spanish La Liga',
+        'Spain La Liga': 'Spanish La Liga',
+        'Serie A': 'Italian Serie A',
+        'Italy Serie A': 'Italian Serie A',
+        'Bundesliga': 'German Bundesliga',
+        'Germany Bundesliga': 'German Bundesliga',
+        'Ligue 1': 'French Ligue 1',
+        'France Ligue 1': 'French Ligue 1',
+        'Süper Lig': 'Turkish Super League',
+        'Turkey Süper Lig': 'Turkish Super League',
+        'Super Lig': 'Turkish Super League',
+        'Champions League': 'UEFA Champions League',
+        'Europa League': 'UEFA Europa League'
+      };
+      
+      const searchTerm = leagueMapping[leagueName] || leagueName;
+      const searchUrl = `${THESPORTSDB_BASE_URL}/search_all_leagues.php?l=${encodeURIComponent(searchTerm)}`;
+      const response = await fetch(searchUrl);
+      
+      if (!response.ok) {
+        throw new Error(`TheSportsDB league search failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.leagues && data.leagues.length > 0) {
+        const league = data.leagues[0];
+        const logoUrl = league.strBadge || league.strLogo || '/placeholder-logo.svg';
+        
+        // Cache the result for 1 hour
+        this.teamCache.set(cacheKey, logoUrl);
+        setTimeout(() => this.teamCache.delete(cacheKey), 3600000);
+        
+        console.log(`🏆 Found logo for ${leagueName}:`, logoUrl);
+        return logoUrl;
+      }
+      
+      return '/placeholder-logo.svg';
+    } catch (error) {
+      console.warn(`Failed to fetch league logo for ${leagueName}:`, error);
+      return '/placeholder-logo.svg';
+    }
+  },
+  
+  async getTeamByIdFromSportsDB(teamId: string): Promise<any> {
+    try {
+      const url = `${THESPORTSDB_BASE_URL}/lookupteam.php?id=${teamId}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`TheSportsDB lookup failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.teams && data.teams.length > 0) {
+        const team = data.teams[0];
+        return {
+          id: team.idTeam,
+          name: team.strTeam,
+          logo: team.strTeamBadge || team.strTeamLogo,
+          stadium: team.strStadium,
+          country: team.strCountry,
+          league: team.strLeague,
+          website: team.strWebsite,
+          description: team.strDescriptionEN
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error(`Error fetching team by ID ${teamId}:`, error);
+      return null;
+    }
+  },
+  
+  async getLiveMatches(league: string = 'all', date: string = new Date().toISOString().split('T')[0]): Promise<any[]> {
+    try {
+      console.log(`🔥 Fetching comprehensive data from LiveScore API...`);
+      
+      // LiveScore API isteği
+      const url = `${LIVESCORE_API_URL}?key=${LIVESCORE_API_KEY}&secret=${LIVESCORE_API_SECRET}`;
+      console.log('🌍 LiveScore API Request URL:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`LiveScore API request failed with status ${response.status}`);
+      }
+      
+      const apiResponse = await response.json();
+      console.log('📥 LiveScore API Response success:', apiResponse.success);
+      
+      if (!apiResponse.success || !apiResponse.data || !Array.isArray(apiResponse.data.match)) {
+        console.error('❌ LiveScore API did not return valid data:', apiResponse);
+        return this.getFallbackMatches();
+      }
+      
+      const matches = apiResponse.data.match;
+      console.log('📊 Total matches from LiveScore API:', matches.length);
+      
+      // Get today's date for filtering
+      const today = new Date();
+      const todayStr = today.toDateString();
+      const yesterdayStr = new Date(today.getTime() - 24 * 60 * 60 * 1000).toDateString();
+      
+      // Include today's matches and recent finished matches
+      const relevantMatches = matches.filter(match => {
+        const matchDate = match.scheduled ? new Date(match.scheduled).toDateString() : todayStr;
+        return matchDate === todayStr || matchDate === yesterdayStr || match.status === 'IN PLAY';
+      });
+      
+      console.log('📅 Relevant matches for today/recent:', relevantMatches.length);
+      
+      // Kategorilere ayır ve istatistikleri topla
+      const liveMatches = relevantMatches.filter(match => 
+        match.status === 'IN PLAY' || 
+        match.status === 'ADDED TIME' || 
+        match.status === 'HALF TIME BREAK'
+      );
+      const finishedMatches = relevantMatches.filter(match => match.status === 'FINISHED');
+      const upcomingMatches = relevantMatches.filter(match => match.status === 'NOT STARTED');
+      
+      console.log('🔴 Live matches:', liveMatches.length);
+      console.log('✅ Finished matches:', finishedMatches.length);
+      console.log('⏰ Upcoming matches:', upcomingMatches.length);
+      
+      // Prioritize matches - include more finished matches if no live ones
+      const prioritizeMatches = (matches: any[]) => {
+        return matches.sort((a, b) => {
+          // Tier 1 competitions first (Champions League, Premier League, etc.)
+          const tierA = a.competition?.tier || 10;
+          const tierB = b.competition?.tier || 10;
+          if (tierA !== tierB) return tierA - tierB;
+          
+          // Live matches first, then recent finished
+          if (a.status !== b.status) {
+            const statusPriority = { 'IN PLAY': 1, 'ADDED TIME': 1, 'HALF TIME BREAK': 2, 'FINISHED': 3, 'NOT STARTED': 4 };
+            return (statusPriority[a.status] || 5) - (statusPriority[b.status] || 5);
+          }
+          
+          return 0;
+        });
+      };
+      
+      // Select matches to display - prioritize live, but always show something
+      let selectedMatches;
+      if (liveMatches.length > 0) {
+        // If there are live matches, show them plus some recent finished
+        selectedMatches = prioritizeMatches([
+          ...liveMatches,
+          ...finishedMatches.slice(-20), // Last 20 finished matches
+          ...upcomingMatches.slice(0, 10) // Next 10 upcoming
+        ]);
+      } else {
+        // If no live matches, show more finished and upcoming matches
+        selectedMatches = prioritizeMatches([
+          ...finishedMatches.slice(-40), // Last 40 finished matches
+          ...upcomingMatches.slice(0, 20) // Next 20 upcoming
+        ]);
+      }
+      
+      console.log('🎯 Selected matches to display:', selectedMatches.length);
+      
+      // Enrich matches with additional data
+      const enrichedMatches = await this.enrichMatchesWithDetails(selectedMatches.slice(0, 50));
+      
+      return enrichedMatches;
+      
+    } catch (error) {
+      console.error('❌ Error fetching LiveScore matches:', error);
+      return this.getFallbackMatches();
+    }
+  },
+  
+  async enrichMatchesWithDetails(matches: any[]): Promise<any[]> {
+    console.log('🚀 Enriching matches with comprehensive data and TheSportsDB logos...');
+    
+    const enrichedMatches = await Promise.all(
+      matches.map(async (match) => {
+        try {
+          // Transform basic match data
+          const baseMatch = this.transformLiveScoreMatch(match);
+          
+          // For live matches, fetch additional data
+          if (baseMatch.isLive) {
+            const [events, statistics] = await Promise.all([
+              this.getMatchEvents(match.id.toString()),
+              this.getMatchStatistics(match.id.toString())
+            ]);
+            
+            baseMatch.events = events;
+            baseMatch.statistics = statistics;
+          }
+          
+          // Fetch high-quality logos from TheSportsDB
+          const [homeLogo, awayLogo] = await Promise.all([
+            this.getTeamLogoFromSportsDB(baseMatch.homeTeam.name),
+            this.getTeamLogoFromSportsDB(baseMatch.awayTeam.name)
+          ]);
+          
+          baseMatch.homeTeam.logo = homeLogo;
+          baseMatch.awayTeam.logo = awayLogo;
+          
+          // Cache team data
+          this.cacheTeamData(match.home);
+          this.cacheTeamData(match.away);
+          
+          return baseMatch;
+        } catch (error) {
+          console.error(`Error enriching match ${match.id}:`, error);
+          return this.transformLiveScoreMatch(match);
+        }
+      })
+    );
+    
+    console.log('✨ Successfully enriched', enrichedMatches.length, 'matches with TheSportsDB logos');
+    return enrichedMatches;
+  },
+  
+  cacheTeamData(team: any) {
+    if (team && team.id) {
+      this.teamCache.set(team.id, {
+        id: team.id,
+        name: team.name,
+        logo: team.logo,
+        country_id: team.country_id,
+        stadium: team.stadium,
+        cached_at: Date.now()
+      });
+    }
+  },
+  
+  transformLiveScoreMatch(match: any): any {
+    const isLive = match.status === 'IN PLAY' || match.status === 'ADDED TIME';
+    const isFinished = match.status === 'FINISHED';
+    const isUpcoming = match.status === 'NOT STARTED';
+    const isHalfTime = match.status === 'HALF TIME BREAK';
+    
+    // Comprehensive score parsing
+    const scoreStr = match.scores?.score || '0 - 0';
+    const scoreParts = scoreStr.split(' - ');
+    const homeScore = parseInt(scoreParts[0]) || 0;
+    const awayScore = parseInt(scoreParts[1]) || 0;
+    
+    // Half-time scores
+    const htScoreStr = match.scores?.ht_score || '';
+    const htScoreParts = htScoreStr.split(' - ');
+    const homeHtScore = htScoreParts.length === 2 ? parseInt(htScoreParts[0]) || 0 : null;
+    const awayHtScore = htScoreParts.length === 2 ? parseInt(htScoreParts[1]) || 0 : null;
+    
+    // Time information
+    let displayTime = '';
+    let minute = '0';
+    
+    if (isLive || isHalfTime) {
+      minute = match.time || '0';
+      displayTime = isHalfTime ? 'HT' : `${minute}'`;
+    } else if (isFinished) {
+      displayTime = 'FT';
+      minute = '90';
+    } else if (isUpcoming) {
+      displayTime = match.scheduled || 'TBD';
+      minute = '0';
+    }
+    
+    // Extract comprehensive team data with TheSportsDB logos
+    const homeTeam = {
+      id: match.home?.id,
+      name: String(match.home?.name || 'Home Team'),
+      logo: match.home?.logo || '/placeholder-logo.svg', // Will be enriched later
+      stadium: match.home?.stadium,
+      country_id: match.home?.country_id
+    };
+    
+    const awayTeam = {
+      id: match.away?.id,
+      name: String(match.away?.name || 'Away Team'),
+      logo: match.away?.logo || '/placeholder-logo.svg', // Will be enriched later
+      stadium: match.away?.stadium,
+      country_id: match.away?.country_id
+    };
+    
+    // Competition information
+    const competition = {
+      id: match.competition?.id,
+      name: match.competition?.name || 'Unknown League',
+      tier: match.competition?.tier,
+      is_cup: match.competition?.is_cup,
+      is_league: match.competition?.is_league,
+      has_groups: match.competition?.has_groups,
+      national_teams_only: match.competition?.national_teams_only
+    };
+    
+    return {
+      id: match.id?.toString() || match.fixture_id?.toString() || 'unknown',
+      league: competition.name,
+      country: match.country?.name || 'Unknown',
+      status: isLive || isHalfTime ? 'live' : (isFinished ? 'finished' : 'upcoming'),
+      minute: minute,
+      time: displayTime,
+      venue: match.location || homeTeam.stadium || 'Unknown Venue',
+      referee: 'Unknown Referee',
+      round: 'Regular Season',
+      homeTeam: homeTeam,
+      awayTeam: awayTeam,
+      homeScore: homeScore,
+      awayScore: awayScore,
+      homeHtScore: homeHtScore,
+      awayHtScore: awayHtScore,
+      isLive: isLive || isHalfTime,
+      
+      // Enhanced data
+      competition: competition,
+      fixtureId: match.fixture_id,
+      odds: {
+        home: match.odds?.pre?.["1"] || match.odds?.live?.["1"],
+        draw: match.odds?.pre?.["X"] || match.odds?.live?.["X"],
+        away: match.odds?.pre?.["2"] || match.odds?.live?.["2"]
+      },
+      outcomes: match.outcomes,
+      scheduled: match.scheduled,
+      last_changed: match.last_changed,
+      added: match.added,
+      urls: match.urls,
+      
+      // Will be populated by enrichment
+      events: [],
+      statistics: null,
+      lineups: null,
+      head_to_head: null,
+      
+      // Legacy fields for compatibility
+      goalscorers: [],
+      cards: [],
+      substitutions: {}
+    };
+  },
+  
+  transformLiveScoreMatches(matches: any[]): any[] {
+    return matches.map(match => this.transformLiveScoreMatch(match));
+  },
+  
+  getFallbackMatches(): any[] {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    return [
+      // Live match
+      {
+        id: 'live-1',
+        league: 'Premier League',
+        country: 'England',
+        status: 'live',
+        minute: '67',
+        time: '67\'',
+        venue: 'Anfield',
+        referee: 'Michael Oliver',
+        round: 'Round 15',
+        scheduled: todayStr,
+        homeTeam: {
+          name: 'Liverpool',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png'
+        },
+        awayTeam: {
+          name: 'Arsenal',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/vpqrry1467463072.png'
+        },
+        homeScore: 1,
+        awayScore: 2,
+        isLive: true,
+        goalscorers: [
+          { time: '23', home_scorer: 'Salah' },
+          { time: '45', away_scorer: 'Saka' },
+          { time: '67', away_scorer: 'Martinelli' }
+        ],
+        cards: [
+          { time: '34', card: 'yellow_card', home_fault: 'Henderson' },
+          { time: '56', card: 'yellow_card', away_fault: 'Partey' }
+        ],
+        substitutions: {}
+      },
+      // Finished match from today
+      {
+        id: 'finished-1',
+        league: 'Premier League',
+        country: 'England',
+        status: 'finished',
+        minute: '90',
+        time: 'FT',
+        venue: 'Old Trafford',
+        referee: 'Mike Dean',
+        round: 'Round 15',
+        scheduled: todayStr,
+        homeTeam: {
+          name: 'Manchester United',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/vrtrtp1448813187.png'
+        },
+        awayTeam: {
+          name: 'Brighton',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/rtqspx1448813159.png'
+        },
+        homeScore: 2,
+        awayScore: 1,
+        isLive: false,
+        goalscorers: [
+          { time: '15', home_scorer: 'Rashford' },
+          { time: '34', away_scorer: 'Mitoma' },
+          { time: '78', home_scorer: 'Bruno Fernandes' }
+        ],
+        cards: [],
+        substitutions: {}
+      },
+      // Another finished match
+      {
+        id: 'finished-2',
+        league: 'La Liga',
+        country: 'Spain',
+        status: 'finished',
+        minute: '90',
+        time: 'FT',
+        venue: 'Santiago Bernabeu',
+        referee: 'Carlos del Cerro',
+        round: 'Round 16',
+        scheduled: todayStr,
+        homeTeam: {
+          name: 'Real Madrid',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/txrwth1468756749.png'
+        },
+        awayTeam: {
+          name: 'Barcelona',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/txqntq1448813251.png'
+        },
+        homeScore: 3,
+        awayScore: 1,
+        isLive: false,
+        goalscorers: [
+          { time: '12', home_scorer: 'Benzema' },
+          { time: '25', away_scorer: 'Pedri' },
+          { time: '67', home_scorer: 'Vinicius Jr' },
+          { time: '89', home_scorer: 'Modric' }
+        ],
+        cards: [
+          { time: '45', card: 'yellow_card', away_fault: 'Busquets' }
+        ],
+        substitutions: {}
+      },
+      // Upcoming match
+      {
+        id: 'upcoming-1',
+        league: 'Premier League',
+        country: 'England',
+        status: 'upcoming',
+        minute: '0',
+        time: '19:45',
+        venue: 'Tottenham Hotspur Stadium',
+        referee: 'TBD',
+        round: 'Round 15',
+        scheduled: todayStr,
+        homeTeam: {
+          name: 'Tottenham',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/wyrptu1448813235.png'
+        },
+        awayTeam: {
+          name: 'Chelsea',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png'
+        },
+        homeScore: 0,
+        awayScore: 0,
+        isLive: false,
+        goalscorers: [],
+        cards: [],
+        substitutions: {}
+      },
+      // Serie A finished match
+      {
+        id: 'finished-3',
+        league: 'Serie A',
+        country: 'Italy',
+        status: 'finished',
+        minute: '90',
+        time: 'FT',
+        venue: 'San Siro',
+        referee: 'Daniele Doveri',
+        round: 'Round 14',
+        scheduled: todayStr,
+        homeTeam: {
+          name: 'AC Milan',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/wxuqdr1448813231.png'
+        },
+        awayTeam: {
+          name: 'Juventus',
+          logo: 'https://www.thesportsdb.com/images/media/team/badge/qtuvvy1448813180.png'
+        },
+        homeScore: 1,
+        awayScore: 0,
+        isLive: false,
+        goalscorers: [
+          { time: '73', home_scorer: 'Leao' }
+        ],
+        cards: [
+          { time: '28', card: 'yellow_card', away_fault: 'Locatelli' },
+          { time: '81', card: 'yellow_card', home_fault: 'Tonali' }
+        ],
+        substitutions: {}
+      }
+    ];
+  },
+
+  async getAvailableCountries(): Promise<any[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_countries&APIkey=${API_KEY}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Countries API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error fetching available countries:', error);
+      return [
+        { country_id: '44', country_name: 'England', country_logo: '' },
+        { country_id: '6', country_name: 'Spain', country_logo: '' },
+        { country_id: '5', country_name: 'Italy', country_logo: '' },
+        { country_id: '4', country_name: 'Germany', country_logo: '' },
+        { country_id: '3', country_name: 'France', country_logo: '' }
+      ];
+    }
+  },
+
+  async getTopScorers(): Promise<any[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_topscorers&league_id=152&APIkey=${API_KEY}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Top scorers API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data.slice(0, 20) : [];
+    } catch (error) {
+      console.error('Error fetching top scorers:', error);
+      return [
+        { player_name: 'Erling Haaland', team_name: 'Manchester City', goals: '24', assists: '8' },
+        { player_name: 'Harry Kane', team_name: 'Bayern Munich', goals: '22', assists: '6' },
+        { player_name: 'Kylian Mbappé', team_name: 'Real Madrid', goals: '21', assists: '10' },
+        { player_name: 'Mohamed Salah', team_name: 'Liverpool', goals: '18', assists: '12' },
+        { player_name: 'Lionel Messi', team_name: 'Inter Miami', goals: '16', assists: '15' }
+      ];
+    }
+  },
+
+  async getLeagueStandings(leagueId: string): Promise<any[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_standings&league_id=${leagueId}&APIkey=${API_KEY}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Standings API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error fetching league standings:', error);
+      return [];
+    }
+  },
+
+  async getAvailableLeagues(): Promise<any[]> {
+    try {
+      const url = `${BASE_URL}/?action=get_leagues&APIkey=${API_KEY}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Leagues API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error fetching available leagues:', error);
+      return [];
+    }
+  },
+
+  // Comprehensive LiveScore API methods
+  async getMatchEvents(matchId: string): Promise<any[]> {
+    try {
+      const cacheKey = `events_${matchId}`;
+      if (this.matchCache.has(cacheKey)) {
+        return this.matchCache.get(cacheKey);
+      }
+      
+      const url = `https://livescore-api.com/api-client/scores/events.json?id=${matchId}&key=${LIVESCORE_API_KEY}&secret=${LIVESCORE_API_SECRET}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.warn(`Events API request failed for match ${matchId}`);
+        return [];
+      }
+      
+      const data = await response.json();
+      const events = data.success && data.data ? data.data.event || [] : [];
+      
+      // Cache for 30 seconds
+      this.matchCache.set(cacheKey, events);
+      setTimeout(() => this.matchCache.delete(cacheKey), 30000);
+      
+      return events;
+    } catch (error) {
+      console.error('Error fetching match events:', error);
+      return [];
+    }
+  },
+
+  async getMatchStatistics(matchId: string): Promise<any> {
+    try {
+      const cacheKey = `stats_${matchId}`;
+      if (this.matchCache.has(cacheKey)) {
+        return this.matchCache.get(cacheKey);
+      }
+      
+      const url = `https://livescore-api.com/api-client/matches/stats.json?match_id=${matchId}&key=${LIVESCORE_API_KEY}&secret=${LIVESCORE_API_SECRET}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.warn(`Statistics API request failed for match ${matchId}`);
+        return null;
+      }
+      
+      const data = await response.json();
+      const stats = data.success && data.data ? data.data : null;
+      
+      // Cache for 1 minute
+      this.matchCache.set(cacheKey, stats);
+      setTimeout(() => this.matchCache.delete(cacheKey), 60000);
+      
+      return stats;
+    } catch (error) {
+      console.error('Error fetching match statistics:', error);
+      return null;
+    }
+  },
+
+  async getMatchLineups(matchId: string): Promise<any> {
+    try {
+      const url = `https://livescore-api.com/api-client/matches/lineups.json?match_id=${matchId}&key=${LIVESCORE_API_KEY}&secret=${LIVESCORE_API_SECRET}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.warn(`Lineups API request failed for match ${matchId}`);
+        return null;
+      }
+      
+      const data = await response.json();
+      return data.success && data.data ? data.data : null;
+    } catch (error) {
+      console.error('Error fetching match lineups:', error);
+      return null;
+    }
+  },
+
+  async getHeadToHead(team1Id: string, team2Id: string): Promise<any[]> {
+    try {
+      const cacheKey = `h2h_${team1Id}_${team2Id}`;
+      if (this.matchCache.has(cacheKey)) {
+        return this.matchCache.get(cacheKey);
+      }
+      
+      const url = `https://livescore-api.com/api-client/teams/head2head.json?team1_id=${team1Id}&team2_id=${team2Id}&key=${LIVESCORE_API_KEY}&secret=${LIVESCORE_API_SECRET}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.warn(`Head-to-head API request failed for teams ${team1Id} vs ${team2Id}`);
+        return [];
+      }
+      
+      const data = await response.json();
+      const h2h = data.success && data.data ? data.data.match || [] : [];
+      
+      // Cache for 1 hour
+      this.matchCache.set(cacheKey, h2h);
+      setTimeout(() => this.matchCache.delete(cacheKey), 3600000);
+      
+      return h2h;
+    } catch (error) {
+      console.error('Error fetching head-to-head data:', error);
+      return [];
+    }
+  },
+  
+  async getComprehensiveMatchData(matchId: string): Promise<any> {
+    try {
+      console.log(`📊 Fetching comprehensive data for match ${matchId}`);
+      
+      // Fetch all available data in parallel
+      const [events, statistics, lineups] = await Promise.all([
+        this.getMatchEvents(matchId),
+        this.getMatchStatistics(matchId),
+        this.getMatchLineups(matchId)
+      ]);
+      
+      return {
+        events: events || [],
+        statistics: statistics || {},
+        lineups: lineups || {},
+        enriched_at: Date.now()
+      };
+    } catch (error) {
+      console.error(`Error fetching comprehensive data for match ${matchId}:`, error);
+      return {
+        events: [],
+        statistics: {},
+        lineups: {},
+        enriched_at: Date.now()
+      };
+    }
+  },
+  
+  // Enhanced comprehensive data extraction with caching and debouncing
+  async getComprehensiveAllData(): Promise<any> {
+    // Prevent overlapping requests
+    if (this.isComprehensiveDataFetching) {
+      console.log('🔄 Comprehensive data fetch already in progress, returning cached data');
+      return this.comprehensiveDataCache || this.getFallbackComprehensiveData();
+    }
+    
+    // Use cache if data is less than 2 minutes old
+    const now = Date.now();
+    const cacheValidityMs = 120000; // 2 minutes
+    
+    if (this.comprehensiveDataCache && (now - this.lastComprehensiveDataFetch) < cacheValidityMs) {
+      console.log('💾 Using cached comprehensive data (age:', Math.round((now - this.lastComprehensiveDataFetch) / 1000), 'seconds)');
+      return this.comprehensiveDataCache;
+    }
+    
+    try {
+      this.isComprehensiveDataFetching = true;
+      console.log('🚀 Starting fresh comprehensive data extraction...');
+      
+      // Parallel API calls for maximum data extraction
+      const [liveMatches, leagues, countries, topScorers, standings] = await Promise.all([
+        this.getLiveMatches(),
+        this.getAvailableLeagues(),
+        this.getAvailableCountries(),
+        this.getTopScorers(),
+        this.getLeagueStandings('152') // Premier League as example
+      ]);
+      
+      // Extract enhanced match statistics
+      const enhancedMatches = await this.enrichMatchesWithStatistics(liveMatches);
+      
+      // Generate comprehensive analytics
+      const analytics = this.generateAdvancedAnalytics(enhancedMatches, leagues);
+      
+      const result = {
+        matches: enhancedMatches,
+        leagues,
+        countries,
+        topScorers,
+        standings,
+        analytics,
+        totalDataPoints: {
+          matches: enhancedMatches.length,
+          leagues: leagues.length,
+          countries: countries.length,
+          topScorers: topScorers.length
+        },
+        extractedAt: new Date().toISOString()
+      };
+      
+      // Cache the result
+      this.comprehensiveDataCache = result;
+      this.lastComprehensiveDataFetch = now;
+      
+      console.log('✨ Comprehensive data extraction completed and cached');
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Comprehensive data extraction failed:', error);
+      return this.getFallbackComprehensiveData();
+    } finally {
+      this.isComprehensiveDataFetching = false;
+    }
+  },
+
+  async enrichMatchesWithStatistics(matches: any[]): Promise<any[]> {
+    console.log('📊 Enriching matches with detailed statistics...');
+    
+    const enrichedMatches = await Promise.all(
+      matches.map(async (match) => {
+        try {
+          const [events, statistics, lineups] = await Promise.all([
+            this.getMatchEvents(match.id),
+            this.getMatchStatistics(match.id),
+            this.getMatchLineups(match.id)
+          ]);
+          
+          return {
+            ...match,
+            enhancedData: {
+              events: events || [],
+              statistics: statistics || {},
+              lineups: lineups || {},
+              dataQuality: {
+                hasEvents: (events || []).length > 0,
+                hasStatistics: Object.keys(statistics || {}).length > 0,
+                hasLineups: Object.keys(lineups || {}).length > 0
+              }
+            }
+          };
+        } catch (error) {
+          console.warn(`Failed to enrich match ${match.id}:`, error);
+          return {
+            ...match,
+            enhancedData: {
+              events: [],
+              statistics: {},
+              lineups: {},
+              dataQuality: { hasEvents: false, hasStatistics: false, hasLineups: false }
+            }
+          };
+        }
+      })
+    );
+    
+    return enrichedMatches;
+  },
+
+  generateAdvancedAnalytics(matches: any[], leagues: any[]): any {
+    console.log('🧮 Generating advanced analytics...');
+    
+    const liveMatches = matches.filter(m => m.isLive);
+    const finishedMatches = matches.filter(m => m.status === 'finished');
+    const upcomingMatches = matches.filter(m => m.status === 'scheduled' || m.status === 'upcoming');
+    
+    // Goal statistics
+    const totalGoals = finishedMatches.reduce((acc, match) => 
+      acc + (match.homeScore || 0) + (match.awayScore || 0), 0
+    );
+    
+    const avgGoalsPerMatch = finishedMatches.length > 0 ? 
+      (totalGoals / finishedMatches.length).toFixed(2) : '0.00';
+    
+    // League distribution
+    const leagueStats = matches.reduce((acc, match) => {
+      const league = match.league || 'Unknown';
+      if (!acc[league]) {
+        acc[league] = {
+          total: 0,
+          live: 0,
+          finished: 0,
+          upcoming: 0,
+          goals: 0
+        };
+      }
+      acc[league].total++;
+      if (match.isLive) acc[league].live++;
+      if (match.status === 'finished') {
+        acc[league].finished++;
+        acc[league].goals += (match.homeScore || 0) + (match.awayScore || 0);
+      }
+      if (match.status === 'scheduled' || match.status === 'upcoming') acc[league].upcoming++;
+      return acc;
+    }, {} as any);
+    
+    // Country distribution
+    const countryStats = matches.reduce((acc, match) => {
+      const country = match.country || 'Unknown';
+      acc[country] = (acc[country] || 0) + 1;
+      return acc;
+    }, {} as any);
+    
+    // Time-based statistics
+    const currentHour = new Date().getHours();
+    const timeSlots = {
+      morning: matches.filter(m => {
+        const matchHour = new Date(m.scheduled || new Date()).getHours();
+        return matchHour >= 6 && matchHour < 12;
+      }).length,
+      afternoon: matches.filter(m => {
+        const matchHour = new Date(m.scheduled || new Date()).getHours();
+        return matchHour >= 12 && matchHour < 18;
+      }).length,
+      evening: matches.filter(m => {
+        const matchHour = new Date(m.scheduled || new Date()).getHours();
+        return matchHour >= 18 && matchHour < 24;
+      }).length,
+      night: matches.filter(m => {
+        const matchHour = new Date(m.scheduled || new Date()).getHours();
+        return matchHour >= 0 && matchHour < 6;
+      }).length
+    };
+    
+    return {
+      overview: {
+        totalMatches: matches.length,
+        liveMatches: liveMatches.length,
+        finishedMatches: finishedMatches.length,
+        upcomingMatches: upcomingMatches.length,
+        totalGoals: totalGoals,
+        avgGoalsPerMatch: parseFloat(avgGoalsPerMatch),
+        dataCompleteness: matches.filter(m => m.enhancedData?.dataQuality?.hasStatistics).length / matches.length
+      },
+      leagues: {
+        totalLeagues: Object.keys(leagueStats).length,
+        distribution: leagueStats,
+        topLeaguesByMatches: Object.entries(leagueStats)
+          .sort(([,a], [,b]) => (b as any).total - (a as any).total)
+          .slice(0, 10)
+      },
+      geography: {
+        totalCountries: Object.keys(countryStats).length,
+        distribution: countryStats,
+        topCountriesByMatches: Object.entries(countryStats)
+          .sort(([,a], [,b]) => (b as number) - (a as number))
+          .slice(0, 10)
+      },
+      timing: {
+        timeSlots,
+        peakTime: Object.entries(timeSlots).reduce((a, b) => timeSlots[a[0]] > timeSlots[b[0]] ? a : b)[0],
+        currentActivity: liveMatches.length
+      },
+      quality: {
+        matchesWithEvents: matches.filter(m => m.enhancedData?.dataQuality?.hasEvents).length,
+        matchesWithStatistics: matches.filter(m => m.enhancedData?.dataQuality?.hasStatistics).length,
+        matchesWithLineups: matches.filter(m => m.enhancedData?.dataQuality?.hasLineups).length,
+        dataRichness: {
+          events: (matches.filter(m => m.enhancedData?.dataQuality?.hasEvents).length / matches.length * 100).toFixed(1),
+          statistics: (matches.filter(m => m.enhancedData?.dataQuality?.hasStatistics).length / matches.length * 100).toFixed(1),
+          lineups: (matches.filter(m => m.enhancedData?.dataQuality?.hasLineups).length / matches.length * 100).toFixed(1)
+        }
+      }
+    };
+  },
+
+  getFallbackComprehensiveData(): any {
+    return {
+      matches: this.getFallbackMatches(),
+      leagues: [
+        { id: '152', name: 'Premier League', country: 'England' },
+        { id: '302', name: 'La Liga', country: 'Spain' },
+        { id: '207', name: 'Serie A', country: 'Italy' },
+        { id: '175', name: 'Bundesliga', country: 'Germany' },
+        { id: '168', name: 'Ligue 1', country: 'France' }
+      ],
+      countries: [
+        { id: '44', name: 'England' },
+        { id: '6', name: 'Spain' },
+        { id: '5', name: 'Italy' },
+        { id: '4', name: 'Germany' },
+        { id: '3', name: 'France' }
+      ],
+      topScorers: [
+        { player: 'Erling Haaland', team: 'Manchester City', goals: 24, assists: 8 },
+        { player: 'Harry Kane', team: 'Bayern Munich', goals: 22, assists: 6 },
+        { player: 'Kylian Mbappé', team: 'Real Madrid', goals: 21, assists: 10 }
+      ],
+      standings: [],
+      analytics: {
+        overview: {
+          totalMatches: 45,
+          liveMatches: 8,
+          finishedMatches: 32,
+          upcomingMatches: 5,
+          totalGoals: 127,
+          avgGoalsPerMatch: 2.83,
+          dataCompleteness: 0.85
+        },
+        leagues: { totalLeagues: 5, distribution: {}, topLeaguesByMatches: [] },
+        geography: { totalCountries: 5, distribution: {}, topCountriesByMatches: [] },
+        timing: { timeSlots: { morning: 8, afternoon: 15, evening: 18, night: 4 }, peakTime: 'evening', currentActivity: 8 },
+        quality: {
+          matchesWithEvents: 38,
+          matchesWithStatistics: 42,
+          matchesWithLineups: 35,
+          dataRichness: { events: '84.4', statistics: '93.3', lineups: '77.8' }
+        }
+      },
+      totalDataPoints: { matches: 45, leagues: 5, countries: 5, topScorers: 3 },
+      extractedAt: new Date().toISOString()
+    };
+  },
+  getGlobalStatistics(matches: any[]): any {
+    const stats = {
+      total_matches: matches.length,
+      live_matches: matches.filter(m => m.isLive).length,
+      finished_matches: matches.filter(m => m.status === 'finished').length,
+      upcoming_matches: matches.filter(m => m.status === 'upcoming').length,
+      total_goals: matches.reduce((sum, m) => sum + (m.homeScore || 0) + (m.awayScore || 0), 0),
+      competitions: [...new Set(matches.map(m => m.league))].length,
+      countries: [...new Set(matches.map(m => m.country))].length,
+      tier_1_matches: matches.filter(m => m.competition?.tier === 1).length,
+      has_odds: matches.filter(m => m.odds?.home).length,
+      with_events: matches.filter(m => m.events?.length > 0).length
+    };
+    
+    console.log('🌍 Global Statistics:', stats);
+    return stats;
+  }
+};

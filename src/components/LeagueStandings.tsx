@@ -113,11 +113,11 @@ export const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId = '15
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <img 
-                        className="h-8 w-8 rounded-full mr-3" 
-                        src={team.team_badge || 'https://via.placeholder.com/32x32/3B82F6/FFFFFF?text=T'} 
-                        alt={team.team_name}
-                      />
+                      <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
+                        <span className="text-sm font-bold text-white">
+                          {team.team_name?.charAt(0) || 'T'}
+                        </span>
+                      </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900">{team.team_name}</div>
                         <div className="text-sm text-gray-500">{team.team_key}</div>

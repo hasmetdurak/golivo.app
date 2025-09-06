@@ -12,6 +12,29 @@ export default {
     },
     extend: {
       colors: {
+        // Design system colors for football score website
+        purple: {
+          50: '#F3E8FF',
+          100: '#E9D5FF',
+          200: '#D6BBFB',
+          300: '#C084FC',
+          400: '#A855F7',
+          500: '#9333EA',
+          600: '#7C3AED',
+          700: '#6B21A8',
+          800: '#581C87',
+          900: '#4C1D95'
+        },
+        cream: {
+          light: '#FEFCF0',
+          DEFAULT: '#F5F5DC',
+          dark: '#F0E68C'
+        },
+        // Accent colors for highlights and status
+        gold: '#FFD700',
+        'live-green': '#10B981',
+        'error-red': '#EF4444',
+        // Original shadcn/ui colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -52,6 +75,32 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        "glow": {
+          "0%": {
+            boxShadow: "0 0 20px rgba(107, 33, 168, 0.3)"
+          },
+          "100%": {
+            boxShadow: "0 0 30px rgba(107, 33, 168, 0.6)"
+          }
+        },
+        "hover-glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 5px rgba(147, 51, 234, 0.3)"
+          },
+          "50%": {
+            boxShadow: "0 0 20px rgba(147, 51, 234, 0.6), 0 0 30px rgba(147, 51, 234, 0.4)"
+          }
+        },
+        "live-pulse": {
+          "0%, 100%": {
+            opacity: "1",
+            transform: "scale(1)"
+          },
+          "50%": {
+            opacity: "0.8",
+            transform: "scale(1.05)"
+          }
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -115,6 +164,10 @@ export default {
         },
       },
       animation: {
+        "glow": "glow 2s ease-in-out infinite alternate",
+        "hover-glow": "hover-glow 2s ease-in-out infinite",
+        "live-pulse": "live-pulse 2s ease-in-out infinite",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "confetti-fall": "confetti-fall 3s linear infinite",
@@ -126,5 +179,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };

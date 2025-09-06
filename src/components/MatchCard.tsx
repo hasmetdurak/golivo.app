@@ -1,177 +1,148 @@
-import React, { useCallback } from 'react';
-import { getCountryFlag } from '../services/api';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Clock, MapPin, Calendar, Trophy } from 'lucide-react';
+import { getOfficialTeamLogo } from '../utils/teamLogos';
 
 interface MatchCardProps {
-  match: any;
-  onClick?: () => void;
+  match: {
+    id: string;
+    homeTeam: { name: string; logo: string };
+    awayTeam: { name: string; logo: string };
+    homeScore?: number;
+    awayScore?: number;
+    isLive?: boolean;
+    minute?: string | null;
+    status: 'scheduled' | 'live' | 'halftime' | 'finished';
+    time?: string;
+    league?: string;
+    venue?: string;
+  };
+  isLive: boolean;
+  onClick: () => void;
 }
 
-export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick }) => {
-  // HOOK RULES FIX - ALL HOOKS AT TOP LEVEL
-  
-  // Tıklama handler - useCallback ile optimize
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (onClick && typeof onClick === 'function') {
-      setTimeout(() => {
-        try {
-          onClick();
-        } catch (error) {
-          console.error('onClick error:', error);
-        }
-      }, 100);
-    }
-  }, [onClick]);
-
-  // Keyboard handler - useCallback ile optimize
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleClick(e as any);
-    }
-  }, [handleClick]);
-
-  // EARLY RETURN AFTER ALL HOOKS
-  if (!match || typeof match !== 'object') {
-    return (
-      <div className="bg-white rounded-xl shadow-sm border p-4 text-center text-gray-500">
-        Invalid match data
-      </div>
-    );
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.3, ease: "easeOut" }
+  },
+  hover: {
+    scale: 1.02,
+    boxShadow: "0 10px 25px rgba(107, 33, 168, 0.15)",
+    transition: { duration: 0.2 }
   }
+};
 
-  // Temel veriler - hata önleyici erişim
-  const homeTeam = match.homeTeam && typeof match.homeTeam === 'object' 
-    ? match.homeTeam 
-    : { name: 'Home Team', logo: '', country: '' };
-    
-  const awayTeam = match.awayTeam && typeof match.awayTeam === 'object' 
-    ? match.awayTeam 
-    : { name: 'Away Team', logo: '', country: '' };
-  
-  // Durum kontrolü - varsayılan değerlerle
-  const status = match.status && typeof match.status === 'string' 
-    ? match.status 
-    : 'scheduled';
-    
-  const isLive = status === 'live';
-  const isFinished = status === 'finished';
-  const isScheduled = status === 'scheduled';
-  
-  // Dakika bilgisini güvenli şekilde al
-  const minuteInfo = match.minute && typeof match.minute === 'string' 
-    ? match.minute 
-    : (match.minute && typeof match.minute === 'number' ? match.minute.toString() : null);
-
-  // Skor bilgilerini güvenli şekilde al
-  const homeScore = match.homeScore !== undefined 
-    ? (typeof match.homeScore === 'number' ? match.homeScore : 
-       (typeof match.homeScore === 'string' ? parseInt(match.homeScore) || 0 : 0))
-    : 0;
-    
-  const awayScore = match.awayScore !== undefined 
-    ? (typeof match.awayScore === 'number' ? match.awayScore : 
-       (typeof match.awayScore === 'string' ? parseInt(match.awayScore) || 0 : 0))
-    : 0;
-
-  // Ülke bayraklarını al
-  const homeFlag = getCountryFlag(homeTeam.country || '');
-  const awayFlag = getCountryFlag(awayTeam.country || '');
-
-  // BASIT DAKIKA GÖSTERIMI
-  const getTimeDisplay = () => {
-    if (isLive) {
-      if (minuteInfo && minuteInfo !== '0' && minuteInfo !== 'null' && minuteInfo !== '') {
-        const minute = parseInt(minuteInfo.toString().replace(/[^0-9]/g, ''));
-        if (minute >= 0) {
-          return `${minute}'`;
-        }
-      }
-      return 'LIVE';
+export const MatchCard: React.FC<MatchCardProps> = ({ match, isLive, onClick }) => {
+  const getStatusDisplay = () => {
+    if (match.status === 'live') {
+      return match.minute && match.minute !== '0' ? `${match.minute}` : 'LIVE';
     }
-    
-    if (isFinished) {
+    if (match.status === 'finished') {
       return 'FT';
     }
-    
-    if (match.time && typeof match.time === 'string') {
-      return match.time;
+    return match.time || '00:00';
+  };
+
+  const getStatusColor = () => {
+    switch (match.status) {
+      case 'live':
+        return 'from-live-green to-emerald-500';
+      case 'finished':
+        return 'from-gray-500 to-gray-600';
+      default:
+        return 'from-purple-500 to-purple-600';
     }
-    
-    return '00:00';
   };
 
   return (
-    <div 
-      className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-[1.02] ${
-        isLive 
-          ? 'border-red-200 bg-gradient-to-r from-red-50 to-orange-50' 
-          : isFinished 
-            ? 'border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50'
-            : 'border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50'
-      }`}
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover="hover"
+      onClick={onClick}
+      className={`
+        relative p-4 rounded-xl cursor-pointer transition-all duration-300 group
+        ${
+          isLive 
+            ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 shadow-green-100' 
+            : 'bg-cream-light border border-purple-100 hover:border-purple-300'
+        }
+        hover:shadow-xl hover:bg-white
+        before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r 
+        before:from-purple-500/0 before:via-purple-500/5 before:to-purple-500/0
+        before:opacity-0 group-hover:before:opacity-100 before:transition-opacity
+      `}
     >
-      <div className="p-4">
-        <div className="flex items-center justify-between">
+      {/* Live Indicator */}
+      {isLive && (
+        <motion.div 
+          className="absolute -top-2 -right-2"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse font-bold">
+            CANLI
+          </div>
+        </motion.div>
+      )}
+      
+      {/* Match Content - Modern Side by Side Layout */}
+      <div className="space-y-4">
+        {/* League Info */}
+        {match.league && (
+          <div className="flex items-center justify-center space-x-2 text-xs text-purple-600 font-medium">
+            <Trophy className="w-3 h-3" />
+            <span>{match.league}</span>
+          </div>
+        )}
+        
+        {/* Teams Layout */}
+        <div className="grid grid-cols-7 items-center gap-2">
           {/* Home Team */}
-          <div className="flex items-center space-x-3 flex-1">
-            <img 
-              src={homeTeam.logo || '/placeholder-logo.svg'} 
-              alt={homeTeam.name}
-              className="w-8 h-8 object-contain rounded-full"
+          <div className="col-span-3 flex items-center space-x-2">
+            <motion.img 
+              src={getOfficialTeamLogo(match.homeTeam.name)} 
+              className="w-8 h-8 rounded-full shadow-sm flex-shrink-0"
+              whileHover={{ scale: 1.1, rotate: 5 }}
               onError={(e) => {
                 e.currentTarget.src = '/placeholder-logo.svg';
               }}
             />
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-gray-900 truncate">{homeTeam.name}</div>
-              <div className="text-xs text-gray-500">{homeFlag}</div>
-            </div>
+            <span className="font-semibold text-gray-800 text-sm truncate">
+              {match.homeTeam.name}
+            </span>
           </div>
           
-          {/* Score and Time */}
-          <div className="flex flex-col items-center space-y-2 px-4">
-            <div className="flex items-center space-x-3">
-              <span className="text-2xl font-bold text-gray-900">{homeScore}</span>
-              <span className="text-gray-400">-</span>
-              <span className="text-2xl font-bold text-gray-900">{awayScore}</span>
-            </div>
-            
-            {/* Time/Status Display - BASIT VE NET */}
-            <div className="text-center">
-              <div className={`text-lg font-bold px-3 py-2 rounded-lg ${
-                isLive 
-                  ? 'text-white bg-red-500 animate-pulse shadow-lg' 
-                  : isFinished 
-                    ? 'text-white bg-gray-500'
-                    : 'text-white bg-blue-500'
-              }`}>
-                {getTimeDisplay()}
-              </div>
-              {isLive && (
-                <div className="text-xs text-red-600 font-bold mt-1 animate-pulse">
-                  LIVE
-                </div>
-              )}
-            </div>
+          {/* Score Section */}
+          <div className="col-span-1 flex items-center justify-center space-x-2">
+            <motion.span 
+              className="text-xl font-bold text-purple-800"
+              whileHover={{ scale: 1.1 }}
+            >
+              {match.homeScore ?? 0}
+            </motion.span>
+            <span className="text-gray-400 font-medium">-</span>
+            <motion.span 
+              className="text-xl font-bold text-purple-800"
+              whileHover={{ scale: 1.1 }}
+            >
+              {match.awayScore ?? 0}
+            </motion.span>
           </div>
           
           {/* Away Team */}
-          <div className="flex items-center space-x-3 flex-1 justify-end">
-            <div className="flex-1 min-w-0 text-right">
-              <div className="font-semibold text-gray-900 truncate">{awayTeam.name}</div>
-              <div className="text-xs text-gray-500">{awayFlag}</div>
-            </div>
-            <img 
-              src={awayTeam.logo || '/placeholder-logo.svg'} 
-              alt={awayTeam.name}
-              className="w-8 h-8 object-contain rounded-full"
+          <div className="col-span-3 flex items-center justify-end space-x-2">
+            <span className="font-semibold text-gray-800 text-sm truncate text-right">
+              {match.awayTeam.name}
+            </span>
+            <motion.img 
+              src={getOfficialTeamLogo(match.awayTeam.name)} 
+              className="w-8 h-8 rounded-full shadow-sm flex-shrink-0"
+              whileHover={{ scale: 1.1, rotate: -5 }}
               onError={(e) => {
                 e.currentTarget.src = '/placeholder-logo.svg';
               }}
@@ -179,16 +150,59 @@ export const MatchCard: React.FC<MatchCardProps> = React.memo(({ match, onClick 
           </div>
         </div>
         
-        {/* Match Info */}
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>{match.league || 'Unknown League'}</span>
-            {match.venue && <span>{match.venue}</span>}
-          </div>
+        {/* Match Status & Info */}
+        <div className="flex items-center justify-center space-x-4">
+          <motion.div 
+            className={`text-sm font-medium px-3 py-1 rounded-full shadow-md ${
+              isLive 
+                ? 'text-white bg-red-500'
+                : `text-white bg-gradient-to-r ${getStatusColor()}`
+            }`}
+            whileHover={{ scale: 1.05 }}
+            animate={isLive ? { 
+              scale: [1, 1.1, 1],
+              backgroundColor: ['#ef4444', '#dc2626', '#ef4444']
+            } : {}}
+            transition={isLive ? { 
+              duration: 1.5, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            } : {}}
+          >
+            {getStatusDisplay()}
+          </motion.div>
+          
+          {match.venue && (
+            <div className="text-xs text-gray-500 flex items-center">
+              <MapPin className="w-3 h-3 mr-1" />
+              <span className="truncate max-w-20">{match.venue}</span>
+            </div>
+          )}
+          
+          {match.time && match.status === 'scheduled' && (
+            <div className="text-xs text-gray-500 flex items-center">
+              <Calendar className="w-3 h-3 mr-1" />
+              <span>{match.time}</span>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+      
+      {/* Hover Glow Effect */}
+      <motion.div 
+        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 blur-xl transition-opacity pointer-events-none"
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 0.2 }}
+      />
+      
+      {/* Live Match Pulse Ring */}
+      {isLive && (
+        <motion.div
+          className="absolute inset-0 rounded-xl border-2 border-red-400 opacity-30"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+    </motion.div>
   );
-});
-
-MatchCard.displayName = 'MatchCard';
+};
